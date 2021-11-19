@@ -1,1 +1,0 @@
-sudo apt install nginx nginx-extras dnsmasq -y
