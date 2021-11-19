@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
+    "declaration": true,
+    "paths": {
+      "@nxtranet/headers": [
+        "../nxtheaders",
+      ]
+    }
+  },
+  "exclude": [
+    "tmp",
+    "dist",
+    "tests",
+    "coverage",
+    "node_modules",
+    "jest.config.js",
+  ],
+  "typedocOptions": {
+    "entryPoints": ["srcs/index.ts", "srcs/Deployer.ts", "srcs/ProjectDownloader.ts"],
+    "out": "docs"
+  }
+}

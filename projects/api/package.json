@@ -1,0 +1,84 @@
+{
+  "name": "nextranet.api",
+  "version": "0.0.1",
+  "description": "nextranet",
+  "keywords": [
+    "loopback-application",
+    "loopback"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10.16"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "build:watch": "lb-tsc --watch",
+    "lint": "npm run eslint && npm run prettier:check",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
+    "prettier:check": "npm run prettier:cli -- -l",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "eslint": "lb-eslint --report-unused-disable-directives .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "pretest": "npm run rebuild",
+    "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
+    "posttest": "npm run lint",
+    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
+    "docker:build": "docker build -t nextranet.api .",
+    "docker:run": "docker run -p 3000:3000 -d nextranet.api",
+    "premigrate": "npm run build",
+    "migrate": "node ./dist/migrate",
+    "preopenapi-spec": "npm run build",
+    "openapi-spec": "node ./dist/openapi-spec",
+    "prestart": "npm run rebuild",
+    "start": "node -r source-map-support/register .",
+    "clean": "lb-clean dist *.tsbuildinfo .eslintcache",
+    "rebuild": "npm run clean && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "leon3s <lvernisse@student.42.fr>",
+  "license": "",
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "dependencies": {
+    "@loopback/authentication": "^7.3.3",
+    "@loopback/authorization": "^0.9.3",
+    "@loopback/boot": "^3.4.3",
+    "@loopback/core": "^2.17.0",
+    "@loopback/repository": "^3.7.2",
+    "@loopback/rest": "^10.0.1",
+    "@loopback/rest-explorer": "^3.3.3",
+    "@loopback/service-proxy": "^3.2.3",
+    "axios": "^0.23.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express-fileupload": "^1.2.1",
+    "isemail": "^3.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "loopback-connector-mongodb": "^5.6.0",
+    "socket.io": "^4.3.1",
+    "tslib": "^2.0.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@loopback/build": "^7.0.2",
+    "@loopback/eslint-config": "^11.0.1",
+    "@loopback/testlab": "^3.4.3",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/express-fileupload": "^1.1.7",
+    "@types/node": "^10.17.60",
+    "@types/uuid": "^8.3.1",
+    "eslint": "^7.32.0",
+    "socket.io-client": "^4.3.2",
+    "source-map-support": "^0.5.20",
+    "typescript": "^4.4.4"
+  }
+}

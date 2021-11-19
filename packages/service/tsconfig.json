@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "moduleResolution": "node",
+    "strict": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "declaration": true
+  },
+  "exclude": [
+    "dist",
+    "tests",
+    "node_modules",
+  ],
+  "typedocOptions": {
+    "entryPoints": ["srcs/index.ts"],
+    "out": "docs"
+  }
+}

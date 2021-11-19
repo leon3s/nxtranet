@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
+    "declaration": true
+  },
+  "exclude": [
+    "tmp",
+    "dist",
+    "test",
+    "dp_service",
+    "node_modules",
+    "test_dp_service"
+  ]
+}

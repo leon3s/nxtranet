@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es5",
+    "moduleResolution": "node",
+    "strict": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "declaration": true,
+    "paths": {
+      "@nxtranet/service": [
+        "../../packages/service"
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "tests",
+    "node_modules",
+  ],
+  "typedocOptions": {
+    "entryPoints": ["srcs/index.ts"],
+    "out": "docs"
+  }
+}

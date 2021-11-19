@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "target": "es5",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
+    "declaration": true,
+    "paths": {
+      "@nxtpkg/*": [
+        "../packages/*",
+      ]
+    }
+  },
+  "exclude": [
+    "dist",
+    "node_modules",
+  ]
+}

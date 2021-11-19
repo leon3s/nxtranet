@@ -1,0 +1,27 @@
+{
+  "name": "@nxtranet/cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/main.js",
+  "bin": {
+    "nxtranet": "./dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "jest": "^27.3.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@nxtranet/apiClient": "file:../packages/apiClient",
+    "@nxtranet/service": "file:../../packages/service",
+    "arg": "^5.0.1",
+    "execa": "^5.1.1"
+  }
+}

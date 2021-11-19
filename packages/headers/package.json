@@ -1,0 +1,18 @@
+{
+  "name": "@nxtranet/headers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "doc:build": "typedoc",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typedoc": "^0.22.9",
+    "typedoc-plugin-markdown": "^3.11.6",
+    "typescript": "^4.4.4"
+  }
+}

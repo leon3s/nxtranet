@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "@loopback/build/config/tsconfig.common.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "rootDir": "src",
+    "experimentalDecorators": true,
+    "paths": {
+      "@nxtranet/headers": [
+        "../../packages/headers"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}
