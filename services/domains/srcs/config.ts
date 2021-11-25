@@ -1,8 +1,7 @@
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 
-const configFile = path.join(os.homedir(), '.nextranet_subdomain');
+const configFile = path.join('/etc/nxtranet', '.domains');
 
 if (!fs.existsSync(configFile)) {
   fs.writeFileSync(configFile, JSON.stringify({}));

@@ -1,13 +1,12 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors, param, post, Request, requestBody, RestBindings} from '@loopback/rest';
-import axios from 'axios';
 import crypto from 'crypto';
-import { GithubService } from '../services/github-service';
 import {DockerServiceBindings, GithubServiceBindings} from '../keys';
+import {Cluster} from '../models';
 import {ContainerRepository, GitBranchRepository, ProjectRepository} from '../repositories';
 import {DockerService} from '../services/docker-service';
-import { Container, Cluster } from '../models';
+import {GithubService} from '../services/github-service';
 
 export class WebhooksController {
   constructor(
@@ -140,12 +139,14 @@ export class WebhooksController {
         },
       });
       if (!branch) throw new HttpErrors.NotAcceptable();
-      await this.gitBranchRepository.updateById(branch.id, { lastCommitSHA: lastCommit });
-      const cluster = project.clusters.find(({gitBranch}) => gitBranch?.name === branchName);
-      if (cluster) {
-        updateCluster(cluster).catch((err) => {
+      await this.gitBranchRepository.updateById(branch.id, {lastCommitSHA: lastCommit});
+      const clusters = project.clusters.filter(({gitBranch}) => gitBranch?.name === branchName);
+      if (clusters.length) {
+        Promise.all(clusters.map((cluster) => {
+          return updateCluster(cluster);
+        })).catch((err) => {
           console.error('Webhook updateCluster error !! ', err);
-        });
+        })
       } else {
         const clusters = project.clusters.filter(({gitBranch}) => !gitBranch);
         Promise.all(clusters.map((cluster) => {

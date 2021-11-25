@@ -1,25 +1,5 @@
-# Cli
-cli/dist
-cli/node_modules
-# Packages
-packages/service/dist
-packages/service/node_modules
-packages/headers/dist
-packages/headers/node_modules
-packages/apiclient/dist
-packages/apiclient/node_modules
-# Projects
-projects/api/dist
-projects/api/node_modules
-projects/dashboard/.next
-projects/dashboard/node_modules
-# Services
-services/docker/dist
-services/docker/node_modules
-services/nginx/dist
-services/nginx/node_modules
-services/node-deployer/dist
-services/node-deployer/coverage
-services/node-deployer/node_modules
-services/subdomains/dist
-services/subdomains/node_modules
+node_modules
+**/*/dist
+**/*/coverage
+**/*/node_modules
+**/*/.next

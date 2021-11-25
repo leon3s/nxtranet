@@ -1,0 +1,4 @@
+{
+  "user": "nxtsrv-nginx",
+  "watchDirectories": ["./srcs"]
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/node
-
 import fs from 'fs';
 import path from 'path';
-import * as service from './service';
+import * as run from './scripts/run';
+import * as setup from './scripts/setup';
 
 const help = fs.readFileSync(path.join(__dirname, '../README.md'));
 
@@ -11,13 +11,18 @@ const printHelp = () => {
 }
 
 (async function main() {
-  const [{}, _name, type, action, ...args] = process.argv;
+  const [{ }, { }, type, action, ...args] = process.argv;
   if (!type) {
     return printHelp();
   }
-  if (type === 'services') {
-    if (action === 'start') {
-      await service.start(args[0], args[1]);
+  if (type === 'run') {
+    if (action === 'dev') {
+      await run.dev();
+    }
+  }
+  if (type === 'setup') {
+    if (action === 'dev') {
+      await setup.dev();
     }
   }
   process.exit(0);

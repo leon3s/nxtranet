@@ -6,8 +6,9 @@
   "serviceWorkerIsNatif": true,
   "serviceWorkerPort": 5454,
   "scripts": {
-    "start": "node dist/main.js",
+    "start": "node .",
     "build": "tsc",
+    "dev": "npm run build && npm start",
     "test": "node test_dp_service/index.js"
   },
   "author": "",

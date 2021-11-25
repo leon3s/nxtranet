@@ -3,12 +3,22 @@ echo "======================"
 echo "====== NXTRANET ======"
 echo "======================"
 
+isWsl=false;
+suname=$(uname -a)
+sWsl="microsoft-standard-WSL"
+
 ## NEED TO BE ROOT
 ## It will install packages like node nginx dnsmasq and create users to manage them.
 if [ "$EUID" -ne 0 ]
 then
   echo "nxtranet install script must be run as root."
   exit 1
+fi
+
+echo -n "Verifying if we are in WSL"
+if [[ $suname == *$sWsl* ]]; then
+  echo " - wsl detected skipping docker installation."
+  isWsl=true
 fi
 
 ## FUNCTIONS
@@ -78,6 +88,23 @@ else
   echo -n "installed "
   print_pass
 fi
-## END PACKAGE VERIFICATION
 
-## START USERS VERIFICATION
+echo -n "  - mongodb "
+if ! [ -x "$(command -v mongodb)"]; then
+  echo -n "installing "
+  apt-get install mongodb -y > /dev/null
+  print_pass
+else
+  echo -n "installed "
+  print_pass
+fi
+
+echo -n "  - docker "
+if ! [ -x "$(command -v docker)"] && ["$isWsl" == false]; then
+  echo "installing "
+  apt-get install docker -y > /dev/null
+  print_pass
+else
+  echo -n "skiping "
+  print_pass
+fi

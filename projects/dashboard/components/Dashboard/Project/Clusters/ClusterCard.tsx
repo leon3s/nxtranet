@@ -1,21 +1,17 @@
+import type {ModelCluster, ModelContainer, ModelEnvVar} from '@nxtranet/headers';
 import React from 'react';
-
-import { IoIosEye } from 'react-icons/io';
-import { TiDelete } from 'react-icons/ti';
-import { FiEdit2 } from 'react-icons/fi';
-
+import {AiOutlinePlus} from 'react-icons/ai';
 import Accordion from '~/components/Shared/Accordion';
-import ReTable from '~/components/Shared/ReTable';
-
-import type { ModelCluster, ModelContainer, ModelEnvVar } from '@nxtranet/headers';
-
-import * as AccordionStyle from '~/styles/accordionLine';
-import * as Style from './style';
-import EnvVar from '~/components/Shared/EnvVar';
 import ActionBar from '~/components/Shared/ActionBar';
-import { AiOutlinePlus } from 'react-icons/ai';
 import ClusterContainer from '~/components/Shared/ClusterContainer';
-import { ActionWrapper } from '../style';
+import EnvVar from '~/components/Shared/EnvVar';
+import * as AccordionStyle from '~/styles/accordionLine';
+import {ActionWrapper} from '../style';
+import * as Style from './style';
+
+
+
+
 
 type CusterCardProps = {
   data: ModelCluster;
@@ -74,7 +70,7 @@ export default function ClusterCard(props: CusterCardProps) {
                 ]} />
               </ActionWrapper>
               <Style.EnvVars>
-                {data.envVars.map((envVar) => (
+                {data?.envVars?.map((envVar) => (
                   <EnvVar
                     data={envVar}
                     key={envVar.id}
