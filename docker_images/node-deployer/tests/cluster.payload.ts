@@ -26,7 +26,7 @@ export default {
     "name": "express-test-deploy",
     "github_project": "express-test-deploy",
     "github_username": "leon3s",
-    "github_password": "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",
+    "github_password": process.env.GITHUB_PASSWORD,
     "pipelines": [
       {
         "id": "618f0f7f71aaeb10ca27160b",
