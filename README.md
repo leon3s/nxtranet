@@ -4,6 +4,10 @@ Unlock all control of your network using nxtranet
 
 Setup and configure personal vpn dns and automaticaly deploy and test your nodejs project.
 
+## State
+
+Currently in development a production release will appear starting 2022.
+
 ## Compatibility
 
 List of system compatible
@@ -21,5 +25,5 @@ List of system compatible
   - Main user projects
 
 /services
-  - Internal services used to configure local machine
+  - Internal services
 
