@@ -1,6 +1,7 @@
 import {belongsTo, Entity, hasMany, model, property} from '@loopback/repository';
 import {Container} from './container.model';
 import {GitBranch} from './git-branch.model';
+import {Port} from './port.model';
 import {Project} from './project.model';
 import {EnvVar} from './var-env.model';
 
@@ -40,6 +41,20 @@ export class Cluster extends Entity {
   })
   namespace: string;
 
+  @property({
+    type: 'boolean',
+    required: true,
+    default: false,
+  })
+  isProduction: boolean;
+
+  @property({
+    type: 'number',
+    required: true,
+    default: 0,
+  })
+  numberOfInstance: number;
+
   @belongsTo(() => Project, {
     name: 'project',
     keyFrom: 'projectName',
@@ -77,6 +92,13 @@ export class Cluster extends Entity {
   gitBranchNamespace: string;
 
   gitBranch?: GitBranch;
+
+  @hasMany(() => Port, {
+    keyFrom: 'clusterNamespace',
+    keyTo: 'namespace',
+    name: 'ports',
+  })
+  ports: Port[];
 
   constructor(data?: Partial<Cluster>) {
     super(data);

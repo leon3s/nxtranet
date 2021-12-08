@@ -1,13 +1,12 @@
 import {repository} from '@loopback/repository';
 import fs from 'fs';
-import os from 'os';
 import path from 'path';
 import {ContainerRepository} from '../repositories';
 
 export
   class SubdomainService {
 
-  protected configFilePath = path.join(os.homedir(), '.nextranet_subdomain');
+  protected configFilePath = path.join('/etc/nxtranet', '.domains');
 
   constructor(
     @repository(ContainerRepository)

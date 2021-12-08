@@ -1,27 +1,22 @@
-import axios from 'axios';
-import {
-  createStore,
-  applyMiddleware,
-} from 'redux';
-import {
-  HYDRATE,
-  createWrapper,
-} from 'next-redux-wrapper';
-import promise from 'redux-promise-middleware';
-import thunk, { ThunkMiddleware } from 'redux-thunk';
-
-import io, {Socket} from 'socket.io-client';
-
-import type { AnyAction, Reducer, CombinedState } from 'redux';
 import type {AxiosInstance, AxiosRequestConfig} from 'axios';
-import type { Context } from 'next-redux-wrapper';
-import type { State } from './reducers';
-
+import axios from 'axios';
+import type {Context} from 'next-redux-wrapper';
+import {
+  createWrapper, HYDRATE
+} from 'next-redux-wrapper';
+import type {AnyAction, CombinedState, Reducer} from 'redux';
+import {
+  applyMiddleware, createStore
+} from 'redux';
+import promise from 'redux-promise-middleware';
+import thunk, {ThunkMiddleware} from 'redux-thunk';
+import io, {Socket} from 'socket.io-client';
+import type {State} from './reducers';
 import reducers from './reducers';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const apiUrl = isProd ? 'http://api.nextra.net' : 'http://api.nextra.net';
+const apiUrl = isProd ? 'http://api.nxtranet.com' : 'http://api.nxtranet.com';
 
 declare module "axios" {
   export interface AxiosInstance {
@@ -30,8 +25,8 @@ declare module "axios" {
 }
 
 type ApiOption = {
-  baseURL:string;
-  withCredentials:boolean;
+  baseURL: string;
+  withCredentials: boolean;
   headers: {
     cookie?: null | undefined | string;
   }
@@ -47,13 +42,13 @@ type AppContext = {
   ctx: {
     req: {
       headers: {
-        cookie: string|null|undefined,
+        cookie: string | null | undefined,
       }
     }
   }
 } & Context;
 
-const rootReducer = (state:State, action:AnyAction): State => {
+const rootReducer = (state: State, action: AnyAction): State => {
   if (action.type === HYDRATE) {
     return {...action.payload};
   }
@@ -83,5 +78,5 @@ const makeStore = (context: Context) => {
 
 export const wrapper = createWrapper<ReturnType<typeof makeStore>>(
   makeStore,
-  { debug: typeof window !== 'undefined' && !isProd },
+  {debug: typeof window !== 'undefined' && !isProd},
 );

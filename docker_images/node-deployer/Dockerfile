@@ -7,18 +7,18 @@ RUN apt-get update && apt install -y git
 USER node
 
 # Create app directory (with user `node`)
-RUN mkdir -p /home/node/app
-RUN mkdir -p /home/node/app/tmp
-RUN mkdir -p /home/node/nxtheaders
+RUN mkdir -p /home/node/app/deployer
+RUN mkdir -p /home/node/app/deployer/tmp
+RUN mkdir -p /home/node/packages/headers
 
-WORKDIR /home/node
-RUN git clone https://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@github.com/leon3s/-nxt-headers nxtheaders
+WORKDIR /home/node/packages
+RUN git clone https://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@github.com/leon3s/-nxt-headers headers
 
-WORKDIR /home/node/nxtheaders
+WORKDIR /home/node/packages/headers
 RUN npm install
 RUN npm run build
 
-WORKDIR /home/node/app
+WORKDIR /home/node/app/deployer
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)

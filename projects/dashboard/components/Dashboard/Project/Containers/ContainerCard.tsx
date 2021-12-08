@@ -1,13 +1,13 @@
-import React from 'react';
+import type {ModelContainer} from '@nxtranet/headers';
 import Link from 'next/link';
-
+import React from 'react';
 import Accordion from '~/components/Shared/Accordion';
 import PipelineBadge from '~/components/Shared/PipelineBadge';
-
-import type { ModelContainer } from '@nxtranet/headers';
-
-import * as Style from './style';
 import * as AccordionStyle from '~/styles/accordionLine';
+import * as Style from './style';
+
+
+
 
 type ContainerCardProps = {
   projectName: string;
@@ -35,26 +35,26 @@ export default function ContainerCard(props: ContainerCardProps) {
         isVisible={isVisible}
         title={
           <Style.AccordionHeader>
-          <AccordionStyle.AccordionTitle>
-            {data.cluster.name} - {data.name}
-          </AccordionStyle.AccordionTitle>
-          <PipelineBadge color={data?.pipelineStatus?.pipeline?.color || 'grey'} />
+            <AccordionStyle.AccordionTitle>
+              {data.cluster.name} - {data.name}
+            </AccordionStyle.AccordionTitle>
+            <PipelineBadge color={data?.pipelineStatus?.pipeline?.color || 'grey'} />
           </Style.AccordionHeader>
         }
         content={
           <AccordionStyle.AccordionContent>
-          <Style.AccordionContent>
+            <Style.AccordionContent>
               <Style.ContainerLine>
                 <Style.ContainerTitle>
-                    namespace
-                  </Style.ContainerTitle>
-                  <Style.ContainerValueLink
-                    target="_blank"
-                    href={`http://${data.namespace}.nextra.net`}
-                  >
-                    {data.namespace}
-                  </Style.ContainerValueLink>
-                </Style.ContainerLine>
+                  namespace
+                </Style.ContainerTitle>
+                <Style.ContainerValueLink
+                  target="_blank"
+                  href={`http://${data.namespace}.nxtranet.com`}
+                >
+                  {data.namespace}
+                </Style.ContainerValueLink>
+              </Style.ContainerLine>
               <Style.ContainerLine>
                 <Style.ContainerTitle>
                   cluster
@@ -88,9 +88,9 @@ export default function ContainerCard(props: ContainerCardProps) {
                           key={output.id}
                         >
                           {!i ?
-                          null
-                          :
-                          <br />
+                            null
+                            :
+                            <br />
                           }
                           {data.namespace} $&gt; {output.exe} {output.args.join(' ')} <br />
                         </Style.Command>
@@ -117,7 +117,7 @@ export default function ContainerCard(props: ContainerCardProps) {
                     return null;
                   })}
                 </Style.ContainerOutput>
-            </Style.ContainerOutputWrapper>
+              </Style.ContainerOutputWrapper>
             </Style.AccordionContent>
           </AccordionStyle.AccordionContent>
         }

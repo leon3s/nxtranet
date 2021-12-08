@@ -2,12 +2,12 @@ import {
   inject
 } from '@loopback/context';
 import {ValueOrPromise} from '@loopback/core';
-import { repository } from '@loopback/repository';
-import { ProjectRepository } from '../repositories';
-import { GithubService } from '../services/github-service';
-import { NginxService } from '../services/nginx-service';
+import {repository} from '@loopback/repository';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SubdomainServiceBindings} from '../keys';
+import {ProjectRepository} from '../repositories';
 import {DockerService} from '../services/docker-service';
+import {GithubService} from '../services/github-service';
+import {NginxService} from '../services/nginx-service';
 import {SubdomainService} from '../services/subdomain-service';
 
 export interface LifeCycleObserver {
@@ -21,10 +21,10 @@ export default class ServiceLifecycle implements LifeCycleObserver {
     @inject(SubdomainServiceBindings.SUBDOMAIN_SERVICE) subdomainService: SubdomainService,
     @inject(GithubServiceBindings.GITHUB_SERVICE) githubService: GithubService,
   ) {
-    const projects = await projectRepository.find();
-    await Promise.all(projects.map((project) => {
-      return githubService.syncProjectBranch(project);
-    }));
+    // const projects = await projectRepository.find();
+    // await Promise.all(projects.map((project) => {
+    //   return githubService.syncProjectBranch(project);
+    // }));
     await subdomainService.writeConfig();
   }
 

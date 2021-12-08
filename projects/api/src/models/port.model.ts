@@ -22,6 +22,11 @@ export class Port extends Entity {
   })
   number: number;
 
+  @property({
+    type: 'string',
+  })
+  clusterNamespace?: string;
+
   constructor(data?: Partial<Port>) {
     super(data);
   }

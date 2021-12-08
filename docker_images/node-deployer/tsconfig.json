@@ -14,7 +14,7 @@
     "declaration": true,
     "paths": {
       "@nxtranet/headers": [
-        "../nxtheaders",
+        "../../packages/headers",
       ]
     }
   },
@@ -27,7 +27,11 @@
     "jest.config.js",
   ],
   "typedocOptions": {
-    "entryPoints": ["srcs/index.ts", "srcs/Deployer.ts", "srcs/ProjectDownloader.ts"],
+    "entryPoints": [
+      "srcs/index.ts",
+      "srcs/Deployer.ts",
+      "srcs/ProjectDownloader.ts"
+    ],
     "out": "docs"
   }
 }

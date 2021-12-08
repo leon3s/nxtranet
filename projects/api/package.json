@@ -49,14 +49,14 @@
     "!*/__tests__"
   ],
   "dependencies": {
-    "@loopback/authentication": "^7.3.3",
-    "@loopback/authorization": "^0.9.3",
-    "@loopback/boot": "^3.4.3",
-    "@loopback/core": "^2.17.0",
-    "@loopback/repository": "^3.7.2",
-    "@loopback/rest": "^10.0.1",
-    "@loopback/rest-explorer": "^3.3.3",
-    "@loopback/service-proxy": "^3.2.3",
+    "@loopback/authentication": "^8.0.0",
+    "@loopback/authorization": "^0.10.0",
+    "@loopback/boot": "^4.0.0",
+    "@loopback/core": "^3.0.0",
+    "@loopback/repository": "^4.0.0",
+    "@loopback/rest": "^11.0.0",
+    "@loopback/rest-explorer": "^4.0.0",
+    "@loopback/service-proxy": "^4.0.0",
     "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
@@ -69,9 +69,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@loopback/build": "^7.0.2",
-    "@loopback/eslint-config": "^11.0.1",
-    "@loopback/testlab": "^3.4.3",
+    "@loopback/build": "^8.0.0",
+    "@loopback/eslint-config": "^12.0.0",
+    "@loopback/testlab": "^4.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/express-fileupload": "^1.1.7",
     "@types/node": "^10.17.60",
@@ -79,6 +79,6 @@
     "eslint": "^7.32.0",
     "socket.io-client": "^4.3.2",
     "source-map-support": "^0.5.20",
-    "typescript": "^4.4.4"
+    "typescript": "~4.5.2"
   }
 }
