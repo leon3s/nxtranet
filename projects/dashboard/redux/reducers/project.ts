@@ -1,13 +1,10 @@
-import { AnyAction } from "redux";
-
-import { PROJECT_DEFINES } from "../defines";
-
 import type {
-  ModelProject,
-  ModelCluster,
-  ModelPipeline,
-  ModelContainer,
+  ModelCluster, ModelContainer, ModelPipeline, ModelProject
 } from '@nxtranet/headers';
+import {AnyAction} from "redux";
+import {PROJECT_DEFINES} from "../defines";
+
+
 
 export type ProjectState = {
   data: ModelProject[],
@@ -17,7 +14,7 @@ export type ProjectState = {
   target_containers: ModelContainer[];
 }
 
-const projectReducer = (state:ProjectState = {
+const projectReducer = (state: ProjectState = {
   data: [],
   target: null,
   target_clusters: [],
@@ -55,8 +52,8 @@ const projectReducer = (state:ProjectState = {
     return {
       ...state,
       target_clusters: [
-        action.payload.data,
         ...state.target_clusters,
+        action.payload.data,
       ],
     }
   }

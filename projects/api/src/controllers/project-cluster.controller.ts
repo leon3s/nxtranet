@@ -64,17 +64,19 @@ export class ProjectClusterController {
           }),
         },
       },
-    }) environement: Omit<Cluster, 'id'>,
+    }) cluster: Omit<Cluster, 'id'>,
   ): Promise<Cluster> {
+    console.log('im called !!');
     const project = await this.projectRepository.findOne({
       where: {
         name,
       }
     });
     if (!project) throw new HttpErrors.NotFound('Project name not found');
-    environement.projectName = name;
-    environement.namespace = `${environement.projectName}.${environement.name}`;
-    return this.projectRepository.clusters(name).create(environement);
+    cluster.projectName = name;
+    cluster.namespace = `${cluster.projectName}.${cluster.name}`;
+    console.log(cluster);
+    return this.projectRepository.clusters(name).create(cluster);
   }
 
   @patch('/projects/{name}/clusters', {

@@ -43,17 +43,17 @@ export class Cluster extends Entity {
 
   @property({
     type: 'boolean',
-    required: true,
+    required: false,
     default: false,
   })
-  isProduction: boolean;
+  isProduction?: boolean;
 
   @property({
     type: 'number',
-    required: true,
+    required: false,
     default: 0,
   })
-  numberOfInstance: number;
+  numberOfInstance?: number;
 
   @belongsTo(() => Project, {
     name: 'project',
@@ -94,8 +94,8 @@ export class Cluster extends Entity {
   gitBranch?: GitBranch;
 
   @hasMany(() => Port, {
-    keyFrom: 'clusterNamespace',
-    keyTo: 'namespace',
+    keyFrom: 'namespace',
+    keyTo: 'clusterNamespace',
     name: 'ports',
   })
   ports: Port[];

@@ -4,7 +4,7 @@ import path from 'path';
 
 const sysGroup = 'gp_nxtranet';
 
-const servicesDir = path.join(__dirname, './services');
+const servicesDir = path.join(__dirname, '../../../services');
 
 export async function detectSystem() {
 }
@@ -15,10 +15,10 @@ function getProjectConfigs() {
   const dirNames = fs.readdirSync(servicesDir);
   for (const dirName of dirNames) {
     try {
-      const nxtsrvContent = fs.readFileSync(path.join(servicesDir, dirName, '.nxtsrv')).toString();
-      services.push(JSON.parse(nxtsrvContent));
+      const nxthatdev_pjContent = fs.readFileSync(path.join(servicesDir, dirName, '.nxthatdev_pj')).toString();
+      services.push(JSON.parse(nxthatdev_pjContent));
     } catch (e) {
-      // just skip is .nxtsrv file not exist.
+      // just skip is .nxthatdev_pj file not exist.
     }
   }
   return services;
@@ -67,6 +67,7 @@ export const install = async () => {
     process.exit(0);
   }
   const services = getProjectConfigs();
+  console.log(services);
   await createGroupIfNotExist();
   for (const service of services) {
     await createUserIfnotExist(service.user);

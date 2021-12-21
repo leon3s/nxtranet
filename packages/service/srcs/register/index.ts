@@ -1,14 +1,14 @@
-import {io} from 'socket.io-client';
 import {fork} from 'child_process';
-import type { Socket } from 'socket.io-client';
+import type {Socket} from 'socket.io-client';
+import {io} from 'socket.io-client';
 
-const workerServerUrl = process.env._NXTWRKSRVURL || 'http://api.nextra.net';
+const workerServerUrl = process.env._NXTWRKSRVURL || 'http://api.nxtranet.com';
 
 export class Register {
   name: string;
   socket: Socket;
 
-  constructor(name:string, token: string) {
+  constructor(name: string, token: string) {
     this.name = name;
     this.socket = io(workerServerUrl, {
       auth: {

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import * as run from './scripts/run';
 import * as setup from './scripts/setup';
+import * as system from './scripts/system';
 
 const help = fs.readFileSync(path.join(__dirname, '../README.md'));
 
@@ -14,6 +15,9 @@ const printHelp = () => {
   const [{ }, { }, type, action, ...args] = process.argv;
   if (!type) {
     return printHelp();
+  }
+  if (type === 'install') {
+    await system.install();
   }
   if (type === 'run') {
     if (action === 'dev') {

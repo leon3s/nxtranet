@@ -9,7 +9,7 @@ type WlsOptions = {
 // Start-Process powershell -ArgumentList "-noexit", "-noprofile", "-command wsl ls"
 
 export const execaWsl = async (cmd: string, args: string[], options?: WlsOptions) => {
-  return execSync(`wt.exe ${options?.windowTitle ? `--title ${options?.windowTitle} ` : ''}powershell.exe -NoExit -Command "& {"wsl -u ${options?.username} ${cmd} ${args.join(' ')}}"`, {
+  return execSync(`wt.exe -w 0 nt ${options?.windowTitle ? `--title ${options?.windowTitle} ` : ''}powershell.exe -NoExit -Command "& {"wsl -u ${options?.username} ${cmd} ${args.join(' ')}}"`, {
     cwd: options?.cwd,
   });
 }

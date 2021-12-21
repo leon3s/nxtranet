@@ -71,6 +71,7 @@ export const dev = async () => {
     const {watchDirectories} = settings;
     console.log(watchDirectories);
     if (watchDirectories?.length) {
+      console.log('WATCH DIRECTORIES');
       for (const watchDir of watchDirectories) {
         fs.watch(path.join(_path, watchDir), () => {
           stopProject(+i);

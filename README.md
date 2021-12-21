@@ -22,8 +22,11 @@ List of system compatible
   - Shared packages between projects cli and services
 
 /projects
-  - Main user projects
+  - dashboard   # Front end dashboard for configuration
+  - api         # Backend api
 
 /services
-  - Internal services
+  - docker      # Service to manage docker
+  - nginx       # Service to manage nginx
+  - subdomain   # Service to manage nxtranet subdomain used for deployment
 
