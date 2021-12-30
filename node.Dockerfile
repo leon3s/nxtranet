@@ -12,7 +12,7 @@ RUN mkdir -p /home/node/app/deployer/tmp
 RUN mkdir -p /home/node/packages/headers
 
 WORKDIR /home/node/packages
-RUN git clone https://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@github.com/leon3s/-nxt-headers headers
+COPY --chown=node ./packages/headers headers
 
 WORKDIR /home/node/packages/headers
 RUN npm install
@@ -25,7 +25,7 @@ WORKDIR /home/node/app/deployer
 COPY --chown=node package*.json ./
 RUN npm install
 # # Bundle app source code
-COPY --chown=node . .
+COPY --chown=node ./docker_images/node-deployer .
 RUN npm run build
 
 # # Bind to all network interfaces so that it can be mapped to the host OS

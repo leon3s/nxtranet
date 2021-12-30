@@ -40,7 +40,6 @@ const getProjects = () => {
 const startProject = async (project: Project, mod?: "dev") => {
   let command = mod === 'dev' ? ['run', 'dev'] : ['start'];
   if (mod === 'dev') {
-
     const res = await execaWsl('npm', command, {
       env: process.env,
       cwd: project._path,

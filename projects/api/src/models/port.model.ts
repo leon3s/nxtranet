@@ -3,6 +3,16 @@ import {Entity, model, property} from '@loopback/repository';
 @model({
   settings: {
     strict: true,
+    indexes: {
+      uniqueNumber: {
+        keys: {
+          number: 1,
+        },
+        options: {
+          unique: true,
+        },
+      },
+    },
   }
 })
 export class Port extends Entity {

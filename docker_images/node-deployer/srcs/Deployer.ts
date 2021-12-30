@@ -1,24 +1,22 @@
-import path from 'path';
-import execa from 'execa';
+import type {
+  ModelCluster, ModelEnvVar, ModelPipeline
+} from '@nxtranet/headers';
 import crypto from 'crypto';
-
+import execa from 'execa';
+import path from 'path';
+import type {Socket} from 'socket.io';
 import ProjectDownloader from './ProjectDownloader';
 
-import type { Socket } from 'socket.io';
-import type {
-  ModelEnvVar,
-  ModelCluster,
-  ModelPipeline,
-} from '@nxtranet/headers';
 
-type SocketEmiter = (action:string, data:any) => void;
+
+type SocketEmiter = (action: string, data: any) => void;
 
 type Cmd = {
   exe: string;
   cwd: string;
   args: string[];
   env: Record<string, string | number>;
-  // envVars: 
+  // envVars:
 }
 
 type Action = {
@@ -29,10 +27,10 @@ type Action = {
 /**
  * @class Deployer
  */
-export default class  Deployer {
-  tmpDir:             string;
-  socketEmiter:       SocketEmiter;
-  projectDownloader:  ProjectDownloader;
+export default class Deployer {
+  tmpDir: string;
+  socketEmiter: SocketEmiter;
+  projectDownloader: ProjectDownloader;
 
   constructor(tmpDirPath: string) {
     this.tmpDir = tmpDirPath;
@@ -40,7 +38,9 @@ export default class  Deployer {
   }
 
   hookCmd = (cmd: Cmd) => {
+    console.log('hook cmd ! ', cmd);
     const {exe, args, cwd, env} = cmd;
+    console.log('exe ', exe, ' args ', args, ' cwd ', cwd);
     const child = execa(exe, args, {
       cwd,
       env: {
@@ -72,7 +72,7 @@ export default class  Deployer {
   }
 
   /**
-   * 
+   *
    * @param cmd Command to execute
    * @returns child process
    */
@@ -86,7 +86,9 @@ export default class  Deployer {
       isFirst: true,
     });
     try {
-      const child = await this.hookCmd(cmd);
+      console.log('spawnCMD !!!');
+      const pchild = this.hookCmd(cmd);
+      const child = await pchild;
       this.socketEmiter('cmd', {
         exe,
         cwd,
@@ -114,11 +116,13 @@ export default class  Deployer {
 
   launchPipeline = async (projectDir: string, pipeline: ModelPipeline, envVars: ModelEnvVar[]) => {
     const {commands} = pipeline;
+    console.log('starting pipeline !! ', pipeline);
     for (let command of commands) {
+      console.log('starting command !! ', command);
       await this.spawnCmd({
         exe: command.name,
         args: command.args,
-        env: envVars.reduce((acc, env) => {
+        env: envVars?.reduce((acc, env) => {
           acc[env.key] = env.value;
           return acc;
         }, {}),
@@ -176,13 +180,14 @@ export default class  Deployer {
       args: ['-xf', filePath],
       env: {},
     });
+    console.log('tar done !', cluster);
     return this.launchPipelines(projectDir, cluster.project.pipelines, cluster.envVars);
   }
 
-  deploy = async (socket:Socket, cluster: ModelCluster, branch:string) => {
+  deploy = async (socket: Socket, cluster: ModelCluster, branch: string) => {
     const genID = crypto.randomBytes(2).toString('hex');
     const emiterPath = `${cluster.project.name}-${branch}-${genID}`;
-    this.socketEmiter = (type:string, payload:any) => {
+    this.socketEmiter = (type: string, payload: any) => {
       socket.emit(emiterPath, {
         type,
         payload,

@@ -2,7 +2,7 @@ import {fork} from 'child_process';
 import type {Socket} from 'socket.io-client';
 import {io} from 'socket.io-client';
 
-const workerServerUrl = process.env._NXTWRKSRVURL || 'http://api.nxtranet.com';
+const workerServerUrl = process.env._NXTWRKSRVURL || 'http://api.nextra.net';
 
 export class Register {
   name: string;

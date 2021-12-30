@@ -1,6 +1,20 @@
 import {Entity, model, property} from '@loopback/repository';
 
-@model()
+@model({
+  settings: {
+    strict: true,
+    indexes: {
+      uniqueName: {
+        keys: {
+          name: 1,
+        },
+        options: {
+          unique: true,
+        },
+      },
+    },
+  }
+})
 export class Service extends Entity {
   @property({
     type: 'string',
@@ -28,13 +42,7 @@ export class Service extends Entity {
     type: 'boolean',
     default: false,
   })
-  isAlive: boolean;
-
-  @property({
-    type: 'number',
-    required: true,
-  })
-  port: number;
+  isAlive?: boolean;
 
   @property({
     type: 'string',

@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "docker:build": "docker build -f ./node.Dockerfile -t nextranet-dp-service ."
+  }
+}

@@ -25,14 +25,15 @@ export default class ServiceLifecycle implements LifeCycleObserver {
     // await Promise.all(projects.map((project) => {
     //   return githubService.syncProjectBranch(project);
     // }));
-    await subdomainService.writeConfig();
   }
 
   async stop(
-    @inject(DockerServiceBindings.DOCKER_SERVICE) dockerService: DockerService,
     @inject(NginxServiceBindings.NGINX_SERVICE) nginxService: NginxService,
+    @inject(DockerServiceBindings.DOCKER_SERVICE) dockerService: DockerService,
+    @inject(SubdomainServiceBindings.SUBDOMAIN_SERVICE) subdomainService: SubdomainService,
   ) {
     nginxService.disconnect();
     dockerService.disconnect();
+    subdomainService.disconnect();
   }
 }

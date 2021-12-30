@@ -9,6 +9,9 @@
     "paths": {
       "@nxtranet/headers": [
         "../../packages/headers"
+      ],
+      "@nxtranet/node": [
+        "../../packages/node"
       ]
     }
   },

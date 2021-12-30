@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "doc:build": "typedoc",
-    "docker:build": "docker build -t nextranet-dp-service .",
     "test": "jest -i"
   },
   "author": "",

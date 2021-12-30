@@ -16,7 +16,7 @@ import reducers from './reducers';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const apiUrl = isProd ? 'http://api.nxtranet.com' : 'http://api.nxtranet.com';
+const apiUrl = isProd ? 'http://api.nextra.net' : 'http://api.nextra.net';
 
 declare module "axios" {
   export interface AxiosInstance {

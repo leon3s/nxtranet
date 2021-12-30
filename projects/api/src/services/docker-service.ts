@@ -135,7 +135,9 @@ export
     partialContainer.gitBranchName = branch;
     const container = await this.containerRepository.create(partialContainer);
     this.clusterContainerStatus(cluster.namespace, container.name);
-    this.subdomainService.writeConfig();
+    this.subdomainService.updateDomains();
+    //
+    // this.subdomainService.writeConfig();
     return container;
   }
 }

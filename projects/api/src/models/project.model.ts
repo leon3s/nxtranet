@@ -65,6 +65,11 @@ export class Project extends Entity {
   })
   github_webhook_secret: string;
 
+  @property({
+    type: 'string',
+  })
+  domain_name: string;
+
   @hasMany(() => Cluster, {
     keyFrom: 'name',
     keyTo: 'projectName',

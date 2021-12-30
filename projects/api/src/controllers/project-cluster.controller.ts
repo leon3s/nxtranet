@@ -66,16 +66,15 @@ export class ProjectClusterController {
       },
     }) cluster: Omit<Cluster, 'id'>,
   ): Promise<Cluster> {
-    console.log('im called !!');
     const project = await this.projectRepository.findOne({
       where: {
         name,
       }
     });
     if (!project) throw new HttpErrors.NotFound('Project name not found');
+    cluster.name = cluster.name.toLowerCase();
     cluster.projectName = name;
-    cluster.namespace = `${cluster.projectName}.${cluster.name}`;
-    console.log(cluster);
+    cluster.namespace = `${name}.${cluster.name}`;
     return this.projectRepository.clusters(name).create(cluster);
   }
 

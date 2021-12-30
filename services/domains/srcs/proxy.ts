@@ -1,47 +1,42 @@
 import net from 'net';
 
-export type Domains = Record<string, number>;
+export default
+  class Proxy {
 
-class Proxy {
-    protected domains: Domains;
-    private _server: net.Server;
+  private _port: number;
+  private _server: net.Server;
 
-    constructor(domains: Domains) {
-        this.domains = domains;
-        this._createServer();
-    }
+  constructor(port: number) {
+    this._port = port;
+    this._createSrv();
+  }
 
-    public listen(port:number) {
-        this._server.listen(port);
-    }
+  listen = (port: number, callback = () => { }) => {
+    this._server.listen(port, callback);
+  }
 
-    public updateDomains(domains: Domains) {
-        this.domains = domains;
-    }
+  updatePort = (port: number) => {
+    this._port = port;
+  }
 
-    private _createServer() {
-        this._server = net.createServer(socket => {
-            socket.on('data', message => {
-                const serviceSocket = new net.Socket();
-                const messageString = message.toString();
-                console.log('-- GOT MESSAGE --\n', messageString, '-------------');
-                const subdomain = messageString.replace(/([\s\S]*nextranet-domain: )(.*)[\s\S]*/gm, '$2');
-                const port = this.domains[subdomain];
-                if (!port) return socket.destroy();
-                try {
-                    serviceSocket.connect(port, '127.0.0.1', () => {
-                        serviceSocket.write(message);
-                    });
-                } catch (e) {
-                    serviceSocket.destroy();
-                    socket.destroy();
-                }
-                serviceSocket.on('data', data => {
-                    socket.write(data);
-                });
-            });
-        });
-    }
+  private _createSrv = () => {
+    this._server = net.createServer((socket) => {
+      const replaySock = new net.Socket();
+      socket.on('data', (data) => {
+        console.log(data);
+        replaySock.write(data);
+      });
+      replaySock.on('data', (data) => {
+        console.log(data);
+        socket.write(data);
+      });
+      try {
+        replaySock.connect(this._port, '127.0.0.1');
+      } catch (e) {
+        replaySock.destroy();
+        socket.destroy();
+        console.error(`Unable to replay request to port ${this._port}`);
+      }
+    });
+  }
 }
-
-export default Proxy;

@@ -10,7 +10,15 @@
     "isolatedModules": true,
     "rootDir": "srcs",
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "paths": {
+      "@nxtranet/service": [
+        "../../packages/service"
+      ],
+      "@nxtranet/headers": [
+        "../../packages/headers"
+      ]
+    }
   },
   "exclude": [
     "tmp",

@@ -50,7 +50,7 @@ export default function ContainerCard(props: ContainerCardProps) {
                 </Style.ContainerTitle>
                 <Style.ContainerValueLink
                   target="_blank"
-                  href={`http://${data.namespace}.nxtranet.com`}
+                  href={`http://${data.namespace}.nextra.net`}
                 >
                   {data.namespace}
                 </Style.ContainerValueLink>
