@@ -1,10 +1,8 @@
+import http from 'http';
 import {Server} from 'socket.io';
 import {io} from 'socket.io-client';
-import http from 'http';
 import {
-  stopContainer,
-  removeContainer,
-  createContainer,
+  createContainer, removeContainer, stopContainer
 } from './helpers/docker';
 
 const port = +(process.env.PORT || 1243);
@@ -37,16 +35,16 @@ server.on('connection', (socket) => {
 
   socket.on('/cluster/stop', (container, callback) => {
     stopContainer(container.dockerID)
-    .then(() => {
-      callback();
-    }).catch(callback);
+      .then(() => {
+        callback();
+      }).catch(callback);
   });
 
   socket.on('/cluster/remove', (container, callback) => {
     removeContainer(container.dockerID)
-    .then(() => {
-      callback();
-    }).catch(callback);
+      .then(() => {
+        callback();
+      }).catch(callback);
   });
 });
 

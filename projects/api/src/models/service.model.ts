@@ -1,4 +1,6 @@
-import {Entity, model, property} from '@loopback/repository';
+import {belongsTo, Entity, hasMany, model, property} from '@loopback/repository';
+import {PortMapping} from './port-mapping.model';
+import {Port} from './port.model';
 
 @model({
   settings: {
@@ -39,16 +41,16 @@ export class Service extends Entity {
   name: string;
 
   @property({
-    type: 'boolean',
-    default: false,
-  })
-  isAlive?: boolean;
-
-  @property({
     type: 'string',
-    default: '0.0.0.0',
+    default: '127.0.0.1',
   })
   host?: number;
+
+  @belongsTo(() => Port)
+  portId: string;
+
+  @hasMany(() => Port, {through: {model: () => PortMapping}})
+  ports: Port[];
 
   constructor(data?: Partial<Service>) {
     super(data);

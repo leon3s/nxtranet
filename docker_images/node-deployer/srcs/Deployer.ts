@@ -38,9 +38,7 @@ export default class Deployer {
   }
 
   hookCmd = (cmd: Cmd) => {
-    console.log('hook cmd ! ', cmd);
     const {exe, args, cwd, env} = cmd;
-    console.log('exe ', exe, ' args ', args, ' cwd ', cwd);
     const child = execa(exe, args, {
       cwd,
       env: {
@@ -86,7 +84,6 @@ export default class Deployer {
       isFirst: true,
     });
     try {
-      console.log('spawnCMD !!!');
       const pchild = this.hookCmd(cmd);
       const child = await pchild;
       this.socketEmiter('cmd', {
@@ -116,9 +113,7 @@ export default class Deployer {
 
   launchPipeline = async (projectDir: string, pipeline: ModelPipeline, envVars: ModelEnvVar[]) => {
     const {commands} = pipeline;
-    console.log('starting pipeline !! ', pipeline);
     for (let command of commands) {
-      console.log('starting command !! ', command);
       await this.spawnCmd({
         exe: command.name,
         args: command.args,
@@ -132,7 +127,13 @@ export default class Deployer {
   }
 
   launchPipelines = async (projectDir: string, pipelines: ModelPipeline[], envVars: ModelEnvVar[]) => {
+    let current = 0;
+    const max = pipelines.length;
     for (let pipeline of pipelines) {
+      if (current === max - 1) {
+        console.log('TO SAVE !!!!!!!!');
+        console.log(pipeline);
+      }
       try {
         this.socketEmiter('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
@@ -143,6 +144,7 @@ export default class Deployer {
           pipelineNamespace: pipeline.namespace,
           value: 'passed',
         });
+        current += 1;
       } catch (e) {
         this.socketEmiter('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
@@ -180,7 +182,6 @@ export default class Deployer {
       args: ['-xf', filePath],
       env: {},
     });
-    console.log('tar done !', cluster);
     return this.launchPipelines(projectDir, cluster.project.pipelines, cluster.envVars);
   }
 
@@ -196,7 +197,7 @@ export default class Deployer {
     setTimeout(() => {
       this.startDeploy(cluster, branch).catch((err) => {
         console.error('startDeploy global error:', err);
-      })
+      });
     }, 2000);
     return {
       status: 200,

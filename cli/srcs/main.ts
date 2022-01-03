@@ -2,7 +2,6 @@
 import fs from 'fs';
 import path from 'path';
 import * as run from './scripts/run';
-import * as setup from './scripts/setup';
 import * as system from './scripts/system';
 
 const help = fs.readFileSync(path.join(__dirname, '../README.md'));
@@ -22,11 +21,6 @@ const printHelp = () => {
   if (type === 'run') {
     if (action === 'dev') {
       await run.dev();
-    }
-  }
-  if (type === 'setup') {
-    if (action === 'dev') {
-      await setup.dev();
     }
   }
   process.exit(0);

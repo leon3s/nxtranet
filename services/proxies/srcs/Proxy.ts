@@ -23,12 +23,22 @@ export default
     this._server = net.createServer((socket) => {
       const replaySock = new net.Socket();
       socket.on('data', (data) => {
-        console.log(data);
-        replaySock.write(data);
+        console.log(data.toString());
+        try {
+          replaySock.write(data);
+        } catch (e) {
+          replaySock.destroy();
+          socket.destroy();
+        }
       });
       replaySock.on('data', (data) => {
-        console.log(data);
-        socket.write(data);
+        console.log(data.toString());
+        try {
+          socket.write(data);
+        } catch (e) {
+          replaySock.destroy();
+          socket.destroy();
+        }
       });
       try {
         replaySock.connect(this._port, '127.0.0.1');

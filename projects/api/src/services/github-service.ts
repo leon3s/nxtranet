@@ -1,9 +1,10 @@
 import {repository} from '@loopback/repository';
+import {HttpErrors, Request} from '@loopback/rest';
 import type {AxiosInstance} from 'axios';
 import axios from 'axios';
+import crypto from 'crypto';
 import {Project} from '../models';
 import {GitBranchRepository} from '../repositories';
-
 
 export class GithubService {
   request: AxiosInstance
@@ -16,7 +17,7 @@ export class GithubService {
     });
   }
 
-  addBranch = async (project:Project, branchName: string) => {
+  addBranch = async (project: Project, branchName: string) => {
     const auth = {
       username: project.github_username,
       password: project.github_password,
@@ -46,7 +47,7 @@ export class GithubService {
     });
     await Promise.all(branches.map(async ({name, commit}) => {
       const item = await this.githubBranchRepository.findOne({
-        where: { name },
+        where: {name},
       });
       if (!item) {
         return this.githubBranchRepository.create({
@@ -62,5 +63,20 @@ export class GithubService {
       });
       return item;
     }));
+  }
+
+  validateProjectHookReq = async (project: Project, req: Request, payload: Record<string, any>) => {
+    const {headers} = req;
+    const userAgent = headers['user-agent'];
+    const reqPSha = headers['x-hub-signature-256'];
+    const sPayload = JSON.stringify(payload || {});
+    console.log(sPayload);
+    const calculedSha = `sha256=${crypto.createHmac('sha256', project.github_webhook_secret).update(sPayload).digest("hex")}`;
+    if (!userAgent || !userAgent.includes('GitHub-Hookshot/')) {
+      throw new HttpErrors.NotAcceptable('User agent not matching.');
+    }
+    if (reqPSha !== calculedSha) {
+      throw new HttpErrors.NotAcceptable('SHA not matching.');
+    }
   }
 }

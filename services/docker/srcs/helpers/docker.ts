@@ -1,9 +1,9 @@
 import crypto from 'crypto';
-import Docker from 'dockerode';
-
 import type {Container} from 'dockerode';
+import Docker from 'dockerode';
+import {getFreePort} from './net';
 
-import { getFreePort } from './net';
+
 
 /** May need permission on linux to read this file. */
 const socketPath = '/var/run/docker.sock';
@@ -12,7 +12,7 @@ export const docker = new Docker({
   socketPath,
 });
 
-export const stopContainer = async (containerID:string) => {
+export const stopContainer = async (containerID: string) => {
   const container = docker.getContainer(containerID);
   await container.stop();
 }
@@ -29,7 +29,7 @@ export const removeContainer = async (containerID: string) => {
   });
 }
 
-export const createContainer = async(cluster, branch): Promise<{
+export const createContainer = async (cluster, branch): Promise<{
   containerInstance: Container,
   containerApi: {
     namespace: string;
@@ -49,23 +49,18 @@ export const createContainer = async(cluster, branch): Promise<{
   docker.createContainer({
     name,
     Image: 'nextranet-dp-service',
-    // Env: [
-    //   `GITHUG_USERNAME=leon3s`,
-    //   `GITHUG_PROJECT=express-test-db`,
-    //   `GITHUB_PASSWORD=das`
-    // ],
     HostConfig: {
       PortBindings: {
         "3000/tcp": [
           {
-              "HostIp": "",
-              "HostPort": `${appPort}/tcp`,
+            "HostIp": "",
+            "HostPort": `${appPort}/tcp`,
           }
         ],
         "1337/tcp": [
           {
-              "HostIp": "",
-              "HostPort": `${deployerPort}/tcp`,
+            "HostIp": "",
+            "HostPort": `${deployerPort}/tcp`,
           }
         ],
       }

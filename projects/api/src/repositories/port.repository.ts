@@ -24,6 +24,24 @@ export class PortRepository extends DefaultCrudRepository<
     return portDB;
   }
 
+  createIfNotExist = async (port: number) => {
+    const isReserved = await this.isReservedPort(port);
+    if (isReserved) {
+      throw new Error('Port number ' + port + ' is already reserved.');
+    }
+    return await this.create({
+      number: port,
+    });
+  }
+
+  getFreeNonReservedPort = async (): Promise<number> => {
+    const port = await this.getFreePort();
+    if (await this.isReservedPort(port)) {
+      return this.getFreeNonReservedPort();
+    }
+    return port;
+  }
+
   getFreePort = () => {
     return net.getFreePort();
   }

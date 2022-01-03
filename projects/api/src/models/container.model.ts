@@ -76,6 +76,18 @@ export class Container extends Entity {
   })
   commitSHA: string;
 
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  isProduction?: boolean;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  isGeneratedDeploy?: boolean;
+
   @hasMany(() => ContainerOutput, {
     keyFrom: 'namespace',
     keyTo: 'containerNamespace',

@@ -6,12 +6,19 @@ import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {PasswordHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
-import {SubdomainService} from './services/subdomain-service';
+import ProjectService from './services/project-service';
+import {ProxiesService} from './services/proxies-service';
 import {WebsocketService} from './websocket';
 
 export namespace NginxServiceBindings {
   export const NGINX_SERVICE = BindingKey.create<NginxService>(
     'service.nginx',
+  )
+}
+
+export namespace ProjectServiceBindings {
+  export const PROJECT_SERVICE = BindingKey.create<ProjectService>(
+    'service.project',
   )
 }
 
@@ -33,8 +40,8 @@ export namespace DockerServiceBindings {
   )
 }
 
-export namespace SubdomainServiceBindings {
-  export const SUBDOMAIN_SERVICE = BindingKey.create<SubdomainService>(
+export namespace ProxiesServiceBindings {
+  export const PROXIES_SERVICE = BindingKey.create<ProxiesService>(
     'services.subdomain',
   )
 }

@@ -8,7 +8,7 @@ type PortProduction = {
 }
 
 export
-  class SubdomainService {
+  class ProxiesService {
 
   protected socket: Socket;
 

@@ -1,3 +1,5 @@
+// TODO NOT WORKING //
+// SCRIPT TO AUTOMATICALY INSTALL DNS AND EVERYTHING ON WINDOWS //
 import execa from 'execa';
 
 const getVEthernetInterfaceIds = async (): Promise<number[]> => {

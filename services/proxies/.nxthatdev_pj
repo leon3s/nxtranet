@@ -1,4 +1,4 @@
 {
-  "user": "nxtsrv-domains",
+  "user": "nxtsrv-proxies",
   "watchDirectories": ["./srcs"]
 }

@@ -20,12 +20,4 @@ server {
         proxy_pass http://nodejs;
         #proxy_cache backcache;
     }
-
-    # WebSocket configuration
-    location /wstunnel/ {
-        proxy_pass https://nodejs;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade;
-    }
 }

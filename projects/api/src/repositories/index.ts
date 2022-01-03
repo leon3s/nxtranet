@@ -17,3 +17,5 @@ export * from './user.repository';
 export * from './service-token.repository';
 export * from './service.repository';
 export * from './port.repository';
+export * from './port-mapping.repository';
+export * from './cluster-production.repository';

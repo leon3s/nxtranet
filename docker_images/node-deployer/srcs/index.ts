@@ -1,9 +1,9 @@
+import type {ModelCluster} from '@nxtranet/headers';
 import path from 'path';
+import type {Socket} from 'socket.io';
 import {Server} from 'socket.io';
-import type { Socket } from 'socket.io';
-import type { ModelCluster } from '@nxtranet/headers';
-
 import Deployer from './Deployer';
+
 
 const port = +(process.env.DP_SERVICE_PORT) || 1337;
 const tmpDirPath = path.resolve(process.cwd(), 'tmp');

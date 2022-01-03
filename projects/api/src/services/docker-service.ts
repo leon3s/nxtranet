@@ -4,21 +4,18 @@ import {HttpErrors} from '@loopback/rest';
 import axios from 'axios';
 import type {Socket} from 'socket.io-client';
 import {io} from 'socket.io-client';
-import {SubdomainServiceBindings, WebSockerServiceBindings} from '../keys';
+import {WebSockerServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterRepository, ContainerRepository} from '../repositories';
 import {ContainerOutputRepository} from '../repositories/container-output.repository';
 import {PipelineStatusRepository} from '../repositories/pipeline-status.repository';
 import {WebsocketService} from '../websocket';
-import {SubdomainService} from './subdomain-service';
 
 export
   class DockerService {
   private _socket: Socket
 
   constructor(
-    @inject(SubdomainServiceBindings.SUBDOMAIN_SERVICE)
-    protected subdomainService: SubdomainService,
     @inject(WebSockerServiceBindings.WEBSOCKET_SERVICE)
     protected webSocketService: WebsocketService,
     @repository(ClusterRepository)
@@ -113,7 +110,9 @@ export
     });
   }
 
-  clusterDeploy = async (namespace: string, branch: string): Promise<Container> => {
+  clusterDeploy = async ({
+    namespace, branch, isProduction, isGeneratedDeploy,
+  }: {namespace: string, branch: string, isProduction: boolean, isGeneratedDeploy: boolean}): Promise<Container> => {
     const cluster = await this.clusterRepository.findOne({
       where: {
         namespace,
@@ -133,11 +132,10 @@ export
     if (!cluster) throw new HttpErrors.NotFound('Cluster not found');
     const partialContainer = await this._serviceEmitDeploy(cluster, branch);
     partialContainer.gitBranchName = branch;
+    partialContainer.isProduction = isProduction;
+    partialContainer.isGeneratedDeploy = isGeneratedDeploy;
     const container = await this.containerRepository.create(partialContainer);
     this.clusterContainerStatus(cluster.namespace, container.name);
-    this.subdomainService.updateDomains();
-    //
-    // this.subdomainService.writeConfig();
     return container;
   }
 }

@@ -4,9 +4,17 @@ import express from 'express';
 import http from 'http';
 import io from 'socket.io';
 import {ApplicationConfig, NextranetApi} from './application';
-import {webSocket} from './websocket';
+import {WebSockerServiceBindings} from './keys';
+import {webSocket, WebsocketService} from './websocket';
 
 export {ApplicationConfig};
+
+const generateIoClass = (_io: io.Server) => {
+  class IoService implements WebsocketService {
+    public io = _io;
+  }
+  return IoService;
+}
 
 export class ExpressServer {
   public readonly app: express.Application;
@@ -29,6 +37,10 @@ export class ExpressServer {
         origin: "*",
       }
     });
+    this.lbApp.service(
+      generateIoClass(this.io),
+      WebSockerServiceBindings.WEBSOCKET_SERVICE,
+    );
     this.app.enable('trust proxy');
     this.app.use('/', this.lbApp.requestHandler);
   }

@@ -16,3 +16,5 @@ export * from './user.model';
 export * from './var-env.model';
 
 export * from './port.model';
+export * from './port-mapping.model';
+export * from './cluster-production.model';

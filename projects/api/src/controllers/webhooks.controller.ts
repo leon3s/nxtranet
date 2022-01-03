@@ -1,12 +1,11 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors, param, post, Request, requestBody, RestBindings} from '@loopback/rest';
-import crypto from 'crypto';
-import {DockerServiceBindings, GithubServiceBindings} from '../keys';
-import {Cluster} from '../models';
-import {ContainerRepository, GitBranchRepository, ProjectRepository} from '../repositories';
+import {DockerServiceBindings, GithubServiceBindings, ProjectServiceBindings} from '../keys';
+import {ClusterRepository, ContainerRepository, GitBranchRepository, ProjectRepository} from '../repositories';
 import {DockerService} from '../services/docker-service';
 import {GithubService} from '../services/github-service';
+import ProjectService from '../services/project-service';
 
 export class WebhooksController {
   constructor(
@@ -14,6 +13,10 @@ export class WebhooksController {
     protected githubService: GithubService,
     @inject(DockerServiceBindings.DOCKER_SERVICE)
     protected dockerService: DockerService,
+    @inject(ProjectServiceBindings.PROJECT_SERVICE)
+    protected projectService: ProjectService,
+    @repository(ClusterRepository)
+    protected clusterRepository: ClusterRepository,
     @repository(ProjectRepository)
     protected projectRepository: ProjectRepository,
     @repository(ContainerRepository)
@@ -38,12 +41,13 @@ export class WebhooksController {
       }
     }
   })
-  async getLatestRelease(
+  async githubWebhook(
     @inject(RestBindings.Http.REQUEST)
     req: Request,
     @param.path.string('projectName') projectName: string,
     @requestBody() payload: Record<string, any>,
   ) {
+    const {headers} = req;
     const project = await this.projectRepository.findOne({
       where: {
         name: projectName,
@@ -51,30 +55,25 @@ export class WebhooksController {
       include: [{
         relation: 'clusters',
         scope: {
-          include: ['gitBranch'],
-        }
+          include: ['gitBranch', {
+            relation: 'production',
+            scope: {
+              include: ['ports'],
+            },
+          }],
+        },
       }],
     });
     if (!project) throw new HttpErrors.NotAcceptable();
-    const userAgent = req.headers['user-agent'];
-    const githubEvent = req.headers['x-github-event'];
-    const reqPSha = req.headers['x-hub-signature-256'];
-    const sPayload = JSON.stringify(payload || {});
-    const validatePayload = (payload: string) =>
-      `sha256=${crypto.createHmac('sha256', project.github_webhook_secret).update(payload).digest("hex")}`;
-
-    const calculedSha = validatePayload(sPayload);
-
-    if (!userAgent || !userAgent.includes('GitHub-Hookshot/')) {
-      if (!project) throw new HttpErrors.NotAcceptable();
-    }
-    if (reqPSha !== calculedSha) {
-      throw new HttpErrors.NotAcceptable();
-    }
+    await this.githubService.validateProjectHookReq(project, req, payload);
+    const githubEvent = headers['x-github-event'];
+    // Ping pong //
     if (githubEvent === 'ping') return 'pong';
+    // Create branch //
     if (githubEvent === 'create' && payload.ref_type === 'branch') {
       await this.githubService.addBranch(project, payload.ref);
     }
+    // Delete branch
     if (githubEvent === 'delete' && payload.ref_type === 'branch') {
       const gitBranch = await this.gitBranchRepository.findOne({
         where: {
@@ -84,13 +83,20 @@ export class WebhooksController {
       if (!gitBranch) return; // Already deleted ?
       await this.gitBranchRepository.deleteById(gitBranch.id);
     }
+    // Open pull request //
     if (githubEvent === 'pull_request' && payload.action === 'opened') {
       const fromBranch = payload.pull_request.head.ref;
       await Promise.all<void>(project.clusters.map(async (cluster) => {
         if (cluster.gitBranch) return;
-        await this.dockerService.clusterDeploy(cluster.namespace, fromBranch);
+        await this.dockerService.clusterDeploy({
+          branch: fromBranch,
+          isProduction: false,
+          isGeneratedDeploy: true,
+          namespace: cluster.namespace,
+        });
       }));
     }
+    // Close pull request
     if (githubEvent === 'pull_request' && payload.action === 'closed') {
       const fromBranch = payload.pull_request.head.ref;
       const containers = await this.containerRepository.find({
@@ -98,41 +104,20 @@ export class WebhooksController {
           gitBranchName: fromBranch,
         },
       });
-      setTimeout(async () => {
-        await Promise.all(containers.map((container) => {
-          return this.dockerService.clusterContainerRemove(
-            container.clusterNamespace,
-            container.name,
-          );
-        }));
-      }, 500);
+      Promise.all(containers.map((container) => {
+        return this.dockerService.clusterContainerRemove(
+          container.clusterNamespace,
+          container.name,
+        );
+      })).catch((err) => {
+        console.error('Error while closing pull request ', err);
+      });
     }
+    // Merge or push in branch //
     if (githubEvent === 'push') {
       const branchName = payload.ref.replace('refs/heads/', '');
       const lastCommit = payload.after;
       if (!branchName.length) throw new HttpErrors.NotAcceptable();
-      const updateCluster = async (cluster: Cluster) => {
-        const container = await this.dockerService.clusterDeploy(cluster.namespace, branchName);
-        await this.containerRepository.updateById(container.id, {
-          commitSHA: lastCommit,
-        });
-        this.dockerService.whenContainerReady(container).then(async () => {
-          const containers = await this.containerRepository.find({
-            where: {
-              commitSHA: {
-                nin: [lastCommit],
-              },
-              gitBranchName: branchName,
-            },
-          });
-          console.log('Container to delete', containers);
-          await Promise.all(containers.map((container) => {
-            return this.dockerService.clusterContainerRemove(container.clusterNamespace, container.name);
-          }));
-        }).catch((err) => {
-          console.error('Webhook github update cluster error ', {err});
-        });
-      }
       const branch = await this.gitBranchRepository.findOne({
         where: {
           name: branchName,
@@ -141,17 +126,21 @@ export class WebhooksController {
       if (!branch) throw new HttpErrors.NotAcceptable();
       await this.gitBranchRepository.updateById(branch.id, {lastCommitSHA: lastCommit});
       const clusters = project.clusters.filter(({gitBranch}) => gitBranch?.name === branchName);
+      // Deploy to cluster linked to branch //
       if (clusters.length) {
-        Promise.all(clusters.map((cluster) => {
-          return updateCluster(cluster);
-        })).catch((err) => {
+        this.projectService.deployClusters(clusters, {
+          branchName,
+          lastCommit,
+        }).catch((err) => {
           console.error('Webhook updateCluster error !! ', err);
-        })
+        });
       } else {
+        // Deploy on cluster of no cluster is linked to a branch //
         const clusters = project.clusters.filter(({gitBranch}) => !gitBranch);
-        Promise.all(clusters.map((cluster) => {
-          return updateCluster(cluster);
-        })).catch((err) => {
+        this.projectService.deployClusters(clusters, {
+          branchName,
+          lastCommit,
+        }).catch((err) => {
           console.error('Webhook updateCluster error !! ', err);
         });
       }

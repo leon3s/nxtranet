@@ -18,7 +18,8 @@ import {
   GithubServiceBindings,
   NginxServiceBindings,
   PasswordHasherBindings,
-  SubdomainServiceBindings,
+  ProjectServiceBindings,
+  ProxiesServiceBindings,
   TokenServiceBindings,
   TokenServiceConstants,
   UserServiceBindings
@@ -30,7 +31,8 @@ import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {BcryptHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
-import {SubdomainService} from './services/subdomain-service';
+import ProjectService from './services/project-service';
+import {ProxiesService} from './services/proxies-service';
 import {MyUserService} from './services/user-service';
 
 export {ApplicationConfig};
@@ -92,8 +94,11 @@ export class NextranetApi extends BootMixin(
     this.bind(DockerServiceBindings.DOCKER_SERVICE)
       .toClass(DockerService);
 
-    this.bind(SubdomainServiceBindings.SUBDOMAIN_SERVICE)
-      .toClass(SubdomainService);
+    this.bind(ProxiesServiceBindings.PROXIES_SERVICE)
+      .toClass(ProxiesService);
+
+    this.bind(ProjectServiceBindings.PROJECT_SERVICE)
+      .toClass(ProjectService);
 
     this.bind(TokenServiceBindings.TOKEN_SECRET)
       .to(TokenServiceConstants.TOKEN_SECRET_VALUE);
@@ -103,8 +108,6 @@ export class NextranetApi extends BootMixin(
 
     this.bind(TokenServiceBindings.TOKEN_SERVICE)
       .toClass(BASICService);
-
-
 
     // // Bind bcrypt hash services
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
