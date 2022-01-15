@@ -1,0 +1,4 @@
+{
+  "user": "nxtsrv-dnsmasq",
+  "watchDirectories": ["./srcs"]
+}

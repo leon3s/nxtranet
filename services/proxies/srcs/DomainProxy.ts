@@ -11,8 +11,8 @@ class DomainProxy {
         this._createServer();
     }
 
-    public listen(port: number) {
-        this._server.listen(port);
+    public listen(port: number, callback = () => { }) {
+        this._server.listen(port, callback);
     }
 
     public updateDomains(domains: Domains) {
@@ -27,16 +27,16 @@ class DomainProxy {
                 const subdomain = messageString.replace(/([\s\S]*nextranet-domain: )(.*)[\s\S]*/gm, '$2');
                 const port = this.domains[subdomain];
                 if (!port) return socket.destroy();
-                try {
-                    serviceSocket.connect(port, '127.0.0.1', () => {
-                        serviceSocket.write(message);
-                    });
-                } catch (e) {
-                    serviceSocket.destroy();
-                    socket.destroy();
-                }
+                serviceSocket.connect(port, '127.0.0.1', () => {
+                    serviceSocket.write(message);
+                });
                 serviceSocket.on('data', data => {
                     socket.write(data);
+                });
+                serviceSocket.once('error', (err) => {
+                    console.log('err catched', err);
+                    serviceSocket.destroy();
+                    socket.destroy();
                 });
             });
         });

@@ -1,6 +1,7 @@
 import {Server} from "@nxtranet/service";
 import * as nginx from './nginx';
 
+const port = +(process.env.PORT || 3211);
 
 const isProd = process.env.NODE_ENV === 'production';
 const server = new Server();
@@ -48,6 +49,6 @@ server.io.on('connection', (socket) => {
   });
 });
 
-server.httpServer.listen(3211);
-
-console.log('nginx service started on port 3211');
+server.httpServer.listen(port, () => {
+  console.log(`nextranet nginx service started on port ${port}`);
+});

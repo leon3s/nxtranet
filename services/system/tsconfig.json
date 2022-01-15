@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "target": "es5",
+    "target": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,7 +21,11 @@
     }
   },
   "exclude": [
+    "tmp",
     "dist",
+    "test",
+    "dp_service",
     "node_modules",
+    "test_dp_service"
   ]
 }

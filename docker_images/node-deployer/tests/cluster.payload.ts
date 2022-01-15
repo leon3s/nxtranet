@@ -26,7 +26,7 @@ export default {
     "name": "express-test-deploy",
     "github_project": "express-test-deploy",
     "github_username": "leon3s",
-    "github_password": process.env.GITHUB_PASSWORD,
+    "github_password": "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",
     "pipelines": [
       {
         "id": "618f0f7f71aaeb10ca27160b",
@@ -59,6 +59,23 @@ export default {
             "args": [
               "run",
               "test"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "618f16961f8ca611d6a15f54",
+        "projectName": "express-test-deploy",
+        "namespace": "express-test-deploy.start",
+        "color": "#e10ed5",
+        "name": "start",
+        "commands": [
+          {
+            "id": "618f16a51f8ca611d6a15f56",
+            "pipelineNamespace": "express-test-deploy.start",
+            "name": "npm",
+            "args": [
+              "start"
             ]
           }
         ]

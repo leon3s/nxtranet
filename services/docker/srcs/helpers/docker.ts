@@ -4,6 +4,11 @@ import Docker from 'dockerode';
 import {getFreePort} from './net';
 
 
+type ContainerOpts = {
+  name: string;
+  appPort: number;
+  deployerPort: number;
+}
 
 /** May need permission on linux to read this file. */
 const socketPath = '/var/run/docker.sock';
@@ -12,21 +17,69 @@ export const docker = new Docker({
   socketPath,
 });
 
-export const stopContainer = async (containerID: string) => {
+export const getContainerById = (containerID: string) => {
   const container = docker.getContainer(containerID);
+  return container;
+}
+
+export const getContainerInfo = (containerID: string) => {
+  const container = getContainerById(containerID);
+  return new Promise((resolve, reject) => {
+    container.inspect((err, info) => {
+      if (err) return reject(err);
+      return resolve(info);
+    });
+  });
+}
+
+export const startContainer = async (containerID: string) => {
+  const container = getContainerById(containerID);
+  await container.start();
+}
+
+export const stopContainer = async (containerID: string) => {
+  const container = getContainerById(containerID);
   await container.stop();
 }
 
 export const removeContainer = async (containerID: string) => {
-  const container = docker.getContainer(containerID);
-  await container.stop();
+  const container = getContainerById(containerID);
   await new Promise((resolve, reject) => {
-    container.remove(function (err, data) {
+    container.remove({force: true}, function (err, data) {
       console.log(err);
       if (err) return reject(err);
-      resolve(data);
+      return resolve(data);
     });
   });
+}
+
+const _createContainer = (opts: ContainerOpts): Promise<Container> => {
+  const {name, appPort, deployerPort} = opts;
+  return new Promise((resolve, reject) => {
+    docker.createContainer({
+      name,
+      Image: 'nextranet-dp-service',
+      HostConfig: {
+        PortBindings: {
+          "3000/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": `${appPort}/tcp`,
+            }
+          ],
+          "1337/tcp": [
+            {
+              "HostIp": "",
+              "HostPort": `${deployerPort}/tcp`,
+            }
+          ],
+        }
+      }
+    }, (err, container) => {
+      if (err) return reject(err);
+      return resolve(container);
+    });
+  })
 }
 
 export const createContainer = async (cluster, branch): Promise<{
@@ -40,44 +93,36 @@ export const createContainer = async (cluster, branch): Promise<{
     projectName: string;
     clusterNamespace: string;
   }
-}> => new Promise(async (resolve, reject) => {
+}> => {
   const genID = crypto.randomBytes(8).toString('hex').toLowerCase();
   const name = `${branch}-${genID}`;
   const namespace = `${cluster.namespace}.${name}`;
   const appPort = await getFreePort();
   const deployerPort = await getFreePort();
-  docker.createContainer({
+  const container = await _createContainer({
     name,
-    Image: 'nextranet-dp-service',
-    HostConfig: {
-      PortBindings: {
-        "3000/tcp": [
-          {
-            "HostIp": "",
-            "HostPort": `${appPort}/tcp`,
-          }
-        ],
-        "1337/tcp": [
-          {
-            "HostIp": "",
-            "HostPort": `${deployerPort}/tcp`,
-          }
-        ],
-      }
+    appPort,
+    deployerPort,
+  });
+  return ({
+    containerInstance: container,
+    containerApi: {
+      name,
+      appPort,
+      namespace,
+      deployerPort,
+      dockerID: container.id,
+      projectName: cluster.projectName,
+      clusterNamespace: cluster.namespace,
     }
-  }, function (err, container) {
-    if (err) return reject(err);
-    resolve({
-      containerInstance: container,
-      containerApi: {
-        namespace,
-        name,
-        appPort,
-        deployerPort,
-        dockerID: container.id,
-        projectName: cluster.projectName,
-        clusterNamespace: cluster.namespace,
-      }
+  });
+};
+
+export const getContainersInfo = (): Promise<Docker.ContainerInfo[]> => {
+  return new Promise((resolve, reject) => {
+    docker.listContainers({all: true}, (err, containers) => {
+      if (err) return reject(err);
+      resolve(containers);
     });
   });
-});
+}

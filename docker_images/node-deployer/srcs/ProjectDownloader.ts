@@ -7,7 +7,6 @@ type GithubCredential = {
   password:     string;
 }
 
-
 const githubApi = axios.create({
   baseURL: 'https://api.github.com',
 });
@@ -29,19 +28,15 @@ export default class ProjectDownloader {
         }
       },
     );
-    const fileSize = parseInt(response.headers['content-length']);
+    /* is empty sometime for some reason ? */
+    // const fileSize = parseInt(response.headers['content-length']);
     const fileName = response.headers['content-disposition'].replace(/\&*.*filename=/g, '');
     const filePath = path.join(this.tmpDirPath, fileName);
     const writer = fs.createWriteStream(filePath);
     response.data.pipe(writer);
-    let totalDownloaded = 0;
-    response.data.on('data', (chunk: Buffer) => {
-      totalDownloaded += chunk?.length || 0;
-      console.log('downloading progress : ', ((totalDownloaded / fileSize) * 100));
-    });
     await new Promise<void>((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
+      writer.once('finish', resolve);
+      writer.once('error', reject);
     });
     return {
       fileName,

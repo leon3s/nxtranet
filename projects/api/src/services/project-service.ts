@@ -29,6 +29,8 @@ export default
   ) { }
 
   boot = async () => {
+    await this.dockerService.syncContainers();
+    await this.proxiesService.updateDomains();
     const clusterProductions = await this.clusterProductionRepository.find({
       include: ['ports'],
     });
@@ -37,21 +39,32 @@ export default
         where: {
           namespace: clusterProd.clusterNamespace,
         },
-        include: ['containers', 'gitBranch'],
+        include: [{
+          relation: 'containers',
+          scope: {
+            include: ['state'],
+          }
+        }, 'gitBranch'],
       });
       if (!clusterDB) throw new Error('clusterProd is linked to non existing cluster with namespace ' + clusterProd.clusterNamespace);
       if (!clusterDB.containers || !clusterDB.containers.length) {
         await this.deployProduction(clusterDB, clusterProd);
       } else {
-        const ports = clusterProd.ports.map((port, i) => {
+        const ports = await Promise.all(clusterProd.ports.map(async (port, i) => {
+          const container = clusterDB.containers[i];
+          if (container.state.Running) {
+            await this.dockerService.attachContainer(clusterDB.namespace, container.name);
+          } else {
+            await this.dockerService.startContainer(container);
+          }
           return {
             listen: port.number,
-            app: clusterDB.containers[i].appPort,
+            app: container.appPort,
           }
-        });
+        }));
         this.proxiesService.productionDomains(ports);
+        await this.dockerService.syncContainers();
       }
-      console.log('redeploy done.');
     }));
   }
 
@@ -128,6 +141,7 @@ export default
         listen: port.number,
       });
     }));
+    await this.proxiesService.updateDomains();
     this.proxiesService.productionDomains(ports);
   }
 }

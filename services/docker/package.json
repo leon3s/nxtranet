@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "./dist/main.js",
-  "serviceWorkerIsNatif": true,
-  "serviceWorkerPort": 1243,
   "scripts": {
     "start": "node .",
     "build": "tsc",
@@ -14,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "@nxtpkg/service": "file:../packages/service",
+    "@nxtranet/headers": "file:../../packages/headers",
+    "@nxtranet/service": "file:../../packages/service",
     "axios": "^0.24.0",
     "dockerode": "^3.3.1",
     "execa": "^5.1.1",

@@ -1,30 +1,22 @@
 import {io} from 'socket.io-client';
 
-import {sockServ} from '../srcs';
+import {deployerService} from '../srcs';
 
 import fakePayload from './cluster.payload';
 
-let listennerPath:string | null = null;
-
 const socket = io('http://localhost:1337');
-let listenner = null;
 
-const printer = (d) => {
-  console.log('FIRST LISTENNER');
-  console.dir(d, {depth:null});
-  console.log('-------------');
-}
-
-const validateAction = async (listennerPath, exe, args?) => {
+const validateAction = async (listennerPath, exe, args, waitLast:boolean = true) => {
   await new Promise<void>((resolve, reject) => {
     socket.on(listennerPath, (action) => {
-      console.log({action, exe, args});
+      console.log('test debug', {action, exe, args});
       try {
         expect(action.type).toBe('cmd');
         expect(action.payload.exe).toBe(exe);
         if (args) {
           expect(action.payload.args).toStrictEqual(args);
         }
+        if (!waitLast) return resolve();
         if (action.payload.isLast) {
           expect(action.payload.isFirst).toBe(false);
           expect(action.payload.isLast).toBe(true);
@@ -40,7 +32,7 @@ const validateAction = async (listennerPath, exe, args?) => {
 
 describe('test node-deployer', () => {
   beforeAll(() => {
-    sockServ.listen(1337);
+    deployerService.listen(1337);
   });
 
   it('Should connect to a server', async () => {
@@ -51,38 +43,33 @@ describe('test node-deployer', () => {
     });
   }, 2000);
 
-  it('should start a deploy and success and get listenner path', (done) => {
-    socket.emit('/github', fakePayload, "master", async (err, res) => {
-      if (err) return done(err);
-      const {statusUrl} = res.payload;
-      listennerPath = statusUrl.toString();
-      try {
-        const testData = [{
-          exe: 'dw',
-          args: ['branch', 'master']
-        }, {
-          exe: 'tar'
-        }, {
-          exe: 'npm',
-          args: ['install'],
-        }, {
-          exe: 'npm',
-          args: ['run', 'test'],
-        }];
-        for (let test of testData) {
-          await validateAction(listennerPath, test.exe, test.args);
-        }
-        done();
-      } catch (err) {
-        done(err);
-      }
-    });
+  it('should start a deploy and success and get listenner path', async () => {
+    const testData = [{
+      exe: 'dw',
+      args: ['branch', 'development']
+    }, {
+      exe: 'tar'
+    }, {
+      exe: 'npm',
+      args: ['install'],
+    }, {
+      exe: 'npm',
+      args: ['run', 'test'],
+    }, {
+      exe: 'npm',
+      args: ['start'],
+      waitLast: false,
+    }];
+    socket.emit('/github', fakePayload, "development", () => {});
+    for (let test of testData) {
+      await validateAction('action', test.exe, test.args, test.waitLast);
+    }
   }, 400000);
 
   afterAll(() => {
     socket.disconnect();
-    if (sockServ) {
-      sockServ.close();
+    if (deployerService) {
+      deployerService.stop();
     }
   });
 });
