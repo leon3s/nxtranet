@@ -3,4 +3,5 @@ node_modules
 **/*/coverage
 **/*/node_modules
 **/*/.next
+**/*/tmp
 logs

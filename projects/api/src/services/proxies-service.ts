@@ -25,6 +25,9 @@ export
         console.error('ready error', err);
       });
     });
+    this.socket.on('disconnect', (reason) => {
+      console.log('proxies service disconnected ', reason);
+    });
   }
 
   ready = async () => {

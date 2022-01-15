@@ -1,27 +1,23 @@
 import type {
-  ModelCluster, ModelEnvVar, ModelPipeline
+  ModelCluster, ModelPipeline, ModelPipelineCmd
 } from '@nxtranet/headers';
-import crypto from 'crypto';
+import EventEmitter from 'events';
 import execa from 'execa';
 import path from 'path';
-import type {Socket} from 'socket.io';
+import {writeProjectCache} from './projectCache';
 import ProjectDownloader from './ProjectDownloader';
-
-
-
-type SocketEmiter = (action: string, data: any) => void;
 
 type Cmd = {
   exe: string;
   cwd: string;
   args: string[];
-  env: Record<string, string | number>;
-  // envVars:
+  env: Record<string, string>;
 }
 
-type Action = {
-  type: string;
-  payload: any;
+type ClusterData = {
+  pipelines: ModelPipeline[];
+  lastCommand: ModelPipelineCmd;
+  envVars: Record<string, string>;
 }
 
 /**
@@ -29,25 +25,25 @@ type Action = {
  */
 export default class Deployer {
   tmpDir: string;
-  socketEmiter: SocketEmiter;
   projectDownloader: ProjectDownloader;
+  emitter = new EventEmitter();
+  project: execa.ExecaChildProcess;
+  lastCommand: ModelPipelineCmd;
+  projectDir: string;
 
   constructor(tmpDirPath: string) {
     this.tmpDir = tmpDirPath;
     this.projectDownloader = new ProjectDownloader(tmpDirPath);
   }
 
-  hookCmd = (cmd: Cmd) => {
+  private hookCmd = (cmd: Cmd) => {
     const {exe, args, cwd, env} = cmd;
     const child = execa(exe, args, {
       cwd,
-      env: {
-        ...env,
-        TEST_VALUE: 'gg',
-      },
+      env,
     });
     child.stdout.on("data", (d) => {
-      this.socketEmiter('cmd', {
+      this._emitAction('cmd', {
         exe,
         cwd,
         args,
@@ -57,7 +53,7 @@ export default class Deployer {
       });
     });
     child.stderr.on("data", (d) => {
-      this.socketEmiter('cmd', {
+      this._emitAction('cmd', {
         exe,
         cwd,
         args,
@@ -69,14 +65,9 @@ export default class Deployer {
     return child;
   }
 
-  /**
-   *
-   * @param cmd Command to execute
-   * @returns child process
-   */
-  spawnCmd = async (cmd: Cmd) => {
+  private spawnCmd = async (cmd: Cmd) => {
     const {exe, args, cwd} = cmd;
-    this.socketEmiter('cmd', {
+    this._emitAction('cmd', {
       exe,
       cwd,
       args,
@@ -86,7 +77,7 @@ export default class Deployer {
     try {
       const pchild = this.hookCmd(cmd);
       const child = await pchild;
-      this.socketEmiter('cmd', {
+      this._emitAction('cmd', {
         exe,
         cwd,
         args,
@@ -96,8 +87,9 @@ export default class Deployer {
         exitCode: child.exitCode,
         signalDescription: child.signalDescription,
       });
+      return child;
     } catch (e) {
-      this.socketEmiter('cmd', {
+      this._emitAction('cmd', {
         exe,
         cwd,
         args,
@@ -111,42 +103,32 @@ export default class Deployer {
     }
   }
 
-  launchPipeline = async (projectDir: string, pipeline: ModelPipeline, envVars: ModelEnvVar[]) => {
+  private launchPipeline = async (projectDir: string, pipeline: ModelPipeline, envVars: Record<string, string>) => {
     const {commands} = pipeline;
     for (let command of commands) {
       await this.spawnCmd({
         exe: command.name,
         args: command.args,
-        env: envVars?.reduce((acc, env) => {
-          acc[env.key] = env.value;
-          return acc;
-        }, {}),
+        env: envVars,
         cwd: projectDir,
       });
     }
   }
 
-  launchPipelines = async (projectDir: string, pipelines: ModelPipeline[], envVars: ModelEnvVar[]) => {
-    let current = 0;
-    const max = pipelines.length;
+  private launchPipelines = async (projectDir: string, pipelines: ModelPipeline[], envVars: Record<string, string>) => {
     for (let pipeline of pipelines) {
-      if (current === max - 1) {
-        console.log('TO SAVE !!!!!!!!');
-        console.log(pipeline);
-      }
       try {
-        this.socketEmiter('pipelineStatus', {
+        this._emitAction('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
           value: 'starting',
         });
         await this.launchPipeline(projectDir, pipeline, envVars);
-        this.socketEmiter('pipelineStatus', {
+        this._emitAction('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
           value: 'passed',
         });
-        current += 1;
       } catch (e) {
-        this.socketEmiter('pipelineStatus', {
+        this._emitAction('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
           value: 'failed',
           error: JSON.stringify(e),
@@ -155,8 +137,25 @@ export default class Deployer {
     }
   }
 
-  startDeploy = async (cluster: ModelCluster, branch: string) => {
-    this.socketEmiter('cmd', {
+  private _extractClusterData = (cluster: ModelCluster): ClusterData => {
+    const {pipelines} = cluster.project;
+    const lastCommand = pipelines[pipelines.length - 1].commands.pop();
+    const envVars = cluster.envVars?.reduce((acc, env) => {
+      acc[env.key] = env.value;
+      return acc;
+    }, {}) || undefined;
+    return {
+      pipelines: cluster.project.pipelines,
+      lastCommand,
+      envVars,
+    }
+  }
+
+  private _dwExProject = async (
+    cluster: ModelCluster,
+    branch: string,
+  ): Promise<string> => {
+    this._emitAction('cmd', {
       exe: 'dw',
       isFirst: true,
       isLast: false,
@@ -168,7 +167,7 @@ export default class Deployer {
       username: project.github_username,
       password: project.github_password,
     }, project.github_project, branch);
-    this.socketEmiter('cmd', {
+    this._emitAction('cmd', {
       exe: 'dw',
       isFirst: false,
       isLast: true,
@@ -182,28 +181,41 @@ export default class Deployer {
       args: ['-xf', filePath],
       env: {},
     });
-    return this.launchPipelines(projectDir, cluster.project.pipelines, cluster.envVars);
+    return projectDir;
   }
 
-  deploy = async (socket: Socket, cluster: ModelCluster, branch: string) => {
-    const genID = crypto.randomBytes(2).toString('hex');
-    const emiterPath = `${cluster.project.name}-${branch}-${genID}`;
-    this.socketEmiter = (type: string, payload: any) => {
-      socket.emit(emiterPath, {
-        type,
-        payload,
-      });
-    }
-    setTimeout(() => {
-      this.startDeploy(cluster, branch).catch((err) => {
-        console.error('startDeploy global error:', err);
-      });
-    }, 2000);
+  private _startDeploy = async (cluster: ModelCluster, branch: string) => {
+    this.projectDir = await this._dwExProject(cluster, branch);
+    const clusterData = this._extractClusterData(cluster);
+    const {pipelines, envVars, lastCommand} = clusterData;
+    await this.launchPipelines(this.projectDir, pipelines, envVars);
+    this.lastCommand = lastCommand;
+    writeProjectCache(lastCommand, envVars, this.projectDir);
+    this.start(lastCommand, envVars, this.projectDir);
+  }
+
+  public start = (cmd: ModelPipelineCmd, envVars: Record<string, string>, projectDir: string) => {
+    this.project = this.hookCmd({
+      exe: cmd.name,
+      args: cmd.args,
+      env: envVars,
+      cwd: projectDir,
+    });
+  }
+
+  private _emitAction = (type: string, payload: any) => {
+    this.emitter.emit('action', {
+      type,
+      payload,
+    });
+  }
+
+  public deploy = async (cluster: ModelCluster, branch: string) => {
+    this._startDeploy(cluster, branch).catch((err) => {
+      this._emitAction('error', err);
+    });
     return {
       status: 200,
-      payload: {
-        statusUrl: emiterPath,
-      },
     };
   }
 }

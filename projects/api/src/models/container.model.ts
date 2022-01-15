@@ -4,6 +4,7 @@ import {
 } from '@loopback/repository';
 import {Cluster} from './cluster.model';
 import {ContainerOutput} from './container-output.model';
+import {ContainerState} from './container-state.model';
 import {PipelineStatus} from './pipeline-status.model';
 
 @model({
@@ -109,6 +110,13 @@ export class Container extends Entity {
     name: 'pipelineStatus',
   })
   pipelineStatus: PipelineStatus;
+
+  @hasOne(() => ContainerState, {
+    keyFrom: 'namespace',
+    keyTo: 'containerNamespace',
+    name: 'state'
+  })
+  state: ContainerState;
 
   constructor(data?: Partial<Container>) {
     super(data);
