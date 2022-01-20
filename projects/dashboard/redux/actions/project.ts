@@ -1,34 +1,33 @@
-import { createAction } from '~/utils/redux';
-
-import { PROJECT_DEFINES } from '../defines';
-
-import type { AxiosResponse } from 'axios';
-import type { State } from '../reducers';
 import type {
-  ModelProject,
-  ModelEnvVar,
-  ModelCluster,
-  ModelPipeline,
-  ModelContainer,
-  ModelPipelineCmd,
+  ModelCluster, ModelClusterProduction, ModelContainer,
   ModelContainerOutput,
+  ModelEnvVar,
+  ModelPipeline,
+  ModelPipelineCmd,
+  ModelProject
 } from '@nxtranet/headers';
+import type {AxiosResponse} from 'axios';
+import {createAction} from '~/utils/redux';
+import {PROJECT_DEFINES} from '../defines';
+import type {State} from '../reducers';
+
+
 
 
 export const get = createAction<[
 ], State, AxiosResponse<ModelProject>>(
   PROJECT_DEFINES.GET,
-() =>
-  ({}, {}, api) => {
-    return api.get<ModelProject>('/projects');
-});
+  () =>
+    ({ }, { }, api) => {
+      return api.get<ModelProject>('/projects');
+    });
 
 export const post = createAction<[
   ModelProject,
 ], State, ModelProject>(
   PROJECT_DEFINES.POST,
   (project) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post('/projects', project);
     }
 )
@@ -37,21 +36,21 @@ export const getByName = createAction<[
   string,
 ], State, AxiosResponse<ModelProject>>(
   PROJECT_DEFINES.GET_BY_NAME,
-(name:string) =>
-  ({}, {}, api) => {
-    return api.get<ModelProject>(`/projects/${name}`);
-});
+  (name: string) =>
+    ({ }, { }, api) => {
+      return api.get<ModelProject>(`/projects/${name}`);
+    });
 
 export const getClusters = createAction<[
   string,
   (string | undefined)?,
 ], State, AxiosResponse<ModelCluster>>(
   PROJECT_DEFINES.GET_CLUSTERS,
-(projectName, clusterName) =>
-  ({}, {}, api) => {
-    return api.get<ModelCluster>(`/projects/${projectName}/clusters`, {
-      params: {
-        filter: {
+  (projectName, clusterName) =>
+    ({ }, { }, api) => {
+      return api.get<ModelCluster>(`/projects/${projectName}/clusters`, {
+        params: {
+          filter: {
             include: [
               {
                 relation: "envVars",
@@ -68,14 +67,14 @@ export const getClusters = createAction<[
                     }
                   ]
                 }
-          }],
-          where: {
-            name: clusterName,
+              }],
+            where: {
+              name: clusterName,
+            }
           }
         }
-      }
-    })
-  }
+      })
+    }
 );
 
 export const postClusters = createAction<[
@@ -84,20 +83,20 @@ export const postClusters = createAction<[
 ], State, ModelCluster>(
   PROJECT_DEFINES.POST_CLUSTERS,
   (projectName, cluster) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post(`/projects/${projectName}/clusters`, cluster);
     }
 )
 
 export const clusterDeploy = createAction<[
   string,
-  {branch:string}
+  {branch: string}
 ], State, AxiosResponse<ModelCluster>>(
   PROJECT_DEFINES.CLUSTER_DEPLOY,
   (namespace, data) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post<ModelCluster>(`/clusters/${namespace}/deploy`, data);
-});
+    });
 
 export const getContainers = createAction<[
   string,
@@ -105,7 +104,7 @@ export const getContainers = createAction<[
 ], State, AxiosResponse<ModelContainer>>(
   PROJECT_DEFINES.GET_CONTAINERS,
   (projectName, containerName) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       const include = ['cluster', {
         relation: 'pipelineStatus',
         scope: {
@@ -133,7 +132,7 @@ export const containerStatus = createAction<[
 ], State, null>(
   PROJECT_DEFINES.CONTAINER_STATUS,
   (namespace) =>
-    (dispatch, {}, api) => {
+    (dispatch, { }, api) => {
       api.socket.on(namespace, (output: ModelContainerOutput) => {
         dispatch({
           type: PROJECT_DEFINES.CONTAINER_STATUS.ON_EVENT,
@@ -144,12 +143,42 @@ export const containerStatus = createAction<[
     }
 )
 
+export const createClusterProduction = createAction<[
+  string,
+  Partial<ModelClusterProduction>,
+], State, AxiosResponse<ModelClusterProduction>>(
+  PROJECT_DEFINES.CREATE_CLUSTER_PRODUCTION,
+  (projectName, clusterProduction) =>
+    ({ }, { }, api) =>
+      api.post<ModelClusterProduction>(`/projects/${projectName}/cluster-production`, clusterProduction)
+)
+
+export const getClusterProduction = createAction<[
+  string,
+], State, AxiosResponse<ModelClusterProduction>>(
+  PROJECT_DEFINES.GET_CLUSTER_PRODUCTION,
+  (projectName) =>
+    async ({ }, { }, api) => {
+      try {
+        const res = await api.get<ModelClusterProduction>(`/projects/${projectName}/cluster-production`)
+        return res;
+      } catch (err: any) {
+        if (err.response.status !== 404) {
+          throw err;
+        }
+        return {
+          data: null,
+        } as AxiosResponse<any>
+      }
+    }
+)
+
 export const containerStatusOff = createAction<[
   string,
 ], State, null>(
   PROJECT_DEFINES.CONTAINER_STATUS,
   (namespace) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       api.socket.removeAllListeners(namespace);
       return null;
     }
@@ -157,21 +186,32 @@ export const containerStatusOff = createAction<[
 
 export const deleteContainer = createAction<[
   ModelContainer,
-], State, {clusterNamespace:string, name:string}>(
+], State, ModelContainer>(
   PROJECT_DEFINES.DELETE_CONTAINER,
   (container) =>
-    async ({}, {}, api) => {
+    async ({ }, { }, api) => {
       const {
         name,
         clusterNamespace,
       } = container;
       await api.delete(`/clusters/${clusterNamespace}/containers/${name}`);
-      return {
-        name,
-        clusterNamespace,
-      }
+      return container;
     }
 )
+
+export const deleteEnvVar = createAction<[
+  ModelEnvVar,
+], State, ModelEnvVar>(
+  PROJECT_DEFINES.DELETE_ENV_VAR,
+  (envVar) =>
+    async ({ }, { }, api) => {
+      await api.delete(`/clusters/${envVar.clusterNamespace}/env-vars`, {
+        params: {
+          where: {id: envVar.id},
+        }
+      });
+      return envVar;
+    })
 
 export const createEnvVar = createAction<[
   string,
@@ -179,16 +219,31 @@ export const createEnvVar = createAction<[
 ], State, AxiosResponse<ModelEnvVar>>(
   PROJECT_DEFINES.CREATE_ENV_VAR,
   (namespace, envVar) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post<ModelEnvVar>(`/clusters/${namespace}/env-vars`, envVar);
-});
+    });
+
+export const patchEnvVar = createAction<[
+  ModelEnvVar,
+], State, ModelEnvVar>(
+  PROJECT_DEFINES.PATCH_ENV_VAR,
+  (envVar) =>
+    async ({ }, { }, api) => {
+      await api.patch(`/clusters/${envVar.clusterNamespace}/env-vars`, envVar, {
+        params: {
+          where: {id: envVar.id},
+        },
+      });
+      return envVar;
+    }
+)
 
 export const getPipelines = createAction<[
   string
 ], State, AxiosResponse<ModelPipeline>>(
   PROJECT_DEFINES.GET_PIPELINES,
   (projectName) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.get<ModelPipeline>(`/projects/${projectName}/pipelines`, {
         params: {
           filter: {
@@ -205,7 +260,7 @@ export const createPipeline = createAction<[
 ], State, AxiosResponse<ModelPipeline>>(
   PROJECT_DEFINES.CREATE_PIPELINE,
   (projectName, pipeline) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post<ModelPipeline>(`/projects/${projectName}/pipelines`, pipeline);
     }
 )
@@ -216,7 +271,7 @@ export const createPipelineCmd = createAction<[
 ], State, AxiosResponse<ModelPipelineCmd>>(
   PROJECT_DEFINES.CREATE_PIPELINE_CMD,
   (namespace, pipelineCmd) =>
-    ({}, {}, api) => {
+    ({ }, { }, api) => {
       return api.post<ModelPipelineCmd>(`/pipelines/${namespace}/cmds`, pipelineCmd);
     }
 )

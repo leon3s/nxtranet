@@ -1,5 +1,5 @@
 server {
-    server_name api.nxtranet.com;
+    server_name api.nextra.net;
     location / {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -11,7 +11,7 @@ server {
 }
 
 server {
-    server_name dashboard.nxtranet.com;
+    server_name dashboard.nextra.net;
     location / {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -23,7 +23,7 @@ server {
 }
 
 server {
-    server_name ~^(?<subdomain>.+)\.nxtranet\.com nxtranet.com;
+    server_name ~^(?<subdomain>.+)\.nextra.net\;
     location / {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

@@ -94,7 +94,7 @@ export const createContainer = async (cluster, branch): Promise<{
     clusterNamespace: string;
   }
 }> => {
-  const genID = crypto.randomBytes(8).toString('hex').toLowerCase();
+  const genID = crypto.randomBytes(4).toString('hex').toLowerCase();
   const name = `${branch}-${genID}`;
   const namespace = `${cluster.namespace}.${name}`;
   const appPort = await getFreePort();

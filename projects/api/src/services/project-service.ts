@@ -47,24 +47,28 @@ export default
         }, 'gitBranch'],
       });
       if (!clusterDB) throw new Error('clusterProd is linked to non existing cluster with namespace ' + clusterProd.clusterNamespace);
-      if (!clusterDB.containers || !clusterDB.containers.length) {
-        await this.deployProduction(clusterDB, clusterProd);
-      } else {
-        const ports = await Promise.all(clusterProd.ports.map(async (port, i) => {
-          const container = clusterDB.containers[i];
-          if (container.state.Running) {
-            await this.dockerService.attachContainer(clusterDB.namespace, container.name);
-          } else {
-            await this.dockerService.startContainer(container);
-          }
-          return {
-            listen: port.number,
-            app: container.appPort,
-          }
-        }));
-        this.proxiesService.productionDomains(ports);
-        await this.dockerService.syncContainers();
-      }
+      const ports = await Promise.all(clusterProd.ports.map(async (port, i) => {
+        if (!clusterDB.gitBranch) throw new Error('Cluster is configured for production without a branch wtf ?');
+        let container = clusterDB.containers && clusterDB.containers[i];
+        if (!container) {
+          container = await this.dockerService.clusterDeploy({
+            namespace: clusterDB.namespace,
+            branch: clusterDB.gitBranch.name,
+            isProduction: true,
+            isGeneratedDeploy: true,
+          });
+        } else if (container.state && container.state.Running) {
+          await this.dockerService.attachContainer(container);
+        } else {
+          await this.dockerService.startContainer(container);
+        }
+        return {
+          listen: port.number,
+          app: container.appPort,
+        }
+      }));
+      await this.proxiesService.updateDomains();
+      await this.dockerService.syncContainers();
     }));
   }
 
@@ -88,11 +92,11 @@ export default
         }
       });
       await this.deployProduction(cluster, cluster.production);
-      await Promise.all(containersToDelete.map((container) => {
-        return this.dockerService.clusterContainerRemove(
-          container.clusterNamespace,
-          container.name,
-        );
+      await Promise.all(containersToDelete.map(async (container) => {
+        await this.containerRepository.updateById(container.id, {
+          commitSHA: lastCommit,
+        });
+        return this.dockerService.clusterContainerRemove(container);
       }));
     } else { // Deploy for any others cases //
       const container = await this.dockerService.clusterDeploy({
@@ -114,7 +118,7 @@ export default
           },
         });
         await Promise.all(containers.map((container) => {
-          return this.dockerService.clusterContainerRemove(container.clusterNamespace, container.name);
+          return this.dockerService.clusterContainerRemove(container);
         }));
       }).catch((err) => {
         console.error('Webhook github update cluster error ', {err});

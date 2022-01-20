@@ -105,10 +105,7 @@ export class WebhooksController {
         },
       });
       Promise.all(containers.map((container) => {
-        return this.dockerService.clusterContainerRemove(
-          container.clusterNamespace,
-          container.name,
-        );
+        return this.dockerService.clusterContainerRemove(container);
       })).catch((err) => {
         console.error('Error while closing pull request ', err);
       });

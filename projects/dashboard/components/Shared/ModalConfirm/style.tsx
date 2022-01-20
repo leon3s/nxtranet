@@ -1,9 +1,10 @@
 import Styled from 'styled-components';
-
+import ButtonLoading from '~/components/Shared/ButtonLoading';
 import {
-  ButtonDefault,
-  ButtonCancelDefault,
+  ButtonCancelDefault
 } from '~/styles/buttons';
+
+
 
 export const Container = Styled.div`
   width: 100%;
@@ -28,10 +29,46 @@ ${props => `
   color: ${props.theme.text.secondary};
 `}`;
 
-export const ButtonContainer = Styled.div`
+export const Button = Styled(ButtonLoading)`
+
+`;
+
+export const ButtonCancel = Styled(ButtonCancelDefault)`
+`;
+
+type ButtonContainerProps = {
+  isConfirmLoading: boolean;
+  isConfirmSuccess: boolean;
+}
+
+export const ButtonContainer = Styled.div<ButtonContainerProps>`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+${props => `
+  ${props.isConfirmLoading ? `
+    justify-content: center;
+    ${ButtonCancel} {
+      display: none;
+      width: 0px;
+      height: 0px;
+    }
+  `: `
+  `}
+
+  ${props.isConfirmSuccess ? `
+    ${ButtonCancel} {
+      display: none;
+      width: 0px;
+      height: 0px;
+    }
+    ${Button} {
+      display: none;
+      width: 0px;
+      height: 0px;
+    }
+  `: ''}
+`}
 `;
 
 export const SpinnerContainer = Styled.div`
@@ -43,11 +80,3 @@ export const SpinnerContainer = Styled.div`
   padding-right: 10px;
 `;
 
-export const Button = Styled(ButtonDefault)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-export const ButtonCancel = Styled(ButtonCancelDefault)`
-`;

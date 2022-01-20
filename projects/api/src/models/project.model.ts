@@ -1,4 +1,5 @@
-import {Entity, hasMany, model, property} from '@loopback/repository';
+import {Entity, hasMany, hasOne, model, property} from '@loopback/repository';
+import {ClusterProduction} from './cluster-production.model';
 import {Cluster} from './cluster.model';
 import {GitBranch} from './git-branch.model';
 import {Pipeline} from './pipeline.model';
@@ -90,6 +91,12 @@ export class Project extends Entity {
     name: 'gitBranches',
   })
   gitBranches: GitBranch[];
+
+  @hasOne(() => ClusterProduction, {
+    keyFrom: 'name',
+    keyTo: 'projectName',
+  })
+  clusterProduction: ClusterProduction;
 
   constructor(data?: Partial<Project>) {
     super(data);

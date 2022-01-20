@@ -8,6 +8,7 @@ class DomainProxy {
 
     constructor(domains: Domains) {
         this.domains = domains;
+        console.log(this.domains);
         this._createServer();
     }
 
@@ -17,6 +18,7 @@ class DomainProxy {
 
     public updateDomains(domains: Domains) {
         this.domains = domains;
+        console.log(this.domains);
     }
 
     private _createServer() {
@@ -24,6 +26,7 @@ class DomainProxy {
             socket.on('data', message => {
                 const serviceSocket = new net.Socket();
                 const messageString = message.toString();
+                console.log(messageString);
                 const subdomain = messageString.replace(/([\s\S]*nextranet-domain: )(.*)[\s\S]*/gm, '$2');
                 const port = this.domains[subdomain];
                 if (!port) return socket.destroy();

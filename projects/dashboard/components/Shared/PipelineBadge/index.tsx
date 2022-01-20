@@ -1,20 +1,18 @@
-import React from 'react';
-
+import {PipelineStatusEnum} from '@nxtranet/headers';
 import Styled from 'styled-components';
 
-import {PipelineStatusEnum} from '@nxtranet/headers';
-import type {ModelPipelineStatus} from '@nxtranet/headers';
+
 
 type ColorBadgeProps = {
   color: string;
-  status?: string;
+  status?: PipelineStatusEnum;
 };
 
 const opacityStatus = {
-  [PipelineStatusEnum.FAILED]: '',
-  [PipelineStatusEnum.ONLINE]: '',
-  [PipelineStatusEnum.PASSED]: '',
-  [PipelineStatusEnum.STARTING]: '',
+  [PipelineStatusEnum.FAILED]: 'red',
+  [PipelineStatusEnum.ONLINE]: 'green',
+  [PipelineStatusEnum.PASSED]: 'purple',
+  [PipelineStatusEnum.STARTING]: 'cyan',
 }
 
 const ColorBadge = Styled.div<ColorBadgeProps>`
@@ -22,7 +20,8 @@ width: 20px;
 height: 20px;
 border-radius: 20px;
 ${props => `
-  background-color: ${props.color};
+  background: linear-gradient(120deg, ${props.color} 0 45%, white,
+    ${props.status ? opacityStatus[props.status] : props.color} 55% 100%);
 `}`;
 
 export default ColorBadge;

@@ -15,6 +15,15 @@ if (!isProd) {
   });
 }
 
+const prepare = async () => {
+  await nginx.startService();
+  return new Promise<void>((resolve) => {
+    server.httpServer.listen(port, () => {
+      resolve();
+    });
+  })
+}
+
 server.io.on('connection', (socket) => {
   socket.on('/sites-avaible', (callback) => {
     try {
@@ -35,10 +44,25 @@ server.io.on('connection', (socket) => {
     }
   });
 
+  socket.on('/sites-avaible/deploy', async (filename: string, callback) => {
+    console.log('sites-avaible/deploy')
+    try {
+      await nginx.deployConfig(filename);
+      await nginx.reloadService();
+      console.log('deploy and reload success');
+      callback();
+    } catch (err) {
+      console.log('deploy and reload error ', err);
+      callback(err);
+    }
+
+  });
+
   socket.on('/test', (callback) => {
-    nginx.testConfig().then((res) => {
-      callback(null, res);
-    }).catch(callback);
+    callback(null, '');
+    // nginx.testConfig().then((res) => {
+    //   callback(null, res);
+    // }).catch(callback);
   });
 
   socket.on('/restart', (callback) => {
@@ -47,8 +71,18 @@ server.io.on('connection', (socket) => {
       callback();
     }).catch(callback);
   });
+
+  socket.on('/reload', (callback) => {
+    console.log('reload called !');
+    nginx.reloadService().then(() => {
+      console.log('reload success !');
+      callback();
+    }).catch(callback);
+  });
 });
 
-server.httpServer.listen(port, () => {
-  console.log(`nextranet nginx service started on port ${port}`);
+prepare().then(() => {
+  console.log(`nextranet nginx service ready on port ${port}`);
+}).catch((err) => {
+  console.error(err);
 });

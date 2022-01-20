@@ -1,14 +1,14 @@
 import React from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import api from '~/api';
+import type {State} from '~/redux/reducers';
+import type {Dispatch} from '~/utils/redux';
+import type InputProps from './props';
 import * as Style from './style';
 
-import {connect} from 'react-redux';
-import { bindActionCreators } from 'redux';
 
-import api from '~/api';
 
-import type { State } from '~/redux/reducers';
-import type { Dispatch } from '~/utils/redux';
-import type InputProps from './props';
 
 const actions = {};
 
@@ -41,7 +41,7 @@ class InputRelation extends
   }
 
   onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const d = this.state.data.find(({id}) => 
+    const d = this.state.data.find(({id}) =>
       id === e.target.value
     );
     this.setState({
@@ -63,11 +63,11 @@ class InputRelation extends
           value={this.state.value}
           onChange={this.onChange}
         >
-          <Style.InputRelationOptions
+          {options.isAnyEnabled ? <Style.InputRelationOptions
             value=""
           >
             any
-          </Style.InputRelationOptions>
+          </Style.InputRelationOptions> : null}
           {data.map((d: any) => (
             <Style.InputRelationOptions
               key={d.id}

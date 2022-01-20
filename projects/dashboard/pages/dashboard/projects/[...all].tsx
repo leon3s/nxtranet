@@ -1,16 +1,16 @@
-import React from 'react';
+import type {ModelProject} from '@nxtranet/headers';
+import type {GetServerSidePropsResult} from 'next';
 import Head from 'next/head';
-import { connect } from 'react-redux';
-
-import { wrapper } from '~/redux/store';
-import { projectActions } from '~/redux/actions';
-
+import React from 'react';
+import {connect} from 'react-redux';
 import DashboardHeader from '~/components/Dashboard/Header';
 import Project from '~/components/Dashboard/Project';
+import {projectActions} from '~/redux/actions';
+import {State} from '~/redux/reducers';
+import {wrapper} from '~/redux/store';
 
-import type { GetServerSidePropsResult } from 'next';
-import type { ModelProject } from '@nxtranet/headers';
-import { State } from '~/redux/reducers';
+
+
 
 interface ProjectPageProps {
   project: ModelProject | null;
@@ -43,6 +43,9 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     }
     if (tab === 'pipelines') {
       await store.dispatch(projectActions.getPipelines(name));
+    }
+    if (tab === 'production') {
+      await store.dispatch(projectActions.getClusterProduction(name));
     }
     return {
       props: {

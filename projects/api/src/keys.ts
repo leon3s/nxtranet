@@ -2,6 +2,7 @@ import {TokenService, UserService} from '@loopback/authentication';
 import {BindingKey} from '@loopback/context';
 import {User} from './models';
 import {Credentials} from './repositories';
+import {DnsmasqService} from './services/dnsmasq-service';
 import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {PasswordHasher} from './services/hash.password-service';
@@ -14,6 +15,12 @@ export namespace NginxServiceBindings {
   export const NGINX_SERVICE = BindingKey.create<NginxService>(
     'service.nginx',
   )
+}
+
+export namespace DnsmasqServiceBindings {
+  export const DNSMASQ_SERVICE = BindingKey.create<DnsmasqService>(
+    'service.dnsmasq',
+  );
 }
 
 export namespace ProjectServiceBindings {

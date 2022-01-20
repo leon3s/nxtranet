@@ -9,10 +9,6 @@ import * as AccordionStyle from '~/styles/accordionLine';
 import {ActionWrapper} from '../style';
 import * as Style from './style';
 
-
-
-
-
 type CusterCardProps = {
   data: ModelCluster;
   isVisible?: boolean;

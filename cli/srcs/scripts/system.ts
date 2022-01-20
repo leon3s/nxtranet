@@ -4,6 +4,8 @@ import path from 'path';
 
 const sysGroup = 'gp_nxtranet';
 
+const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
+
 /** TODO detect system to change installation */
 export async function detectSystem() { }
 
@@ -81,11 +83,18 @@ export const install = async () => {
   const nxtDev = findNxtDev();
   for (const dir of nxtDev.projectDirectories) {
     const services = getProjectConfigs(path.join(nxtDev._path, dir));
-    console.log(services);
     await createGroupIfNotExist();
     for (const service of services) {
       await createUserIfnotExist(service.user);
       await addUserToSysGroup(service.user);
     }
   }
+  await configureNginx();
+}
+
+export const configureNginx = async () => {
+  await execa('cp', [nextranetNginx, '/etc/nginx/sites-available']);
+  await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);
+  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
+  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
 }

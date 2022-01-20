@@ -79,7 +79,7 @@ export
 
   startContainer = async (container: Container) => {
     await this._emitStart(container);
-    this.clusterContainerStatus(container.clusterNamespace, container.name);
+    this.clusterContainerStatus(container);
     await this.whenContainerReady(container);
   }
 
@@ -115,46 +115,21 @@ export
     }));
   }
 
-  clusterContainerRemove = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  clusterContainerRemove = async (container: Container) => {
     await this._serviceEmitRemove(container);
-    await this.containerOutputRepository.deleteAll({
-      containerNamespace: container.namespace,
-    });
-    await this.pipelineStatusRepository.deleteAll({
-      containerNamespace: container.namespace,
-    });
+    await this.containerRepository.state(container.namespace).delete();
+    await this.containerRepository.outputs(container.namespace).delete();
+    await this.containerRepository.pipelineStatus(container.namespace).delete();
     return this.containerRepository.deleteById(container.id);
   }
 
-  attachContainer = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  attachContainer = async (container: Container) => {
     this._socket.emit('/container/attach', container);
-    this.clusterContainerStatus(namespace, name);
+    this.clusterContainerStatus(container);
   }
 
-  clusterContainerStatus = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  clusterContainerStatus = async (container: Container) => {
     this._socket.on(container.namespace, async (output) => {
-      console.log('api receive output ', output);
       if (output.type === 'pipelineStatus') {
         output.payload.containerNamespace = container.namespace;
         await this.pipelineStatusRepository.createOrUpdate(output.payload);
@@ -212,7 +187,7 @@ export
     partialContainer.isProduction = isProduction;
     partialContainer.isGeneratedDeploy = isGeneratedDeploy;
     const container = await this.containerRepository.create(partialContainer);
-    this.clusterContainerStatus(cluster.namespace, container.name);
+    this.clusterContainerStatus(container);
     return container;
   }
 }

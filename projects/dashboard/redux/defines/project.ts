@@ -25,3 +25,11 @@ export const GET_PIPELINES = defineAction('PRJECT_GET_PIPELINES');
 export const CREATE_PIPELINE = defineAction('PROJECT_CREATE_PIPELINE');
 
 export const CREATE_PIPELINE_CMD = defineAction('PROJECT_CREATE_PIPELINE_CMD');
+
+export const DELETE_ENV_VAR = defineAction('PROJECT_DELETE_ENV_VAR');
+
+export const PATCH_ENV_VAR = defineAction('PROJECT_PATH_ENV_VAR');
+
+export const CREATE_CLUSTER_PRODUCTION = defineAction('PROJECT_CREATE_CLUSTER_PRODUCTION');
+
+export const GET_CLUSTER_PRODUCTION = defineAction('PROJECT_GET_CLUSTER_PRODUCTION');

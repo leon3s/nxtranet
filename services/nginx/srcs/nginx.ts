@@ -1,8 +1,7 @@
+import type {NginxSiteAvaible} from '@nxtranet/headers';
+import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import execa from 'execa';
-
-import type {NginxSiteAvaible} from '@nxtranet/headers';
 
 const errorLogPath = '/var/log/nginx/error.log';
 const accessLogPath = '/var/log/nginx/access.log';
@@ -27,29 +26,36 @@ export const writeSiteAvaible = (filename: string, content: string) => {
 }
 
 export const startService = () => {
-  return execa('service', ['nginx', 'start'], {
+  return execa('sudo', ['service', 'nginx', 'start'], {
     cwd: __dirname,
   });
 }
 
 export const restartService = () => {
-  console.log('restart function !');
-  return execa('service', ['nginx', 'restart'], {
+  return execa('sudo', ['service', 'nginx', 'restart'], {
+    cwd: __dirname,
+  });
+}
+
+export const reloadService = async () => {
+  // await execa('sudo', ['nginx', '-s', 'reopen'], {
+  //   cwd: __dirname,
+  // });
+  return execa('sudo', ['service', 'nginx', 'reload'], {
     cwd: __dirname,
   });
 }
 
 export const testConfig = () => {
-  return execa('nginx', ['-t'], {
+  return execa('sudo', ['nginx', '-T'], {
     cwd: __dirname,
   });
 }
 
-export const deployConfig = async (filename: string) => {
-  await execa('ln', [path.join(siteAvaiblePath, filename), path.join(siteEnabledPath, filename)], {
+export const deployConfig = (filename: string) => {
+  return execa('ln', ['-s', path.join(siteAvaiblePath, filename), path.join(siteEnabledPath, filename)], {
     cwd: __dirname,
   });
-  return restartService();
 }
 
 export const readStreamErrorLog = () => {

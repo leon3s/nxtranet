@@ -38,7 +38,10 @@ export default function ContainerCard(props: ContainerCardProps) {
             <AccordionStyle.AccordionTitle>
               {data.cluster.name} - {data.name}
             </AccordionStyle.AccordionTitle>
-            <PipelineBadge color={data?.pipelineStatus?.pipeline?.color || 'grey'} />
+            <PipelineBadge
+              status={data?.pipelineStatus.value}
+              color={data?.pipelineStatus?.pipeline?.color || 'grey'}
+            />
           </Style.AccordionHeader>
         }
         content={

@@ -1,10 +1,9 @@
 import type {
-  ModelCluster, ModelContainer, ModelPipeline, ModelProject
+  ModelCluster, ModelClusterProduction, ModelContainer, ModelPipeline, ModelProject
 } from '@nxtranet/headers';
-import {AnyAction} from "redux";
+import type {AnyAction} from "redux";
+import {removeModel, updateModel} from '~/utils/reducer';
 import {PROJECT_DEFINES} from "../defines";
-
-
 
 export type ProjectState = {
   data: ModelProject[],
@@ -12,22 +11,22 @@ export type ProjectState = {
   target_clusters: ModelCluster[];
   target_pipelines: ModelPipeline[];
   target_containers: ModelContainer[];
+  target_clusterProduction: null | ModelClusterProduction;
 }
 
-const projectReducer = (state: ProjectState = {
-  data: [],
-  target: null,
-  target_clusters: [],
-  target_pipelines: [],
-  target_containers: [],
-}, action: AnyAction): ProjectState => {
-  if (action.type === PROJECT_DEFINES.GET.FULFILLED) {
+type FN_PTRS = Record<
+  string,
+  (state: ProjectState, action: AnyAction) =>
+    ProjectState>;
+
+const fnPtrs: FN_PTRS = {
+  [PROJECT_DEFINES.GET.FULFILLED]: (state, action) => {
     return {
       ...state,
       data: action.payload.data,
     }
-  }
-  if (action.type === PROJECT_DEFINES.POST.FULFILLED) {
+  },
+  [PROJECT_DEFINES.POST.FULFILLED]: (state, action) => {
     return {
       ...state,
       data: [
@@ -35,20 +34,20 @@ const projectReducer = (state: ProjectState = {
         ...state.data,
       ]
     }
-  }
-  if (action.type === PROJECT_DEFINES.GET_BY_NAME.FULFILLED) {
+  },
+  [PROJECT_DEFINES.GET_BY_NAME.FULFILLED]: (state, action) => {
     return {
       ...state,
       target: action.payload.data,
     }
-  }
-  if (action.type === PROJECT_DEFINES.GET_CLUSTERS.FULFILLED) {
+  },
+  [PROJECT_DEFINES.GET_CLUSTERS.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_clusters: action.payload.data,
-    };
-  }
-  if (action.type === PROJECT_DEFINES.POST_CLUSTERS.FULFILLED) {
+    }
+  },
+  [PROJECT_DEFINES.POST_CLUSTERS.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_clusters: [
@@ -56,14 +55,14 @@ const projectReducer = (state: ProjectState = {
         action.payload.data,
       ],
     }
-  }
-  if (action.type === PROJECT_DEFINES.GET_CONTAINERS.FULFILLED) {
+  },
+  [PROJECT_DEFINES.GET_CONTAINERS.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_containers: action.payload.data,
     }
-  }
-  if (action.type === PROJECT_DEFINES.CONTAINER_STATUS.ON_EVENT) {
+  },
+  [PROJECT_DEFINES.CONTAINER_STATUS.ON_EVENT]: (state, action) => {
     return {
       ...state,
       target_containers: [
@@ -76,14 +75,14 @@ const projectReducer = (state: ProjectState = {
         }
       ]
     }
-  }
-  if (action.type === PROJECT_DEFINES.GET_PIPELINES.FULFILLED) {
+  },
+  [PROJECT_DEFINES.GET_PIPELINES.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_pipelines: action.payload.data,
     }
-  }
-  if (action.type === PROJECT_DEFINES.CREATE_PIPELINE.FULFILLED) {
+  },
+  [PROJECT_DEFINES.CREATE_PIPELINE.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_pipelines: [
@@ -91,8 +90,8 @@ const projectReducer = (state: ProjectState = {
         action.payload.data,
       ]
     }
-  }
-  if (action.type === PROJECT_DEFINES.CREATE_PIPELINE_CMD.FULFILLED) {
+  },
+  [PROJECT_DEFINES.CREATE_PIPELINE_CMD.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_pipelines: state.target_pipelines.map((pipeline) => {
@@ -108,23 +107,88 @@ const projectReducer = (state: ProjectState = {
         return pipeline;
       }),
     }
-  }
-  if (action.type === PROJECT_DEFINES.DELETE_CONTAINER.FULFILLED) {
+  },
+  [PROJECT_DEFINES.DELETE_CONTAINER.FULFILLED]: (state, action) => {
     return {
       ...state,
       target_clusters: state.target_clusters.map((cluster) => {
         if (cluster.namespace === action.payload.clusterNamespace) {
           return {
             ...cluster,
-            containers: cluster.containers.filter(({name}) => name !== action.payload.name),
+            containers: removeModel(cluster.containers, action.payload),
           }
         }
         return cluster;
-      })
+      }),
+    }
+  },
+  [PROJECT_DEFINES.DELETE_ENV_VAR.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.map((cluster) => {
+        if (cluster.namespace === action.payload.clusterNamespace) {
+          return {
+            ...cluster,
+            envVars: removeModel(cluster.envVars, action.payload),
+          }
+        }
+        return cluster;
+      }),
+    }
+  },
+  [PROJECT_DEFINES.PATCH_ENV_VAR.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.map((cluster) => {
+        if (cluster.namespace === action.payload.clusterNamespace) {
+          return {
+            ...cluster,
+            envVars: updateModel(cluster.envVars, action.payload),
+          }
+        }
+        return cluster;
+      }),
+    }
+  },
+  [PROJECT_DEFINES.CREATE_ENV_VAR.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.map((cluster) => {
+        if (cluster.namespace === action.payload.data.clusterNamespace) {
+          return {
+            ...cluster,
+            envVars: [
+              ...(cluster.envVars || []),
+              action.payload.data,
+            ],
+          };
+        }
+        return cluster;
+      }),
+    }
+  },
+  [PROJECT_DEFINES.GET_CLUSTER_PRODUCTION.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusterProduction: action.payload.data,
     }
   }
-  // if (action.type === PROJECT_DEFINES.P)
-  return state;
+}
+
+const projectReducer = (state: ProjectState = {
+  data: [],
+  target: null,
+  target_clusters: [],
+  target_pipelines: [],
+  target_containers: [],
+  target_clusterProduction: null,
+}, action: AnyAction): ProjectState => {
+  const fn = fnPtrs[action.type] || null;
+  if (!fn) {
+    console.error('Action called with no function to catch in reducer ! ', action);
+    return state
+  };
+  return fn(state, action);
 }
 
 export default projectReducer;
