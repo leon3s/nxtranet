@@ -1,14 +1,12 @@
-import React from 'react';
+import type {AppInitialProps} from 'next/app';
 import App from 'next/app';
 import Head from 'next/head';
-import { ThemeProvider } from 'styled-components';
-
+import React from 'react';
+import {ThemeProvider} from 'styled-components';
 import {wrapper} from '~/redux/store';
 import {themeDefault} from '~/styles/themes';
 
-import type {AppInitialProps} from 'next/app';
 
-import {meActions} from '~/redux/actions';
 
 class MyApp extends App<AppInitialProps> {
   public static getInitialProps = wrapper.getInitialAppProps((store) => async () => {
@@ -18,7 +16,7 @@ class MyApp extends App<AppInitialProps> {
       if (!state.me.me && !state.me.errors.whoiam) {
         // await store.dispatch(meActions.whoiam());
       }
-    } catch (e) {}
+    } catch (e) { }
     return {
       pageProps: {},
     };
@@ -27,7 +25,7 @@ class MyApp extends App<AppInitialProps> {
   public render() {
     const {Component, pageProps} = this.props;
     return (
-        <ThemeProvider theme={themeDefault}>
+      <ThemeProvider theme={themeDefault}>
         <React.Fragment>
           <Head>
             <title>Docktron</title>
@@ -36,7 +34,7 @@ class MyApp extends App<AppInitialProps> {
             <script async src="https://www.googletagmanager.com/gtag/js?id=UA-64766741-2"></script>
             <script
               dangerouslySetInnerHTML={{
-                __html:`
+                __html: `
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());

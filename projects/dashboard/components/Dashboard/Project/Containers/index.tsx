@@ -1,19 +1,16 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators } from 'redux';
+import type {ModelContainer} from '@nxtranet/headers';
 import {NextRouter, withRouter} from 'next/router';
-import RingLoader from 'react-spinners/RingLoader';
-
-import { projectActions } from '~/redux/actions';
+import React from 'react';
+import {AiOutlinePlus} from 'react-icons/ai';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import ActionBar from '~/components/Shared/ActionBar';
+import {projectActions} from '~/redux/actions';
+import type {State} from '~/redux/reducers';
+import {Dispatch} from '~/utils/redux';
+import {ActionWrapper} from '../style';
 import ContainerCard from './ContainerCard';
 import * as Style from './style';
-
-import type { State } from '~/redux/reducers';
-import type { ModelContainer } from '@nxtranet/headers';
-import { Dispatch } from '~/utils/redux';
-import ActionBar from '~/components/Shared/ActionBar';
-import { ActionWrapper } from '../style';
-import { AiOutlinePlus } from 'react-icons/ai';
 
 const mapStateToProps = (
   state: State,
@@ -30,19 +27,19 @@ const actions = {
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators<any, typeof actions>(actions, dispatch);
 
-type              ContainersProps = {
-  projectName:    string;
-  containerName:  string | null;
-  router:         NextRouter;
+type ContainersProps = {
+  projectName: string;
+  containerName: string | null;
+  router: NextRouter;
 }
-& ReturnType<typeof mapStateToProps>
-& ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapStateToProps>
+  & ReturnType<typeof mapDispatchToProps>;
 
 type ContainersState = {};
 
 class Containers extends
   React.PureComponent<ContainersProps, ContainersState> {
-  
+
   state: ContainersState = {
   };
 
@@ -110,7 +107,7 @@ class Containers extends
     return (
       <React.Fragment>
         <Style.Container>
-        <ActionWrapper>
+          <ActionWrapper>
             <ActionBar actions={[
               {
                 title: 'Create',
@@ -137,7 +134,7 @@ class Containers extends
 }
 
 export default withRouter(
-connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Containers));
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Containers));

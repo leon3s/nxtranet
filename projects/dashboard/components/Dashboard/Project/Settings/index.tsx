@@ -9,13 +9,11 @@ import type {State} from '~/redux/reducers';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './style';
 
-
-
 const actions = {
   patchProject: projectActions.patchProject,
 };
 
-const mapStateToProps = (state: State) => ({
+const mapStateToProps = ({ }: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
