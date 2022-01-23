@@ -150,6 +150,7 @@ export class ProjectController {
       },
     });
     if (!projectDB) throw new HttpErrors.NotFound('Project not found');
+    await this.githubService.syncProjectBranch(projectDB);
     await this.projectRepository.updateById(projectDB.id, project);
   }
 

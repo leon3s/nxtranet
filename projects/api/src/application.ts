@@ -14,6 +14,7 @@ import path from 'path';
 import websocketServer from 'socket.io';
 import {BASICAuthenticationStrategy} from './authentication-strategies/basic-strategy';
 import {
+  DnsmasqServiceBindings,
   DockerServiceBindings,
   GithubServiceBindings,
   NginxServiceBindings,
@@ -27,6 +28,7 @@ import {
 import ServiceLifecycle from './lifecycles/services-lifecycles';
 import {MySequence} from './sequence';
 import {BASICService} from './services/basic-service';
+import {DnsmasqService} from './services/dnsmasq-service';
 import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {BcryptHasher} from './services/hash.password-service';
@@ -85,6 +87,10 @@ export class NextranetApi extends BootMixin(
   }
 
   setupBindings() {
+
+    this.bind(DnsmasqServiceBindings.DNSMASQ_SERVICE)
+      .toClass(DnsmasqService);
+
     this.bind(NginxServiceBindings.NGINX_SERVICE)
       .toClass(NginxService);
 

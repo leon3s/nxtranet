@@ -1,21 +1,16 @@
-import React from 'react';
-
+import type {ModelProject} from '@nxtranet/headers';
 import Link from 'next/link';
-
+import React from 'react';
 import FooterDefault from '~/components/Shared/FooterDefault';
-
+import {ContainerWrapper} from '~/styles/global';
+import * as NavStyle from '~/styles/nav';
+import * as ProjectStyle from '~/styles/project';
 import Clusters from './Clusters';
 import Containers from './Containers';
-
-import { ContainerWrapper } from '~/styles/global';
-import * as ProjectStyle from '~/styles/project';
-import * as NavStyle from '~/styles/nav';
-
-import type { ModelProject } from '@nxtranet/headers';
-
-import * as Style from './style';
-import Settings from './Settings';
 import Pipelines from './Pipelines';
+import Production from './Production';
+import Settings from './Settings';
+import * as Style from './style';
 
 type ProjectProps = {
   data: ModelProject;
@@ -39,6 +34,10 @@ const navItems = [
   {
     title: 'Settings',
     href: '/settings',
+  },
+  {
+    title: 'Production',
+    href: '/production',
   }
 ];
 
@@ -67,7 +66,12 @@ const tabMapping: TabMapping = {
     <Pipelines
       projectName={props.data.name}
     />
-  )
+  ),
+  production: (props) => (
+    <Production
+      projectName={props.data.name}
+    />
+  ),
 }
 
 function generateUrl(name: string, href: string) {
@@ -82,6 +86,7 @@ function isActive(tab: string | null, href: string): boolean {
 }
 
 export default function Project(props: ProjectProps) {
+  console.log('projects props ! ', props);
   const tab = (props.tab && tabMapping[props.tab](props)) || tabMapping.clusters(props);
   return (
     <ContainerWrapper>

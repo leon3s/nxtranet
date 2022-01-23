@@ -1,8 +1,8 @@
 import {inject} from '@loopback/core';
-import { get, param, post, requestBody, response } from '@loopback/rest';
+import {get, param, post, requestBody, response} from '@loopback/rest';
+import type {NginxSiteAvaible} from '@nxtranet/headers';
 import {NginxServiceBindings} from '../keys';
 import {NginxService} from '../services/nginx-service';
-import type { NginxSiteAvaible } from '@nxtranet/headers';
 
 export class NginxController {
   constructor(
@@ -10,10 +10,10 @@ export class NginxController {
     protected nginxService: NginxService,
   ) { }
 
-  @get('/nginx/restart', {
+  @get('/nginx/reload', {
     responses: {
       '200': {
-        description: 'Restart nginx service',
+        description: 'Reload nginx service',
         content: {
           'text/plain': {
             schema: {
@@ -25,8 +25,8 @@ export class NginxController {
       },
     },
   })
-  async restartService(): Promise<string> {
-    await this.nginxService.restartService();
+  async reloadService(): Promise<string> {
+    await this.nginxService.reloadService();
     return "Ok";
   }
 

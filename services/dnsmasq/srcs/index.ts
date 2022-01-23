@@ -1,24 +1,46 @@
 import {Server} from "@nxtranet/service";
-import fs from 'fs';
+import * as dnsmasq from './dnsmasq';
 
 const port = +(process.env.PORT ?? 3365);
 const server = new Server();
 
+const prepare = async () => {
+  await dnsmasq.start();
+  return new Promise<void>((resolve) => {
+    server.httpServer.listen(port, () => {
+      resolve();
+    });
+  })
+}
+
 server.io.on('connection', (socket) => {
   socket.on('/config/sync', (data: string, callback = () => { }) => {
-    fs.writeFileSync('/etc/dnsmasq.d/nextranet.domains', data);
+    dnsmasq.syncConfig(data).then(() => {
+      callback();
+    }).catch(callback);
   });
 
-  socket.on('/config', (callback = () => { }) => {
-    try {
-      const domains = fs.readFileSync('/etc/dnsmasq.d/nextranet.domains').toString();
-      callback(null, domains);
-    } catch (err) {
-      callback(err);
-    }
+  socket.on('/config/read', (callback = () => { }) => {
+    dnsmasq.readConfig().then((config) => {
+      callback(null, config);
+    }).catch(callback);
+  });
+
+  socket.on('/start', (callback = () => { }) => {
+    dnsmasq.start().then(() => {
+      callback();
+    }).catch(callback);
+  });
+
+  socket.on('/restart', (callback = () => { }) => {
+    dnsmasq.restart().then(() => {
+      callback();
+    }).catch(callback);
   });
 });
 
-server.httpServer.listen(port, () => {
-  console.log(`nextranet dnsmasq service started on port ${port}`);
+prepare().then(() => {
+  console.log(`nextranet dnsmasq service ready on port ${port}`);
+}).catch((err) => {
+  console.error(err);
 });

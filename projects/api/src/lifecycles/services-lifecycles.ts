@@ -23,7 +23,9 @@ export default class ServiceLifecycle implements LifeCycleObserver {
     @inject(GithubServiceBindings.GITHUB_SERVICE) githubService: GithubService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE) projectService: ProjectService,
   ) {
-    await projectService.boot();
+    projectService.boot().catch((err) => {
+      console.error('project service boot error ', err);
+    });
     // const projects = await projectRepository.find();
     // await Promise.all(projects.map((project) => {
     //   return githubService.syncProjectBranch(project);

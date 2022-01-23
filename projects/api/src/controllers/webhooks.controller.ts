@@ -1,11 +1,16 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors, param, post, Request, requestBody, RestBindings} from '@loopback/rest';
-import {DockerServiceBindings, GithubServiceBindings, ProjectServiceBindings} from '../keys';
+import {DockerServiceBindings, GithubServiceBindings, ProjectServiceBindings, ProxiesServiceBindings} from '../keys';
 import {ClusterRepository, ContainerRepository, GitBranchRepository, ProjectRepository} from '../repositories';
 import {DockerService} from '../services/docker-service';
 import {GithubService} from '../services/github-service';
 import ProjectService from '../services/project-service';
+import {ProxiesService} from '../services/proxies-service';
+
+const ActionMap = {
+
+}
 
 export class WebhooksController {
   constructor(
@@ -15,6 +20,8 @@ export class WebhooksController {
     protected dockerService: DockerService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE)
     protected projectService: ProjectService,
+    @inject(ProxiesServiceBindings.PROXIES_SERVICE)
+    protected proxiesService: ProxiesService,
     @repository(ClusterRepository)
     protected clusterRepository: ClusterRepository,
     @repository(ProjectRepository)
@@ -86,15 +93,19 @@ export class WebhooksController {
     // Open pull request //
     if (githubEvent === 'pull_request' && payload.action === 'opened') {
       const fromBranch = payload.pull_request.head.ref;
-      await Promise.all<void>(project.clusters.map(async (cluster) => {
+      Promise.all<void>(project.clusters.map(async (cluster) => {
         if (cluster.gitBranch) return;
-        await this.dockerService.clusterDeploy({
-          branch: fromBranch,
+        await this.projectService.deployCluster(cluster, {
+          branchName: fromBranch,
           isProduction: false,
           isGeneratedDeploy: true,
-          namespace: cluster.namespace,
+          lastCommit: payload.pull_request.head.sha,
         });
-      }));
+      })).then(() => {
+        return this.proxiesService.updateDomains();
+      }).catch((err) => {
+        console.error('Error while deployed new pull request ', payload, err);
+      });
     }
     // Close pull request
     if (githubEvent === 'pull_request' && payload.action === 'closed') {
@@ -105,10 +116,7 @@ export class WebhooksController {
         },
       });
       Promise.all(containers.map((container) => {
-        return this.dockerService.clusterContainerRemove(
-          container.clusterNamespace,
-          container.name,
-        );
+        return this.dockerService.clusterContainerRemove(container);
       })).catch((err) => {
         console.error('Error while closing pull request ', err);
       });
@@ -135,7 +143,7 @@ export class WebhooksController {
           console.error('Webhook updateCluster error !! ', err);
         });
       } else {
-        // Deploy on cluster of no cluster is linked to a branch //
+        // Deploy on cluster if no cluster is linked to a branch //
         const clusters = project.clusters.filter(({gitBranch}) => !gitBranch);
         this.projectService.deployClusters(clusters, {
           branchName,

@@ -1,16 +1,13 @@
+import type {ModelContainer} from '@nxtranet/headers';
 import React from 'react';
-
 import PipelineBadge from '../PipelineBadge';
-
-import type { ModelContainer } from '@nxtranet/headers';
+import * as Style from './style';
 
 type ClusterContainerProps = {
   data: ModelContainer;
   onClickShow: (data: ModelContainer) => void;
   onClickDelete: (data: ModelContainer) => void;
 }
-
-import * as Style from './style';
 
 export default function ClusterContainer(props: ClusterContainerProps) {
   function onClickDelete() {
@@ -20,6 +17,7 @@ export default function ClusterContainer(props: ClusterContainerProps) {
   function onClickShow() {
     props.onClickShow(props.data);
   }
+
   return (
     <Style.Container>
       <Style.Overlay>
@@ -27,7 +25,7 @@ export default function ClusterContainer(props: ClusterContainerProps) {
           onClick={onClickDelete}
           title="Delete"
         >
-          
+
         </Style.Delete>
         <Style.Edit
           title="Show"
@@ -36,7 +34,10 @@ export default function ClusterContainer(props: ClusterContainerProps) {
 
         </Style.Edit>
       </Style.Overlay>
-      <PipelineBadge color={props.data?.pipelineStatus?.pipeline?.color || 'grey'} />
+      <PipelineBadge
+        status={props.data?.pipelineStatus?.value || 'STARTING'}
+        color={props.data?.pipelineStatus?.pipeline?.color || 'grey'}
+      />
       <Style.LineTitle>
         {props.data.gitBranchName}
       </Style.LineTitle>

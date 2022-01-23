@@ -1,24 +1,18 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators } from 'redux';
+import type {ModelPipeline, ModelPipelineCmd} from '@nxtranet/headers';
 import {NextRouter, withRouter} from 'next/router';
-
-import Reform from '~/components/Shared/ReForm';
-import Modal from '~/components/Shared/Modal';
-
-import * as HeaderSearchStyle from '~/styles/headerSearch';
-import { ButtonDefault } from '~/styles/buttons';
-
-import { projectActions } from '~/redux/actions';
-import type { State } from '~/redux/reducers';
-import type { Dispatch } from '~/utils/redux';
-import type { ModelPipeline, ModelPipelineCmd } from '@nxtranet/headers';
-
-import * as Style from './style';
-import PipelineCard from './PipelineCard';
-import { ActionWrapper } from '../style';
+import React from 'react';
+import {AiOutlinePlus} from 'react-icons/ai';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import ActionBar from '~/components/Shared/ActionBar';
-import { AiOutlinePlus } from 'react-icons/ai';
+import Modal from '~/components/Shared/Modal';
+import Reform from '~/components/Shared/ReForm';
+import {projectActions} from '~/redux/actions';
+import type {State} from '~/redux/reducers';
+import type {Dispatch} from '~/utils/redux';
+import {ActionWrapper} from '../style';
+import PipelineCard from './PipelineCard';
+import * as Style from './style';
 
 const actions = {
   createPipeline: projectActions.createPipeline,
@@ -32,13 +26,12 @@ const mapStateToProps = (state: State) => ({
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators(actions, dispatch)
 
-type              PipelinesProps = {
-  projectName:    string;
-  pipelineName:   string;
-  router:         NextRouter;
+type PipelinesProps = {
+  projectName: string;
+  router: NextRouter;
 }
-&                 ReturnType<typeof mapStateToProps>
-&                 ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapStateToProps>
+  & ReturnType<typeof mapDispatchToProps>;
 
 type PipelinesState = {
   isModalCreatePipelineOpen: boolean;
@@ -46,12 +39,12 @@ type PipelinesState = {
 
 class Pipelines extends
   React.PureComponent<PipelinesProps, PipelinesState> {
-  
+
   state: PipelinesState = {
     isModalCreatePipelineOpen: false,
   };
 
-  componentDidMount() {}
+  componentDidMount() { }
 
   onOpenModalCreatePipeline = () => {
     this.setState({
@@ -68,7 +61,7 @@ class Pipelines extends
       isModalCreatePipelineOpen: false,
     })
   }
- 
+
 
   onCreatePipelineCmd = async (namespace: string, data: Partial<ModelPipelineCmd>): Promise<void> => {
     await this.props.createPipelineCmd(namespace, data);
@@ -81,7 +74,7 @@ class Pipelines extends
     const {
       pipelines,
     } = this.props;
-    const {} = this.state;
+    const { } = this.state;
     return (
       <React.Fragment>
         <Style.Container>
@@ -120,17 +113,17 @@ class Pipelines extends
               }
             ]} />
           </ActionWrapper>
-        <Style.PipelineCardContainer>
-          {pipelines.map((pipeline) => (
-            <PipelineCard
-              key={pipeline.id}
-              isVisible={false}
-              data={pipeline}
-              onCreatePipelineCmd={this.onCreatePipelineCmd}
-              onClick={() => {}}
-            />
-          ))}
-        </Style.PipelineCardContainer>
+          <Style.PipelineCardContainer>
+            {pipelines.map((pipeline) => (
+              <PipelineCard
+                key={pipeline.id}
+                isVisible={false}
+                data={pipeline}
+                onCreatePipelineCmd={this.onCreatePipelineCmd}
+                onClick={() => { }}
+              />
+            ))}
+          </Style.PipelineCardContainer>
         </Style.Container>
       </React.Fragment>
     )
@@ -138,7 +131,7 @@ class Pipelines extends
 }
 
 export default withRouter(
-connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Pipelines));
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Pipelines));

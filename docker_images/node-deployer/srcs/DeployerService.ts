@@ -54,34 +54,11 @@ export default class DeployerService {
       });
 
       socket.on('/attach', () => {
-        this.deployer.project.stdout.on('data', (stdout) => {
-          socket.emit('action', {
-            type: 'cmd',
-            payload: {
-              exe: this.deployer.lastCommand.name,
-              cwd: this.deployer.projectDir,
-              args: this.deployer.lastCommand.args,
-              isLast: false,
-              isFirst: false,
-              stdout: stdout.toString(),
-            }
-          });
+        this.deployer.emitter.on('action', (action) => {
+          socket.emit('action', action);
         });
-        this.deployer.project.stderr.on('data', (stderr) => {
-          socket.emit('action', {
-            type: 'cmd',
-            payload: {
-              exe: this.deployer.lastCommand.name,
-              cwd: this.deployer.projectDir,
-              args: this.deployer.lastCommand.args,
-              isLast: false,
-              isFirst: false,
-              stderr: stderr.toString(),
-            }
-          });
-        });
-        this.deployer.project.once('error', (err) => {
-          console.error('deployer project once error: ', err);
+        this.deployer.emitter.on('error', (err) => {
+          socket.emit('deployer_error', err);
         });
       });
     });

@@ -122,11 +122,13 @@ export default class Deployer {
           pipelineNamespace: pipeline.namespace,
           value: 'starting',
         });
-        await this.launchPipeline(projectDir, pipeline, envVars);
-        this._emitAction('pipelineStatus', {
-          pipelineNamespace: pipeline.namespace,
-          value: 'passed',
-        });
+        if (pipeline.commands.length) {
+          await this.launchPipeline(projectDir, pipeline, envVars);
+          this._emitAction('pipelineStatus', {
+            pipelineNamespace: pipeline.namespace,
+            value: 'passed',
+          });
+        }
       } catch (e) {
         this._emitAction('pipelineStatus', {
           pipelineNamespace: pipeline.namespace,
@@ -200,6 +202,13 @@ export default class Deployer {
       args: cmd.args,
       env: envVars,
       cwd: projectDir,
+    });
+    this.project.catch((err) => {
+      this._emitAction('pipelineStatus', {
+        pipelineNamespace: cmd.pipelineNamespace,
+        value: 'failed',
+        error: JSON.stringify(err),
+      });
     });
   }
 

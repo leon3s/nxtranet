@@ -1,42 +1,32 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import { bindActionCreators } from 'redux';
-
-import {withRouter} from 'next/router';
-
-import ActionBar from '~/components/Shared/ActionBar';
-
-import {AiOutlinePlus} from 'react-icons/ai';
-
-import { projectActions } from '~/redux/actions';
-
-import Modal from '~/components/Shared/Modal';
-import Reform from '~/components/Shared/ReForm';
-import ModalConfirm from '~/components/Shared/ModalConfirm';
-
-import ClusterCard from './ClusterCard';
-
-import {ActionWrapper} from '../style';
-
-import { ModalTitle } from '~/styles/text';
-
-import * as Style from './style';
-
-import type { NextRouter } from 'next/router';
-import type { Dispatch } from '~/utils/redux';
-import type { State } from '~/redux/reducers';
 import type {
-  ModelEnvVar,
   ModelCluster,
-  ModelContainer,
+  ModelContainer, ModelEnvVar
 } from '@nxtranet/headers';
-
+import type {NextRouter} from 'next/router';
+import {withRouter} from 'next/router';
+import React from 'react';
+import {AiOutlinePlus} from 'react-icons/ai';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import ActionBar from '~/components/Shared/ActionBar';
+import Modal from '~/components/Shared/Modal';
+import ModalConfirm from '~/components/Shared/ModalConfirm';
+import Reform from '~/components/Shared/ReForm';
+import {projectActions} from '~/redux/actions';
+import type {State} from '~/redux/reducers';
+import {ModalTitle} from '~/styles/text';
+import type {Dispatch} from '~/utils/redux';
+import {ActionWrapper} from '../style';
+import ClusterCard from './ClusterCard';
+import * as Style from './style';
 
 const actions = {
   createCluster: projectActions.postClusters,
   clusterDeploy: projectActions.clusterDeploy,
   deleteContainer: projectActions.deleteContainer,
   createEnvVar: projectActions.createEnvVar,
+  deleteEnvVar: projectActions.deleteEnvVar,
+  patchEnvVar: projectActions.patchEnvVar,
 }
 
 const mapStateToProps = (state: State) => ({
@@ -46,17 +36,17 @@ const mapStateToProps = (state: State) => ({
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators(actions, dispatch);
 
-type                  ClustersProps = {
-  projectName:        string;
-  router:             NextRouter;
-  clusterName:        string | null;
+type ClustersProps = {
+  projectName: string;
+  router: NextRouter;
+  clusterName: string | null;
 }
-&                     ReturnType<typeof mapStateToProps>
-&                     ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapStateToProps>
+  & ReturnType<typeof mapDispatchToProps>;
 
-type                  ClustersState = {
-  isModalDeployOpen:  boolean;
-  isModalCreateClusterOpen:  boolean;
+type ClustersState = {
+  isModalDeployOpen: boolean;
+  isModalCreateClusterOpen: boolean;
   isModalDeleteEnvVarOpen: boolean;
   isModalDeleteContainerOpen: boolean;
   containerToDelete?: ModelContainer | null;
@@ -70,7 +60,7 @@ type                  ClustersState = {
 
 class Clusters extends
   React.PureComponent<ClustersProps, ClustersState> {
-  
+
   state: ClustersState = {
     isModalDeployOpen: false,
     isModalCreateClusterOpen: false,
@@ -85,7 +75,7 @@ class Clusters extends
     targetClusterNamespace: null,
   };
 
-  deploySubmitForm = async (data: { branch:string }) => {
+  deploySubmitForm = async (data: {branch: string}) => {
     const {
       router,
       clusters,
@@ -179,39 +169,49 @@ class Clusters extends
   }
 
   onConfirmDeleteContainer = async () => {
-    if (this.state.containerToDelete) {
-      await this.props.deleteContainer(this.state.containerToDelete);
-      setTimeout(() => {
-        this.closeModalContainerDelete();
-      }, 200);
+    const {containerToDelete} = this.state;
+    if (containerToDelete) {
+      await this.props.deleteContainer(containerToDelete);
+      this.closeModalContainerDelete();
+    }
+  }
+
+  onConfirmDeleteEnvVar = async () => {
+    const {envVarToDelete} = this.state;
+    if (envVarToDelete) {
+      await this.props.deleteEnvVar(envVarToDelete);
+      this.closeModalDeleteEnvVar();
     }
   }
 
   closeModalContainerDelete = () => {
     this.setState({
+      containerToDelete: null,
       isModalDeleteContainerOpen: false,
-    })
+    });
   }
 
   openModalDeleteEnvVar = (envVar: ModelEnvVar) => {
     this.setState({
       isModalDeleteEnvVarOpen: true,
       envVarToDelete: envVar,
-    })
+    });
   }
 
   closeModalDeleteEnvVar = () => {
     this.setState({
+      envVarToDelete: null,
       isModalDeleteEnvVarOpen: false,
-    })
+    });
   }
 
   closeModalEditEnvVar = () => {
     this.setState({
       envVarFormErrors: {},
+      envVarToEdit: null,
       targetClusterNamespace: null,
       isModalEditEnvVarOpen: false,
-    })
+    });
   }
 
   createEnvVar = async (data: ModelEnvVar) => {
@@ -249,10 +249,10 @@ class Clusters extends
     }
   }
 
-  updateEnvVar = async () => {
-    setTimeout(() => {
-      this.closeModalEditEnvVar();
-    }, 200)
+  updateEnvVar = async (envVar: ModelEnvVar) => {
+    console.log(envVar);
+    await this.props.patchEnvVar(envVar);
+    this.closeModalEditEnvVar();
   }
 
   onClickEditEnvVar = (data: ModelEnvVar) => {
@@ -291,7 +291,7 @@ class Clusters extends
       isModalCreateClusterOpen,
       isModalDeleteContainerOpen,
     } = this.state;
-    console.log({ envVarToEdit });
+    console.log({envVarToEdit});
     return (
       <React.Fragment>
         {containerToDelete ?
@@ -302,51 +302,51 @@ class Clusters extends
             onConfirm={this.onConfirmDeleteContainer}
             description={`Are you sure to delete \`${containerToDelete.name}\``}
           />
-        : null}
+          : null}
         {envVarToDelete ?
           <ModalConfirm
             title="Warning"
             isVisible={isModalDeleteEnvVarOpen}
             onCancel={this.closeModalDeleteEnvVar}
-            onConfirm={this.onConfirmDeleteContainer}
+            onConfirm={this.onConfirmDeleteEnvVar}
             description={`Are you sure to delete \`${envVarToDelete.key}\``}
           />
-        : null}
+          : null}
         {envVarToEdit ?
-        <Modal
-          isVisible={isModalEditEnvVarOpen}
-        >
-          <Style.ModalContent>
-            <ModalTitle>
-              {envVarToEdit.id ? 'Edit' : 'Create'} environement variable
-            </ModalTitle>
-            <Reform
-              schema={[
-                {
-                  title: 'Key',
-                  key: 'key',
-                  type: 'String',
-                  isDescriptionEnabled: true,
-                  description: 'Key of you environement variable',
-                },
-                {
-                  title: 'Value',
-                  key: 'value',
-                  type: 'String',
-                  isDescriptionEnabled: true,
-                  description: 'Value for you environement variable',
-                },
-              ]}
-              errors={envVarFormErrors}
-              data={envVarToEdit}
-              isButtonCancelEnabled={true}
-              onCancel={this.closeModalEditEnvVar}
-              submitTitle={envVarToEdit.id ? "Update" : "Create"}
-              onSubmit={envVarToEdit.id ? this.updateEnvVar : this.createEnvVar}
-            />
-          </Style.ModalContent>
-        </Modal>
-        : null}
+          <Modal
+            isVisible={isModalEditEnvVarOpen}
+          >
+            <Style.ModalContent>
+              <ModalTitle>
+                {envVarToEdit.id ? 'Edit' : 'Create'} environement variable
+              </ModalTitle>
+              <Reform
+                schema={[
+                  {
+                    title: 'Key',
+                    key: 'key',
+                    type: 'String',
+                    isDescriptionEnabled: true,
+                    description: 'Key of you environement variable',
+                  },
+                  {
+                    title: 'Value',
+                    key: 'value',
+                    type: 'String',
+                    isDescriptionEnabled: true,
+                    description: 'Value for you environement variable',
+                  },
+                ]}
+                errors={envVarFormErrors}
+                data={envVarToEdit}
+                isButtonCancelEnabled={true}
+                onCancel={this.closeModalEditEnvVar}
+                submitTitle={envVarToEdit.id ? "Update" : "Create"}
+                onSubmit={envVarToEdit.id ? this.updateEnvVar : this.createEnvVar}
+              />
+            </Style.ModalContent>
+          </Modal>
+          : null}
         <Modal
           isVisible={isModalDeployOpen}
         >
@@ -403,7 +403,7 @@ class Clusters extends
             />
           </Style.ModalContent>
         </Modal>
-          <Style.Container>
+        <Style.Container>
           <ActionWrapper>
             <ActionBar actions={[
               {
@@ -440,4 +440,3 @@ export default withRouter(
     mapStateToProps,
     mapDispatchToProps,
   )(Clusters));
-  

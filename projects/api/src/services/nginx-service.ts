@@ -16,7 +16,7 @@ export
       this._socket.emit('/sites-avaible',
         (err: Error, data: NginxSiteAvaible[]) => {
           if (err) return reject(err);
-          resolve(data);
+          return resolve(data);
         });
     });
   }
@@ -28,17 +28,25 @@ export
         content,
       }, (err: Error) => {
         if (err) return reject(err);
-        resolve();
+        return resolve();
       })
     })
   }
 
-  testConfig = (): Promise<{stderr:string, stdout:string}> => {
-    return new Promise<{stderr:string, stdout:string}>((resolve, reject) => {
-      this._socket.emit('/test', (err: Error, res: {stderr:string, stdout:string}) => {
+  deploySiteAvaible = (filename: string): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      this._socket.emit('/sites-avaible/deploy', filename, (err: Error) => {
         if (err) return reject(err);
-        console.log(res);
-        resolve(res);
+        return resolve();
+      });
+    });
+  }
+
+  testConfig = (): Promise<{stderr: string, stdout: string}> => {
+    return new Promise<{stderr: string, stdout: string}>((resolve, reject) => {
+      this._socket.emit('/test', (err: Error, res: {stderr: string, stdout: string}) => {
+        if (err) return reject(err);
+        return resolve(res);
       });
     });
   }
@@ -47,8 +55,17 @@ export
     return new Promise<void>((resolve, reject) => {
       this._socket.emit('/restart', (err: Error) => {
         if (err) return reject(err);
-        resolve();
+        return resolve();
       });
+    });
+  }
+
+  reloadService = (): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      this._socket.emit('/reload', (err: Error) => {
+        if (err) return reject(err);
+        return resolve();
+      })
     });
   }
 

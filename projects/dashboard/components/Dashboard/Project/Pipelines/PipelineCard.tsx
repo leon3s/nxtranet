@@ -1,13 +1,13 @@
+import type {ModelPipeline, ModelPipelineCmd} from '@nxtranet/headers';
 import React from 'react';
-
-import Reform from '~/components/Shared/ReForm';
 import Accordion from '~/components/Shared/Accordion';
 import PipelineBadge from '~/components/Shared/PipelineBadge';
-
-import type { ModelPipeline, ModelPipelineCmd } from '@nxtranet/headers';
-
+import Reform from '~/components/Shared/ReForm';
 import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
+
+
+
 
 type PipelineCardProps = {
   isVisible: boolean;
@@ -26,7 +26,7 @@ export default function PipelineCard(props: PipelineCardProps) {
     props.onClick(data);
   }
 
-  async function onSubmitPipelineCmdForm(formData: {cmd: string[] }) {
+  async function onSubmitPipelineCmdForm(formData: {cmd: string[]}) {
     const [name, ...args] = formData.cmd;
     const pipelineCmd: Partial<ModelPipelineCmd> = {
       name,

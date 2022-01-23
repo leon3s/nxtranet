@@ -1,14 +1,14 @@
-import React from 'react';
-
-import { ContainerWrapper } from '~/styles/global';
-
-import api from '~/api';
-
-import * as Style from './style';
-import NginxCard from './NginxCard';
-
 import type {NginxSiteAvaible} from '@nxtranet/headers';
+import React from 'react';
+import api from '~/api';
 import ModalActionFetcher from '~/components/Shared/ModalActionFetcher';
+import {ContainerWrapper} from '~/styles/global';
+import NginxCard from './NginxCard';
+import * as Style from './style';
+
+
+
+
 
 type NginxProps = {
   data: NginxSiteAvaible[];
@@ -20,7 +20,7 @@ type NginxState = {
 }
 
 export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
-  
+
   state: NginxState = {
     site: null,
     isUpdateNginxModalOpen: false,
@@ -44,7 +44,7 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
   }
 
   render() {
-    const  {
+    const {
       isUpdateNginxModalOpen
     } = this.state;
     return (
@@ -53,7 +53,7 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
           isVisible={isUpdateNginxModalOpen}
           onClose={this.closeUpdateNginxModel}
           actions={[
-            { 
+            {
               title: 'Writing file',
               fn: async () => {
                 const {site} = this.state;
@@ -72,10 +72,10 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
               }
             },
             {
-              title: 'Restarting service',
+              title: 'Reloading service',
               fn: () => new Promise(async (resolve, reject) => {
                 try {
-                  await api.get('/nginx/restart');
+                  await api.get('/nginx/reload');
                 } catch (e) {
                   e;
                   setTimeout(() => {
@@ -91,11 +91,11 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
             <Style.NginxCards>
               {this.props.data.map((siteAvaible) => (
                 <Style.NginxCardContainer
-                key={siteAvaible.name}
+                  key={siteAvaible.name}
                 >
                   <NginxCard
                     data={siteAvaible}
-                    onClick={() => {}}
+                    onClick={() => { }}
                     onUpdateNginxSiteAvaible={this.openUpdateNginxModal}
                   />
                 </Style.NginxCardContainer>

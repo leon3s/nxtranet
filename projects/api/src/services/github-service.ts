@@ -70,7 +70,6 @@ export class GithubService {
     const userAgent = headers['user-agent'];
     const reqPSha = headers['x-hub-signature-256'];
     const sPayload = JSON.stringify(payload || {});
-    console.log(sPayload);
     const calculedSha = `sha256=${crypto.createHmac('sha256', project.github_webhook_secret).update(sPayload).digest("hex")}`;
     if (!userAgent || !userAgent.includes('GitHub-Hookshot/')) {
       throw new HttpErrors.NotAcceptable('User agent not matching.');

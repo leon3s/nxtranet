@@ -58,6 +58,7 @@
     "@loopback/rest": "^11.0.0",
     "@loopback/rest-explorer": "^4.0.0",
     "@loopback/service-proxy": "^4.0.0",
+    "@nxtranet/headers": "file:../../packages/headers",
     "@nxtranet/node": "file:../../packages/node",
     "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",

@@ -1,6 +1,7 @@
 import {inject} from '@loopback/context';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
+import {PipelineStatusEnum} from '@nxtranet/headers';
 import axios from 'axios';
 import type {Socket} from 'socket.io-client';
 import {io} from 'socket.io-client';
@@ -79,7 +80,7 @@ export
 
   startContainer = async (container: Container) => {
     await this._emitStart(container);
-    this.clusterContainerStatus(container.clusterNamespace, container.name);
+    this.clusterContainerStatus(container);
     await this.whenContainerReady(container);
   }
 
@@ -115,46 +116,21 @@ export
     }));
   }
 
-  clusterContainerRemove = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  clusterContainerRemove = async (container: Container) => {
     await this._serviceEmitRemove(container);
-    await this.containerOutputRepository.deleteAll({
-      containerNamespace: container.namespace,
-    });
-    await this.pipelineStatusRepository.deleteAll({
-      containerNamespace: container.namespace,
-    });
+    await this.containerRepository.state(container.namespace).delete();
+    await this.containerRepository.outputs(container.namespace).delete();
+    await this.containerRepository.pipelineStatus(container.namespace).delete();
     return this.containerRepository.deleteById(container.id);
   }
 
-  attachContainer = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  attachContainer = async (container: Container) => {
     this._socket.emit('/container/attach', container);
-    this.clusterContainerStatus(namespace, name);
+    this.clusterContainerStatus(container);
   }
 
-  clusterContainerStatus = async (namespace: string, name: string) => {
-    const container = await this.containerRepository.findOne({
-      where: {
-        name,
-        clusterNamespace: namespace,
-      },
-    });
-    if (!container) throw new HttpErrors.NotFound('Container not found');
+  clusterContainerStatus = async (container: Container) => {
     this._socket.on(container.namespace, async (output) => {
-      console.log('api receive output ', output);
       if (output.type === 'pipelineStatus') {
         output.payload.containerNamespace = container.namespace;
         await this.pipelineStatusRepository.createOrUpdate(output.payload);
@@ -170,17 +146,31 @@ export
   }
 
   whenContainerReady = (container: Container): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       const interval = setInterval(async () => {
         try {
           await axios.get(`http://127.0.0.1:${container.appPort}`);
+          const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
+            fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
+          });
+          await this.pipelineStatusRepository.createOrUpdate({
+            ...pipelineStatus,
+            value: PipelineStatusEnum.ONLINE,
+          });
           clearInterval(interval);
           clearTimeout(timeout);
           resolve();
         } catch (e) {
         }
       }, 1000);
-      const timeout = setTimeout(() => {
+      const timeout = setTimeout(async () => {
+        const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
+          fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
+        });
+        await this.pipelineStatusRepository.createOrUpdate({
+          ...pipelineStatus,
+          value: PipelineStatusEnum.FAILED,
+        });
         clearInterval(interval);
         reject(new Error('Container timeout after 50000ms.'));
       }, 50000);
@@ -212,7 +202,7 @@ export
     partialContainer.isProduction = isProduction;
     partialContainer.isGeneratedDeploy = isGeneratedDeploy;
     const container = await this.containerRepository.create(partialContainer);
-    this.clusterContainerStatus(cluster.namespace, container.name);
+    this.clusterContainerStatus(container);
     return container;
   }
 }

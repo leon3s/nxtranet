@@ -35,15 +35,30 @@ const server = new Server();
 // });
 
 server.io.on('connection', (socket) => {
+  const connectToContainer = (namespace: string, port: number) => {
+    const containerSock = io(`http://localhost:${port}`);
+    containerSock.on('action', (output) => {
+      socket.emit(namespace, output);
+    });
+    containerSock.on('deployer_error', (err) => {
+      console.error(err);
+    });
+    return containerSock;
+  }
+
   socket.on('/cluster/deploy', async (cluster, branch, callback) => {
     try {
       const createResponse = await createContainer(cluster, branch);
-      await createResponse.containerInstance.start();
-      const dpSock = io(`http://localhost:${createResponse.containerApi.deployerPort}`);
-      dpSock.on('action', (output) => {
-        socket.emit(createResponse.containerApi.namespace, output);
-      });
-      dpSock.emit('/github', cluster, branch, (err) => {
+      const {
+        containerInstance,
+        containerApi: {
+          namespace,
+          deployerPort,
+        }
+      } = createResponse;
+      await containerInstance.start();
+      const containerSock = connectToContainer(namespace, deployerPort);
+      containerSock.emit('/github', cluster, branch, (err) => {
         if (err) return callback(err);
         callback(null, createResponse.containerApi);
       });
@@ -52,11 +67,12 @@ server.io.on('connection', (socket) => {
     }
   });
 
-  socket.on('/container/attach', (containerData: ModelContainer) => {
-    const containerSock = io(`http://localhost:${containerData.deployerPort}`);
-    containerSock.on('action', (output) => {
-      socket.emit(containerData.namespace, output);
-    });
+  socket.on('/container/attach', (container: ModelContainer) => {
+    const {
+      namespace,
+      deployerPort
+    } = container;
+    const containerSock = connectToContainer(namespace, deployerPort);
     containerSock.emit('/attach');
   });
 
@@ -74,11 +90,13 @@ server.io.on('connection', (socket) => {
 
   socket.on('/containers/start', async (container: ModelContainer, callback = () => { }) => {
     try {
-      await startContainer(container.dockerID);
-      const containerSock = io(`http://localhost:${container.deployerPort}`);
-      containerSock.on('action', (action) => {
-        socket.emit(container.namespace, action);
-      });
+      const {
+        dockerID,
+        namespace,
+        deployerPort,
+      } = container;
+      await startContainer(dockerID);
+      const containerSock = connectToContainer(namespace, deployerPort);
       containerSock.emit('/start', (err: Error) => {
         if (err) {
           return callback(err);

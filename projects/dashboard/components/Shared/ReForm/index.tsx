@@ -3,16 +3,16 @@
  * Path: c:\Users\leone\Documents\code\docktron\org
  * Created Date: Wednesday, October 27th 2021, 5:10:49 pm
  * Author: leone
- * 
+ *
  * Copyright (c) 2021 docktron
  */
 
-import React, { FormEvent } from 'react';
-
+import React, {FormEvent} from 'react';
+import ButtonLoading from '../ButtonLoading';
+import * as Inputs from './Inputs';
 import * as Style from './style';
 
-import * as Inputs from './Inputs';
-import ButtonLoading from '../ButtonLoading';
+
 
 const defaultValue: Record<string, any> = {
   Number: '',
@@ -23,35 +23,36 @@ const defaultValue: Record<string, any> = {
   Relation: '',
 };
 
-export type               ReformSchema = {
-  key:                    string;
-  title:                  string;
-  isLabelEnabled?:        boolean;
-  description?:            string;
-  isDescriptionEnabled?:  boolean;
-  type:                   "Number" | "String" | "Icon" | "Color" | "ArrayString" | "Relation"
-  options?:               any;
+export type ReformSchema = {
+  key: string;
+  title: string;
+  isLabelEnabled?: boolean;
+  description?: string;
+  isDescriptionEnabled?: boolean;
+  type: "Number" | "String" | "Icon" | "Color" | "ArrayString" | "Relation"
+  options?: any;
 };
 
-export type               ReformProps = {
-  data?:                  any;
-  schema:                 ReformSchema[];
+export type ReformProps = {
+  data?: any;
+  schema: ReformSchema[];
   isButtonCancelEnabled?: boolean;
-  onCancel?:              ( ) => void;
-  submitTitle?:           string;
-  onSearch?:              (term:string) => void;
-  errors?:                Record<string, string>;
-  onSubmit?:              (d:any) => void | Promise<void>;
+  onCancel?: () => void;
+  submitTitle?: string;
+  onSearch?: (term: string) => void;
+  errors?: Record<string, string>;
+  onSubmit?: (d: any) => void | Promise<void>;
+  isButtonLoadingResolving?: boolean;
 };
 
-type                      ReformState = {
-  data:                   any;
-  dataPtr:                any;
+type ReformState = {
+  data: any;
+  dataPtr: any;
 }
 
-type OnChange = (key:string) => (data:any) => void;
+type OnChange = (key: string) => (data: any) => void;
 
-function Input(schema: ReformSchema, onChange:OnChange, data: any = {}, errors: Record<string, string> = {}) {
+function Input(schema: ReformSchema, onChange: OnChange, data: any = {}, errors: Record<string, string> = {}) {
   const Comp = Inputs[schema.type];
   if (!Comp) {
     return (
@@ -66,17 +67,17 @@ function Input(schema: ReformSchema, onChange:OnChange, data: any = {}, errors: 
       key={schema.key}
     >
       {schema.isLabelEnabled ?
-      <Style.InputTitle
-        htmlFor={schema.key}
-      >
-        {schema.title}
-      </Style.InputTitle>
-      : null}
+        <Style.InputTitle
+          htmlFor={schema.key}
+        >
+          {schema.title}
+        </Style.InputTitle>
+        : null}
       {schema.isDescriptionEnabled ?
-      <Style.InputDescription>
-        {schema.description}
-      </Style.InputDescription>
-      : null}
+        <Style.InputDescription>
+          {schema.description}
+        </Style.InputDescription>
+        : null}
       <Comp
         name={schema.key}
         value={data[schema.key]}
@@ -99,7 +100,7 @@ export default class Reform
     dataPtr: this.props.data,
   }
 
-  static getDerivedStateFromProps(props:ReformProps, state: ReformState) {
+  static getDerivedStateFromProps(props: ReformProps, state: ReformState) {
     if (!state.data) {
       return {
         ...state,
@@ -130,7 +131,7 @@ export default class Reform
     return state;
   }
 
-  onSubmit = (e:FormEvent<HTMLFormElement>) => {
+  onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   }
 
@@ -144,7 +145,7 @@ export default class Reform
     }
   }
 
-  onChange = (key:string) => (val:any) => {
+  onChange = (key: string) => (val: any) => {
     this.setState({
       data: {
         ...this.state.data,
@@ -153,7 +154,7 @@ export default class Reform
     });
   }
 
-  onClickCancel = (e:React.MouseEvent<HTMLButtonElement>) => {
+  onClickCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (this.props.onCancel) this.props.onCancel();
   }
@@ -164,11 +165,11 @@ export default class Reform
       submitTitle,
       errors,
       isButtonCancelEnabled,
+      isButtonLoadingResolving,
     } = this.props;
     const {
       data,
     } = this.state;
-    console.log('errors !', {errors});
     return (
       <Style.Container>
         <Style.Form onSubmit={this.onSubmit}>
@@ -178,10 +179,11 @@ export default class Reform
               <Style.ButtonCancel onClick={this.onClickCancel} >
                 Cancel
               </Style.ButtonCancel>
-            : <Style.HiddenDiv />}
+              : <Style.HiddenDiv />}
             <ButtonLoading
               onClick={this.onClickCreate}
               title={submitTitle || "Submit"}
+              isResolving={isButtonLoadingResolving}
             />
           </Style.ButtonContainer>
         </Style.Form>
