@@ -6,16 +6,14 @@ import {
 import {
   get,
   getModelSchemaRef, HttpErrors,
-  param, post,
+  param, patch, post,
   requestBody
 } from '@loopback/rest';
-import fs from 'fs';
-import mustache from 'mustache';
-import path from 'path';
 import {
   DnsmasqServiceBindings,
   DockerServiceBindings,
   NginxServiceBindings,
+  ProjectServiceBindings,
   ProxiesServiceBindings
 } from '../keys';
 import {
@@ -23,24 +21,18 @@ import {
 } from '../models';
 import {
   ClusterProductionRepository,
-  ClusterRepository,
-  PortMappingRepository,
-  PortRepository,
-  ProjectRepository
+  ClusterRepository, ContainerRepository, ProjectRepository
 } from '../repositories';
 import {DnsmasqService} from '../services/dnsmasq-service';
 import {DockerService} from '../services/docker-service';
 import {NginxService} from '../services/nginx-service';
+import ProjectService from '../services/project-service';
 import {ProxiesService} from '../services/proxies-service';
 
 export class ProjectClusterProductionController {
   constructor(
     @repository(ClusterProductionRepository)
     protected clusterProductionRepository: ClusterProductionRepository,
-    @repository(PortMappingRepository)
-    protected portMappingRepository: PortMappingRepository,
-    @repository(PortRepository)
-    protected portRepository: PortRepository,
     @inject(ProxiesServiceBindings.PROXIES_SERVICE)
     protected proxiesService: ProxiesService,
     @inject(NginxServiceBindings.NGINX_SERVICE)
@@ -49,8 +41,12 @@ export class ProjectClusterProductionController {
     protected dnsmasqService: DnsmasqService,
     @repository(ClusterRepository)
     protected clusterRepository: ClusterRepository,
+    @repository(ContainerRepository)
+    protected containerRepository: ContainerRepository,
     @inject(DockerServiceBindings.DOCKER_SERVICE)
     protected dockerService: DockerService,
+    @inject(ProjectServiceBindings.PROJECT_SERVICE)
+    protected projectService: ProjectService,
     @repository(ProjectRepository)
     protected projectRepository: ProjectRepository,
   ) { }
@@ -77,7 +73,7 @@ export class ProjectClusterProductionController {
   @post('/projects/{name}/cluster-production', {
     responses: {
       '200': {
-        description: 'Project model instance',
+        description: 'Cluster production model instance',
         content: {'application/json': {schema: getModelSchemaRef(ClusterProduction)}},
       },
     },
@@ -114,94 +110,77 @@ export class ProjectClusterProductionController {
     if (clusterProdDB) {
       throw new HttpErrors.NotAcceptable('Targeted Cluster has already production settup.');
     }
-    const nginxPorts: number[] = [];
     clusterProduction.projectName = name;
     clusterProdDB = await this.clusterRepository
       .production(clusterDB.namespace)
       .create(clusterProduction);
-    for (let i = 0; i < clusterProduction.numberOfInstances; i++) {
-      const port = await this.portRepository.getFreeNonReservedPort();
-      const portDB = await this.portRepository.createIfNotExist(port);
-      await this.portMappingRepository.create({
-        portId: portDB.id,
-        clusterProductionId: clusterProdDB.id,
-      });
-      nginxPorts.push(port);
-    }
-    const d = fs.readFileSync(path.join(__dirname, '../../../../config/nginx/template.production.com')).toString();
-    const render = mustache.render(d, {
-      ports: nginxPorts,
-      domain_name: clusterProdDB.domain,
-    });
-    await this.nginxService.writeSiteAvaible(clusterProdDB.domain, render);
-    // await this.nginxService.testConfig();
     const background = async () => {
       if (!clusterProdDB) return;
-      if (!clusterDB || !clusterDB.gitBranch) return;
-      const ports = [];
-      for (let i = 0; i < clusterProduction.numberOfInstances; i++) {
-        const container = await this.dockerService.clusterDeploy({
-          namespace: clusterDB.namespace,
-          branch: clusterDB.gitBranch?.name,
-          isProduction: true,
-          isGeneratedDeploy: true,
-        });
-        ports.push({
-          app: container.appPort,
-          listen: nginxPorts[i],
-        });
-      }
+      await this.projectService.deployProduction(clusterDB, clusterProdDB);
       await this.dnsmasqService.configSync();
-      await this.proxiesService.updateDomains();
-      this.proxiesService.productionDomains(ports);
       await this.dnsmasqService.restartService();
-      await this.nginxService.deploySiteAvaible(clusterProdDB.domain);
-      // await this.nginxService.reloadService();
+      await this.nginxService.deploySiteAvaible(`${clusterDB.projectName}_${clusterDB.name}`);
+      await this.nginxService.reloadService();
     }
-
     background().then(() => {
       console.log('success');
     }).catch((err) => {
       console.error('background deploy fail: ', err);
     });
     return clusterProdDB;
-    // return this.projectRepository.clusterProduction(id).create(clusterProduction);
   }
 
-  // @patch('/projects/{id}/cluster-production', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Project.ClusterProduction PATCH success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async patch(
-  //   @param.path.string('id') id: string,
-  //   @requestBody({
-  //     content: {
-  //       'application/json': {
-  //         schema: getModelSchemaRef(ClusterProduction, {partial: true}),
-  //       },
-  //     },
-  //   })
-  //   clusterProduction: Partial<ClusterProduction>,
-  //   @param.query.object('where', getWhereSchemaFor(ClusterProduction)) where?: Where<ClusterProduction>,
-  // ): Promise<Count> {
-  //   return this.projectRepository.clusterProduction(id).patch(clusterProduction, where);
-  // }
-  // @del('/projects/{id}/cluster-production', {
-  //   responses: {
-  //     '200': {
-  //       description: 'Project.ClusterProduction DELETE success count',
-  //       content: {'application/json': {schema: CountSchema}},
-  //     },
-  //   },
-  // })
-  // async delete(
-  //   @param.path.string('id') id: string,
-  //   @param.query.object('where', getWhereSchemaFor(ClusterProduction)) where?: Where<ClusterProduction>,
-  // ): Promise<Count> {
-  //   return this.projectRepository.clusterProduction(id).delete(where);
-  // }
+  @patch('/projects/{name}/cluster-production', {
+    responses: {
+      '200': {
+        description: '"Ok" if success',
+        content: {'application/json': {schema: getModelSchemaRef(ClusterProduction)}},
+      }
+    }
+  })
+  async patch(
+    @param.path.string('name') name: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(ClusterProduction, {partial: true}),
+        },
+      },
+    })
+    clusterProduction: Partial<ClusterProduction>,
+  ): Promise<ClusterProduction> {
+    console.log(name);
+    const clusterProductionDB = await this.projectRepository.clusterProduction(name).get();
+    const {clusterNamespace} = clusterProductionDB;
+    const clusterDB = await this.clusterRepository.findOne({
+      where: {
+        namespace: clusterNamespace,
+      },
+      include: ['gitBranch'],
+    });
+    if (!clusterDB) throw new HttpErrors.BadRequest('Cluster not found.');
+    const containersToDelete = await this.containerRepository.find({
+      where: {
+        clusterNamespace,
+      }
+    });
+    clusterProductionDB.numberOfInstances = clusterProduction.numberOfInstances || clusterProductionDB.numberOfInstances;
+    clusterProductionDB.domain = clusterProduction.domain || clusterProductionDB.domain;
+    await this.clusterProductionRepository.updateById(clusterProductionDB.id, clusterProduction);
+    const background = async () => {
+      await this.projectService.deployProduction(clusterDB, clusterProductionDB);
+      await this.dnsmasqService.configSync();
+      await this.dnsmasqService.restartService();
+      await this.nginxService.reloadService();
+      await Promise.all(containersToDelete.map((container) => {
+        return this.dockerService.clusterContainerRemove(container);
+      }));
+    }
+    background().then(() => {
+      console.log('path project cluster production success');
+    }).catch((err) => {
+      console.error(err);
+    });
+    return this.clusterProductionRepository.findById(clusterProductionDB.id);
+  }
 }

@@ -14,10 +14,6 @@ import {ActionWrapper} from '../style';
 import PipelineCard from './PipelineCard';
 import * as Style from './style';
 
-
-
-
-
 const actions = {
   createPipeline: projectActions.createPipeline,
   createPipelineCmd: projectActions.createPipelineCmd,

@@ -53,7 +53,9 @@ export const testConfig = () => {
 }
 
 export const deployConfig = (filename: string) => {
-  return execa('ln', ['-s', path.join(siteAvaiblePath, filename), path.join(siteEnabledPath, filename)], {
+  const siteEnabled = path.join(siteEnabledPath, filename);
+  if (fs.existsSync(siteEnabled)) return;
+  return execa('ln', ['-s', path.join(siteAvaiblePath, filename), siteEnabled], {
     cwd: __dirname,
   });
 }

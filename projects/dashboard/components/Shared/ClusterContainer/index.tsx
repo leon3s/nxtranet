@@ -17,6 +17,7 @@ export default function ClusterContainer(props: ClusterContainerProps) {
   function onClickShow() {
     props.onClickShow(props.data);
   }
+
   return (
     <Style.Container>
       <Style.Overlay>
@@ -34,7 +35,7 @@ export default function ClusterContainer(props: ClusterContainerProps) {
         </Style.Edit>
       </Style.Overlay>
       <PipelineBadge
-        status={props.data?.pipelineStatus.value}
+        status={props.data?.pipelineStatus?.value || 'STARTING'}
         color={props.data?.pipelineStatus?.pipeline?.color || 'grey'}
       />
       <Style.LineTitle>

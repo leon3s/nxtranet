@@ -95,6 +95,7 @@ export class Project extends Entity {
   @hasOne(() => ClusterProduction, {
     keyFrom: 'name',
     keyTo: 'projectName',
+    name: 'clusterProduction',
   })
   clusterProduction: ClusterProduction;
 

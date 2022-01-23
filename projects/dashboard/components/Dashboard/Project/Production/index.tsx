@@ -11,6 +11,7 @@ import * as Style from './style';
 
 const actions = {
   createClusterProduction: projectActions.createClusterProduction,
+  patchClusterProduction: projectActions.patchClusterProduction,
 };
 
 const mapStateToProps = (state: State) => ({
@@ -22,7 +23,6 @@ const mapDispatchToProps = (dispatch: Dispatch<State>) =>
 
 type ProductionProps = {
   projectName: string;
-  clusterProduction: ModelClusterProduction;
   router: NextRouter;
 }
   & ReturnType<typeof mapStateToProps>
@@ -42,19 +42,25 @@ class Production extends
     }
   };
 
-  componentDidMount() {
-    console.log('production props', this.props);
-  }
-
-  onSubmit = async (clusterProduction: Partial<ModelClusterProduction>) => {
-    await this.props.createClusterProduction(this.props.projectName, clusterProduction);
+  onSubmit = async (clusterProduction: ModelClusterProduction) => {
+    const {projectName} = this.props;
+    console.log(clusterProduction);
+    if (this.state.clusterProdData.id) {
+      await this.props.patchClusterProduction(projectName, clusterProduction);
+    } else {
+      await this.props.createClusterProduction(projectName, clusterProduction);
+    }
+    const clusterName = clusterProduction.clusterNamespace.split('.').pop();
+    this.props.router.push(`/dashboard/projects/${projectName}/clusters/${clusterName}`);
   }
 
   render() {
     const {
       projectName,
     } = this.props;
-    const { } = this.state;
+    const {
+      clusterProdData,
+    } = this.state;
     return (
       <React.Fragment>
         <Style.Container>
@@ -78,8 +84,8 @@ class Production extends
               }
             ]}
             onSubmit={this.onSubmit}
-            data={this.state.clusterProdData}
-            submitTitle="Update"
+            data={clusterProdData}
+            submitTitle={clusterProdData.id ? 'Update' : 'Create'}
             isButtonCancelEnabled={false}
           />
         </Style.Container>

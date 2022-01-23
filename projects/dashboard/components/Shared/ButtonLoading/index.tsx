@@ -8,6 +8,7 @@ import * as Style from './style';
 type ButtonLoadingProps = {
   title: string;
   className?: string;
+  isResolving?: boolean;
   onClick: () => void | Promise<void>
 };
 
@@ -27,6 +28,13 @@ export default class ButtonLoading
       this.setState({
         isLoading: true,
       });
+      if (this.props.isResolving) {
+        onClick.then(() => {
+          this.setState({
+            isLoading: false,
+          });
+        });
+      }
       onClick.catch(() => {
         if (this) {
           this.setState({

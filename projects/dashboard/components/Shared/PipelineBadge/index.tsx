@@ -1,8 +1,6 @@
 import {PipelineStatusEnum} from '@nxtranet/headers';
 import Styled from 'styled-components';
 
-
-
 type ColorBadgeProps = {
   color: string;
   status?: PipelineStatusEnum;

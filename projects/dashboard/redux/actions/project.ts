@@ -173,6 +173,17 @@ export const getClusterProduction = createAction<[
     }
 )
 
+export const patchClusterProduction = createAction<[
+  string,
+  Partial<ModelClusterProduction>
+], State, AxiosResponse<ModelClusterProduction>>(
+  PROJECT_DEFINES.PATCH_CLUSTER_PRODUCTION,
+  (projectName, clusterProd) =>
+    ({ }, { }, api) => {
+      return api.patch(`/projects/${projectName}/cluster-production`, clusterProd);
+    }
+)
+
 export const containerStatusOff = createAction<[
   string,
 ], State, null>(
@@ -273,5 +284,16 @@ export const createPipelineCmd = createAction<[
   (namespace, pipelineCmd) =>
     ({ }, { }, api) => {
       return api.post<ModelPipelineCmd>(`/pipelines/${namespace}/cmds`, pipelineCmd);
+    }
+)
+
+export const patchProject = createAction<[
+  string,
+  Partial<ModelProject>
+], State, AxiosResponse<ModelProject>>(
+  PROJECT_DEFINES.PATCH_PROJECT,
+  (projectName, projectData) =>
+    ({ }, { }, api) => {
+      return api.patch(`/projects/${projectName}`, projectData);
     }
 )

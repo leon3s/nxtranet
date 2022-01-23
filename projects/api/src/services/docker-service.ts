@@ -1,6 +1,7 @@
 import {inject} from '@loopback/context';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
+import {PipelineStatusEnum} from '@nxtranet/headers';
 import axios from 'axios';
 import type {Socket} from 'socket.io-client';
 import {io} from 'socket.io-client';
@@ -145,17 +146,31 @@ export
   }
 
   whenContainerReady = (container: Container): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       const interval = setInterval(async () => {
         try {
           await axios.get(`http://127.0.0.1:${container.appPort}`);
+          const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
+            fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
+          });
+          await this.pipelineStatusRepository.createOrUpdate({
+            ...pipelineStatus,
+            value: PipelineStatusEnum.ONLINE,
+          });
           clearInterval(interval);
           clearTimeout(timeout);
           resolve();
         } catch (e) {
         }
       }, 1000);
-      const timeout = setTimeout(() => {
+      const timeout = setTimeout(async () => {
+        const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
+          fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
+        });
+        await this.pipelineStatusRepository.createOrUpdate({
+          ...pipelineStatus,
+          value: PipelineStatusEnum.FAILED,
+        });
         clearInterval(interval);
         reject(new Error('Container timeout after 50000ms.'));
       }, 50000);

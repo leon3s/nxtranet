@@ -27,10 +27,11 @@ class InputRelation extends
 
   state = {
     data: [],
-    value: ''
+    value: this.props.value || '',
   }
 
   async componentDidMount() {
+    console.log(this.props);
     const {options} = this.props;
     if (!options) return;
     const res = await api.get<any[]>(options.path);
@@ -41,8 +42,8 @@ class InputRelation extends
   }
 
   onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const d = this.state.data.find(({id}) =>
-      id === e.target.value
+    const d = this.state.data.find(({namespace}) =>
+      namespace === e.target.value
     );
     this.setState({
       value: e.target.value,
@@ -53,14 +54,14 @@ class InputRelation extends
   };
 
   render(): React.ReactNode {
-    const {data} = this.state;
-    const {options} = this.props;
+    const {data, value} = this.state;
+    const {options, name} = this.props;
     if (!options) return 'Options must be specified for Relation Input';
     return (
       <Style.InputRelationContainer>
         <Style.InputRelationSelect
-          name={this.props.name}
-          value={this.state.value}
+          name={name}
+          value={value}
           onChange={this.onChange}
         >
           {options.isAnyEnabled ? <Style.InputRelationOptions
@@ -70,8 +71,8 @@ class InputRelation extends
           </Style.InputRelationOptions> : null}
           {data.map((d: any) => (
             <Style.InputRelationOptions
-              key={d.id}
-              value={d.id}
+              key={d.namespace}
+              value={d.namespace}
             >
               {d[options.displayKey]}
             </Style.InputRelationOptions>

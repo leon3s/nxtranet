@@ -23,7 +23,6 @@ export class PipelineStatusRepository extends DefaultCrudRepository<
   async createOrUpdate(pipelineStatus: Partial<PipelineStatus>): Promise<PipelineStatus> {
     const pipelineStatusDb = await this.findOne({
       where: {
-        pipelineNamespace: pipelineStatus.pipelineNamespace,
         containerNamespace: pipelineStatus.containerNamespace,
       }
     });

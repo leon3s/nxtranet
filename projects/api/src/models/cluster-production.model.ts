@@ -37,7 +37,7 @@ export class ClusterProduction extends Entity {
   @property({
     type: 'string',
   })
-  projectName?: string;
+  projectName: string;
 
   constructor(data?: Partial<ClusterProduction>) {
     super(data);
