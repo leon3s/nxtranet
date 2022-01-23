@@ -1,2 +1,0 @@
-// redirect window port 80 to 8080 to point on nginx so 127.0.0.1 can be used as dnsmasq configuration //
-netsh interface portproxy add v4tov4 listenport=80 listenaddress=127.0.0.1 connectport=8080 connectaddress=127.0.0.1

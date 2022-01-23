@@ -15,8 +15,14 @@ function getProjectConfigs(dir: string) {
   const dirNames = fs.readdirSync(dir);
   for (const dirName of dirNames) {
     try {
-      const nxthatdev_pjContent = fs.readFileSync(path.join(dir, dirName, '.nxthatdev_pj')).toString();
-      services.push(JSON.parse(nxthatdev_pjContent));
+      const service = {
+        path: path.join(dir, dirName),
+      };
+      const nxthatdev_pjContent = fs.readFileSync(path.join(service.path, '.nxthatdev_pj')).toString();
+      services.push({
+        ...service,
+        ...JSON.parse(nxthatdev_pjContent),
+      });
     } catch (e) {
       // just skip is .nxthatdev_pj file not exist.
     }
@@ -75,6 +81,12 @@ function findNxtDev(inpath = process.cwd()): Record<string, any> {
   }
 }
 
+export const installDeps = (projectDir: string) => {
+  return execa('npm', ['install'], {
+    cwd: projectDir,
+  });
+}
+
 export const install = async () => {
   if (process.getuid() !== 0) {
     console.log("Install commande have to be run as root");
@@ -87,14 +99,22 @@ export const install = async () => {
     for (const service of services) {
       await createUserIfnotExist(service.user);
       await addUserToSysGroup(service.user);
+      try {
+        await installDeps(service.path);
+      } catch (err: any) {
+        console.error('Error while installing dependencies for ', service.path, err.stderr);
+      }
     }
   }
   await configureNginx();
+  console.log('installation done, use cli to start project in development or production mode.');
 }
 
 export const configureNginx = async () => {
   await execa('cp', [nextranetNginx, '/etc/nginx/sites-available']);
-  await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);
+  if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nextra.net'))) {
+    await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);
+  }
   await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
   await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
 }

@@ -60,7 +60,6 @@ export const dev = async () => {
   if (process.platform !== 'win32') {
     ensureRoot();
   }
-  console.log('starting dev mode');
   const projects = getProjects();
   for (const i in projects) {
     const project = projects[i];
