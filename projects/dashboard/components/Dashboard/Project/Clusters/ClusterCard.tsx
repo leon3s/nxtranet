@@ -28,7 +28,6 @@ export default function ClusterCard(props: CusterCardProps) {
     onClickShowContainer,
     onClickDeleteEnvVar,
     onClickEditEnvVar,
-    onClickCreateContainer,
     onClickDeleteContainer,
   } = props;
 

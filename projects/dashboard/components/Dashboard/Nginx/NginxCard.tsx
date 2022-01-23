@@ -1,18 +1,10 @@
-import React, { useState } from 'react';
-
+import type {NginxSiteAvaible} from '@nxtranet/headers';
+import type TCodeEditor from '@uiw/react-textarea-code-editor';
+import "@uiw/react-textarea-code-editor/dist.css";
 import dynamic from "next/dynamic";
-// import CodeEditor from '@uiw/react-textarea-code-editor';
-
-import ButtonLoading from '~/components/Shared/ButtonLoading';
-
-import { IoIosEye } from 'react-icons/io';
-import { TiDelete } from 'react-icons/ti';
-import { FiEdit2 } from 'react-icons/fi';
-
+import React, {useState} from 'react';
+import {FiEdit2} from 'react-icons/fi';
 import Accordion from '~/components/Shared/Accordion';
-
-import type { NginxSiteAvaible, } from '@nxtranet/headers';
-
 import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
 
@@ -20,14 +12,12 @@ type NginxCardProps = {
   data: NginxSiteAvaible;
   isVisible?: boolean;
   onClick: (data: NginxSiteAvaible) => void;
-  onUpdateNginxSiteAvaible: (name:string, content:string) => void;
+  onUpdateNginxSiteAvaible: (name: string, content: string) => void;
 }
 
-import "@uiw/react-textarea-code-editor/dist.css";
-import type TCodeEditor from '@uiw/react-textarea-code-editor';
 const CodeEditor = dynamic(
   async (): Promise<typeof TCodeEditor> => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
-  { ssr: false }
+  {ssr: false}
 );
 
 export default function NginxCard(props: NginxCardProps) {
@@ -76,7 +66,7 @@ export default function NginxCard(props: NginxCardProps) {
                   value={content}
                   language="nginx"
                   placeholder="Please enter nginx config"
-                  onChange={(evn) => { setContent(evn.target.value.trim()) }}
+                  onChange={(evn) => {setContent(evn.target.value.trim())}}
                 />
               </Style.CodeEditorWrapper>
             </Style.NginxCardContent>

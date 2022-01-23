@@ -1,11 +1,12 @@
 import React from 'react';
-
 import {ScaleLoader} from 'react-spinners';
-
-import { ModalTitle } from '~/styles/text';
-
-import Modal from '../Modal';
+import {ModalTitle} from '~/styles/text';
 import ButtonLoading from '../ButtonLoading';
+import Modal from '../Modal';
+import * as Style from './style';
+
+
+
 
 type Action = {
   title: string;
@@ -25,7 +26,6 @@ type ModalActionFetcherState = {
   isSuccess: boolean;
 }
 
-import * as Style from './style';
 
 export default class ModalActionFetcher
   extends React.PureComponent<ModalActionFetcherProps, ModalActionFetcherState> {
@@ -100,7 +100,6 @@ export default class ModalActionFetcher
     const {
       actions,
       isVisible,
-      onClose,
     } = this.props;
     return (
       <Modal
@@ -118,23 +117,23 @@ export default class ModalActionFetcher
                     {action.title}
                   </Style.ActionTitle>
                   {this.state.status[i] ?
-                  <Style.ActionStatus>
-                    <Style.ActionStatusTitle
-                      isPassed={this.state.status[i] === 'passed'}
-                    >
-                      {this.state.status[i] !== 'loading' ?
-                      `${this.state.status[i]}`
-                      : 
-                      <ScaleLoader
-                        height={4}
-                        width={2}
-                        margin={1}
-                        color='orange'
-                      />
-                      }
-                    </Style.ActionStatusTitle>
-                  </Style.ActionStatus>
-                  : null}
+                    <Style.ActionStatus>
+                      <Style.ActionStatusTitle
+                        isPassed={this.state.status[i] === 'passed'}
+                      >
+                        {this.state.status[i] !== 'loading' ?
+                          `${this.state.status[i]}`
+                          :
+                          <ScaleLoader
+                            height={4}
+                            width={2}
+                            margin={1}
+                            color='orange'
+                          />
+                        }
+                      </Style.ActionStatusTitle>
+                    </Style.ActionStatus>
+                    : null}
                 </Style.ActionHeader>
                 <Style.StatusError>
                 </Style.StatusError>
