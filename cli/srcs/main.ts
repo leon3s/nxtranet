@@ -22,6 +22,8 @@ const printHelp = () => {
     if (action === 'dev') {
       await run.dev();
     }
+    if (action === 'prod') {
+    }
   }
   process.exit(0);
 })().catch((err) => {
