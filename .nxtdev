@@ -1,6 +1,6 @@
 {
   "name": "nxtranet",
-  "projectDirectories": [
+  "serviceDirectories": [
     "./services"
   ],
   "packagesDirectories": [

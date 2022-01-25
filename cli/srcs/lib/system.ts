@@ -14,6 +14,13 @@ export const execaWsl = async (cmd: string, args: string[], options?: WlsOptions
   });
 }
 
+export const ensureRoot = () => {
+  if (process.getuid() !== 0) {
+    console.log("Install commande have to be run as root");
+    process.exit(0);
+  }
+}
+
 /** UNIX only */
 export const getUserInfo = async (username: string): Promise<{uid: number, gid: number}> => {
   const {stdout} = await execa('id', [username]);

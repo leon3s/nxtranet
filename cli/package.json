@@ -24,6 +24,7 @@
     "@nxtranet/apiClient": "file:../packages/apiClient",
     "@nxtranet/service": "file:../../packages/service",
     "arg": "^5.0.1",
-    "execa": "^5.1.1"
+    "execa": "^5.1.1",
+    "socket.io": "^4.4.1"
   }
 }

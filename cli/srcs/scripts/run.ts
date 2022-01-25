@@ -6,11 +6,11 @@ import type {
   Project
 } from '../headers/nxtranetdev.h';
 import {
-  ensureRoot,
   getNxtdevConfig,
   readProjectConf
 } from '../lib/config';
 import {
+  ensureRoot,
   execaWsl
 } from '../lib/system';
 

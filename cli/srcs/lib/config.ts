@@ -44,13 +44,6 @@ export const readProjectConf = (projectPath: string): Project => {
   }
 }
 
-export const ensureRoot = () => {
-  if (process.getuid() !== 0) {
-    console.log("Install commande have to be run as root");
-    process.exit(0);
-  }
-}
-
 export const getNxtdevConfig = (pathrecur: string = cwd): NxtdevConfig | null => {
   if (pathrecur === "/") return null;
   const nxtdevConfPath = path.join(pathrecur, '.nxtdev');
