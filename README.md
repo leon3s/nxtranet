@@ -22,18 +22,18 @@ Scripts are actually not fully working we are working on it.
 /cli # Cli used as internal dev tools
 
 /packages     # Shared packages between projects cli and services
-  /apiclient  # A basic client for api calls
-  /headers    # Shared types for all projects
-  /node       # Nodejs library
-  /service    # Default service helpers
+  - /apiclient  # A basic client for api calls
+  - /headers    # Shared types for all projects
+  - /node       # Nodejs library
+  - /service    # Default service helpers
 
 /docker_images
-  /node-deployer # Optimised docker image to deploy node application.
+  - /node-deployer # Optimised docker image to deploy node application.
 
 /services
-  /dashboard   # Front end dashboard for configuration
-  /api         # Backend api
-  /docker      # Service to manage docker
-  /nginx       # Service to manage nginx
-  /proxies     # Service to manage nxtranet proxies used for deployment
-  /system      # Service to get system information such as disk space
+  - /dashboard   # Front end dashboard for configuration
+  - /api         # Backend api
+  - /docker      # Service to manage docker
+  - /nginx       # Service to manage nginx
+  - /proxies     # Service to manage nxtranet proxies used for deployment
+  - /system      # Service to get system information such as disk space
