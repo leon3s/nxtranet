@@ -15,7 +15,7 @@ export const execaWsl = async (cmd: string, args: string[], options?: WlsOptions
 }
 
 /** UNIX only */
-export const getUserInfo = async (username: string) => {
+export const getUserInfo = async (username: string): Promise<{uid: number, gid: number}> => {
   const {stdout} = await execa('id', [username]);
   const uid = +(stdout.replace(/(uid=)([0-9]{4})(.*)/g, '$2'));
   const gid = +(stdout.replace(/(.*gid=)([0-9]{4})(.*)/g, '$2'));

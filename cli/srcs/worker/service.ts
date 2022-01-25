@@ -14,6 +14,11 @@ type ProjectDef = {
   user: string;
 }
 
+const projectProcess: {
+  process: execa.ExecaChildProcess,
+  user: string;
+}[] = [];
+
 function ensureDir(dirPath: string) {
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath);
@@ -80,14 +85,30 @@ async function startProjects(projectDefs: ProjectDef[]) {
         NODE_ENV: 'production',
       },
     });
+    projectProcess.push({
+      process: child,
+      user: projectDef.user,
+    });
     child.stdout?.on('data', (data) => {
-      writeLogFile(projectDef.name, data.toString());
+      const filename = projectDef.name.split('/').pop() as string;
+      writeLogFile(filename, data.toString());
       console.log(`${projectDef.name}: ${data.toString()}`);
     });
     child.stderr?.on('data', (data) => {
-      writeLogFile(projectDef.name, data.toString());
+      const filename = projectDef.name.split('/').pop() as string;
+      writeLogFile(filename, data.toString());
       console.log(`${projectDef.name}: ${data.toString()}`);
     });
+  }
+}
+
+async function clearProcess() {
+  for (const project of projectProcess) {
+    const {process, user} = project;
+    if (process.pid) {
+      await execa('sudo', ['-u', user, 'kill', process.pid.toString()]);
+      console.log('clearing process');
+    }
   }
 }
 
@@ -102,7 +123,24 @@ prepare().then(() => {
   const server = new Server(6587);
   server.on('connection', (socket) => { });
   console.log('server listening on port: ', 6587);
+  fs.writeFileSync('/etc/nxtranet/.nxtranet.pid', process.pid.toString());
+  console.log('PID ', process.pid);
 }).catch((err) => {
   console.error(err);
-  process.exit(1);
+});
+
+process.on('exit', async () => {
+  console.log('exit');
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT');
+  await clearProcess();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM');
+  await clearProcess();
+  process.exit(0);
 });

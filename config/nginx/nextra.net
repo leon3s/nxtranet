@@ -25,7 +25,7 @@ server {
 }
 
 server {
-    server_name ~^(?<subdomain>.+)\.nextra.net\;
+    server_name ~^(?<subdomain>.+)\.nextra.net;
     location / {
         proxy_set_header upgrade $http_upgrade;
         proxy_set_header connection "upgrade";

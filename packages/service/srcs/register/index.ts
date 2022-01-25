@@ -1,71 +1,17 @@
-import {fork} from 'child_process';
-import type {Socket} from 'socket.io-client';
-import {io} from 'socket.io-client';
+import fs from 'fs';
+import path from 'path';
 
-const workerServerUrl = process.env._NXTWRKSRVURL || 'http://api.nextra.net';
+const runPath = '/etc/nxtranet/run';
 
-export class Register {
-  name: string;
-  socket: Socket;
+export function ensureRunDir() {
+  if (!fs.existsSync(runPath))
+    fs.mkdirSync(runPath);
+}
 
-  constructor(name: string, token: string) {
-    this.name = name;
-    this.socket = io(workerServerUrl, {
-      auth: {
-        password: token,
-        serviceName: name,
-      }
-    });
-  }
+export function writePid(name: string) {
+  fs.writeFileSync(path.join(runPath, name, '.pid'), process.pid.toString());
+}
 
-  whenReady = async () => {
-    return new Promise<void>((resolve) => {
-      this.socket.on('connect', () => {
-        this.socket.emit('/service', {
-          type: 'info',
-          payload: {
-            env: process.env,
-          }
-        });
-        resolve();
-      });
-    });
-  }
-
-  fork = (path: string) => {
-    const child = fork(path, {
-      env: {
-        PATH: process.env.PATH,
-        _NXTSRVPORT: '3231',
-        _NXTSRVHOST: '0.0.0.0',
-        _NXTSRVNAME: this.name,
-        _NXTSRVSECRET: 'gfgd',
-      }
-    });
-    child.stderr?.on('data', (data) => {
-      this.socket.emit('/service', {
-        type: 'cmd',
-        payload: {
-          stderr: data.toString(),
-        }
-      });
-    });
-    child.stdout?.on('data', (data) => {
-      this.socket.emit('/service', {
-        type: 'cmd',
-        payload: {
-          stderr: data.toString(),
-        }
-      });
-    });
-    child.on("exit", (code, signal) => {
-      this.socket.emit('/service', {
-        type: 'cmd',
-        payload: {
-          exitCode: code,
-          signal: signal,
-        }
-      });
-    });
-  }
+export function deletePid(name: string) {
+  fs.rmSync(path.join(runPath, name, '.pid'));
 }

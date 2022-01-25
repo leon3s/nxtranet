@@ -2,5 +2,15 @@
 cli to interact with nextranet
 
 arguments:
-  * services
-    - start {username} {command line} # exec command line with given username uid and gid
+  * install # Install nxtranet users and project dependencies
+  * run
+    - dev # Start the project in development mode (work only on windows)
+    - prod # Start project in production mode
+  * -s
+    start # Start all services
+    start {name} # start specific service
+    restart  # restart all services
+    restart {name} # restart specific service
+    stop # Stop all services
+    stop {name} # Stop specific service
+

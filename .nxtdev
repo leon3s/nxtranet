@@ -1,7 +1,9 @@
 {
   "name": "nxtranet",
   "projectDirectories": [
-    "./projects",
     "./services"
+  ],
+  "packagesDirectories": [
+    "./packages"
   ]
 }

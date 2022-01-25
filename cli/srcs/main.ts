@@ -23,6 +23,7 @@ const printHelp = () => {
       await run.dev();
     }
     if (action === 'prod') {
+      await run.prod();
     }
   }
   process.exit(0);

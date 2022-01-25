@@ -1,4 +1,5 @@
 import type {ExecaChildProcess} from 'execa';
+import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import type {
@@ -79,4 +80,14 @@ export const dev = async () => {
     }
     await startProject(project, "dev");
   }
+}
+
+
+export const prod = async () => {
+  ensureRoot();
+  const res = execa('sudo', ['-u', 'nxtcore', 'node', '/etc/nxtranet/core/runner/dist/service.js'], {
+    detached: true,
+    stdio: 'ignore',
+  });
+  res.unref();
 }

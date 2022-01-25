@@ -1,4 +1,5 @@
 {
+  "name": "@nxtranet/dashboard",
   "private": true,
   "scripts": {
     "dev": "node ./server.js",

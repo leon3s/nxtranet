@@ -93,6 +93,8 @@ export const install = async () => {
     process.exit(0);
   }
   const nxtDev = findNxtDev();
+  await createUserIfnotExist('nxtcore');
+  await addUserToSysGroup('nxtcore');
   for (const dir of nxtDev.projectDirectories) {
     const services = getProjectConfigs(path.join(nxtDev._path, dir));
     await createGroupIfNotExist();
