@@ -1,6 +1,7 @@
 {
   "name": "@nxtranet/dashboard",
   "private": true,
+  "main": "./server.js",
   "scripts": {
     "dev": "node ./server.js",
     "build": "next build",

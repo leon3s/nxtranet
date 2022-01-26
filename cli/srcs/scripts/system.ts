@@ -107,7 +107,7 @@ export const install = async () => {
   await createUserIfnotExist('nxtcore');
   await addUserToSysGroup('nxtcore');
   console.log('nxtcore user created');
-  for (const dir of nxtDev.projectDirectories) {
+  for (const dir of nxtDev.serviceDirectories) {
     const services = getServiceConfig(path.join(nxtDev._path, dir));
     for (const service of services) {
       console.log('Configuring service : ', service.pkg.name);

@@ -7,6 +7,11 @@ const logsDirPath = '/etc/nxtranet/logs';
 const installPath = process.env.INSTALL_PATH || '/etc/nxtranet';
 const configPath = path.join(installPath, '.nxtdev');
 
+type AnyAction = {
+  type: string;
+  payload: any;
+}
+
 type ServiceDef = {
   path: string;
   main: string;
@@ -15,7 +20,7 @@ type ServiceDef = {
 }
 
 const services: {
-  process: execa.ExecaChildProcess,
+  pid: number;
   user: string;
 }[] = [];
 
@@ -25,15 +30,7 @@ function ensureDir(dirPath: string) {
   }
 }
 
-function writeLogFile(serviceName: string, data: string) {
-  const logFilename = `${serviceName}.log`;
-  const logPath = path.join(logsDirPath, logFilename);
-  if (fs.existsSync(logPath)) {
-    fs.appendFileSync(logPath, data);
-  } else {
-    fs.writeFileSync(logPath, data);
-  }
-}
+
 
 async function ensureUser(user: string): Promise<void> {
   const res = await execa('whoami', []);
@@ -78,32 +75,41 @@ function getServiceDefs(): ServiceDef[] {
   return serviceDefs;
 }
 
-async function startProjects(serviceDefs: ServiceDef[]) {
+async function startService(serviceDef: ServiceDef) {
+  const runnerPath = path.resolve(path.join(__dirname, './runner'));
+  const serviceName = serviceDef.name.split('/').pop() as string;
+  const child = await execa('sudo', [
+    '-u',
+    serviceDef.user,
+    'node',
+    runnerPath,
+    serviceName,
+    `${path.join(serviceDef.path, serviceDef.main)}`,
+  ], {
+    env: {
+      NODE_ENV: process.env.NODE_ENV || 'development',
+    },
+  });
+  return +child.stdout;
+}
+
+async function startServices(serviceDefs: ServiceDef[]) {
   for (const serviceDef of serviceDefs) {
-    console.log(serviceDef);
     if (!serviceDef.main) continue;
-    const child = execa('sudo', ['-u', serviceDef.user, 'node', `${path.join(serviceDef.path, serviceDef.main)}`], {
-      env: {
-        NODE_ENV: 'production',
-      },
-    });
+    const pid = await startService(serviceDef);
+    console.log('Service :\t', serviceDef.name, '\tstarted with pid :\t', pid);
     services.push({
-      process: child,
+      pid,
       user: serviceDef.user,
-    });
-    child.stdout?.on('data', (data) => {
-      console.log(`${serviceDef.name}: ${data.toString()}`);
-    });
-    child.stderr?.on('data', (data) => {
-      console.log(`${serviceDef.name}: ${data.toString()}`);
     });
   }
 }
 
 async function killServices(signal: string) {
+  fs.rmSync('/etc/nxtranet/.nxtranet.pid');
   for (const service of services) {
     try {
-      await execa('sudo', ['-u', service.user, 'kill', `-${signal}`, `-${process.pid}`]);
+      await execa('sudo', ['-u', service.user, 'kill', `-${signal}`, `${service.pid}`]);
     } catch (e) {
       console.error(e);
     }
@@ -114,7 +120,7 @@ async function prepare() {
   await ensureUser('nxtcore');
   ensureDir(logsDirPath);
   const serviceDefs = getServiceDefs();
-  startProjects(serviceDefs);
+  startServices(serviceDefs);
 }
 
 process.on('SIGINT', async () => {
@@ -132,9 +138,8 @@ process.on('SIGTERM', async () => {
 prepare().then(() => {
   const server = new Server(6587);
   server.on('connection', (socket) => { });
-  console.log('server listening on port: ', 6587);
-  // fs.writeFileSync('/etc/nxtranet/.nxtranet.pid', process.pid.toString());
-  console.log('PID ', process.pid);
+  console.log('master process started listening on port : ', 6587, ' with pid ', process.pid);
+  fs.writeFileSync('/etc/nxtranet/.nxtranet.pid', process.pid.toString());
 }).catch((err) => {
   console.error(err);
 });

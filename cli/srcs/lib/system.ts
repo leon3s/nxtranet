@@ -14,6 +14,7 @@ export const execaWsl = async (cmd: string, args: string[], options?: WlsOptions
   });
 }
 
+/** Verify if the script is run as root */
 export const ensureRoot = () => {
   if (process.getuid() !== 0) {
     console.log("Install commande have to be run as root");
