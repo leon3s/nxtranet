@@ -4,11 +4,12 @@ import path from 'path';
 
 const logsDirPath = '/etc/nxtranet/logs';
 
-const [{ }, { }, name, sPath] = process.argv;
+const [{ }, { }, name, sPath, cwd] = process.argv;
 
 const fd = fs.openSync(path.join(logsDirPath, `${name}.log`), 'a');
 
 const p = spawn('node', [sPath], {
+  cwd,
   detached: true,
   stdio: ['ignore', fd, fd],
   env: {
