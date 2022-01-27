@@ -25,6 +25,7 @@
     "react-redux": "^7.2.5",
     "react-spinners": "^0.11.0",
     "react-syntax-highlighter": "^15.4.4",
+    "recharts": "^2.1.8",
     "redux": "^4.1.1",
     "redux-logger": "^3.0.6",
     "redux-promise-middleware": "^6.1.2",

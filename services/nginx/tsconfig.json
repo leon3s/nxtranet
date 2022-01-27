@@ -5,6 +5,7 @@
     "moduleResolution": "node",
     "strict": true,
     "rootDir": "srcs",
+    "skipLibCheck": true,
     "outDir": "dist",
     "esModuleInterop": true,
     "declaration": true,
@@ -23,7 +24,9 @@
     "node_modules",
   ],
   "typedocOptions": {
-    "entryPoints": ["srcs/index.ts"],
+    "entryPoints": [
+      "srcs/index.ts"
+    ],
     "out": "docs"
   }
 }

@@ -1,3 +1,4 @@
 {
-  "user": "nxtsrv-dashboard"
+  "user": "nxtsrv-dashboard",
+  "skipDevBuild": true
 }

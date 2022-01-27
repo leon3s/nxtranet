@@ -21,6 +21,7 @@ import {
   PasswordHasherBindings,
   ProjectServiceBindings,
   ProxiesServiceBindings,
+  SystemServiceBindings,
   TokenServiceBindings,
   TokenServiceConstants,
   UserServiceBindings
@@ -35,6 +36,7 @@ import {BcryptHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
 import {ProxiesService} from './services/proxies-service';
+import {SystemService} from './services/system-service';
 import {MyUserService} from './services/user-service';
 
 export {ApplicationConfig};
@@ -87,6 +89,9 @@ export class NextranetApi extends BootMixin(
   }
 
   setupBindings() {
+
+    this.bind(SystemServiceBindings.SYSTEM_SERVICE)
+      .toClass(SystemService);
 
     this.bind(DnsmasqServiceBindings.DNSMASQ_SERVICE)
       .toClass(DnsmasqService);

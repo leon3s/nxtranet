@@ -17,6 +17,7 @@ type ServiceDef = {
   main: string;
   name: string;
   user: string;
+  skipDevBuild?: boolean;
 }
 
 const services: {
@@ -65,6 +66,7 @@ function getServiceDefs(): ServiceDef[] {
       const nxtpConf = readNxtpConf(servicePath);
       if (!nxtpConf) continue;
       serviceDefs.push({
+        skipDevBuild: nxtpConf.skipDevBuild,
         user: nxtpConf.user,
         path: servicePath,
         main: pkg.main,
@@ -85,8 +87,8 @@ async function startService(serviceDef: ServiceDef) {
     runnerPath,
     serviceName,
     `${path.join(serviceDef.path, serviceDef.main)}`,
-    serviceDef.path,
   ], {
+    cwd: serviceDef.path,
     env: {
       NODE_ENV: process.env.NODE_ENV || 'development',
     },
@@ -94,9 +96,27 @@ async function startService(serviceDef: ServiceDef) {
   return +child.stdout;
 }
 
+async function buildService(serviceDef: ServiceDef) {
+  await execa('sudo', [
+    '-u',
+    serviceDef.user,
+    'npm',
+    'run',
+    'build',
+  ], {
+    env: {
+      NODE_ENV: process.env.NODE_ENV || 'development',
+    },
+    stdio: ['ignore', process.stdout, process.stderr],
+    cwd: serviceDef.path,
+  });
+}
+
 async function startServices(serviceDefs: ServiceDef[]) {
   for (const serviceDef of serviceDefs) {
     if (!serviceDef.main) continue;
+    if (!serviceDef.skipDevBuild)
+      await buildService(serviceDef);
     const pid = await startService(serviceDef);
     console.log('Service :\t', serviceDef.name, '\tstarted with pid :\t', pid);
     services.push({

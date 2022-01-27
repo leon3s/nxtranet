@@ -21,6 +21,7 @@ export type NxtdevConfig = {
 
 export type NxthatPJ = {
   user?: string;
+  skipDevBuild?: boolean;
   watchDirectories?: string[];
 }
 

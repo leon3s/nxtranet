@@ -9,7 +9,14 @@ import {PasswordHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
 import {ProxiesService} from './services/proxies-service';
+import {SystemService} from './services/system-service';
 import {WebsocketService} from './websocket';
+
+export namespace SystemServiceBindings {
+  export const SYSTEM_SERVICE = BindingKey.create<SystemService>(
+    'service.system',
+  )
+}
 
 export namespace NginxServiceBindings {
   export const NGINX_SERVICE = BindingKey.create<NginxService>(

@@ -96,6 +96,30 @@ const installNodeDeps = (service: ServiceConfig) => {
   return child;
 }
 
+export const installPackagesDeps = async () => {
+  const packagesDir = '/etc/nxtranet/packages';
+  const packages = fs.readdirSync(packagesDir);
+  for (const pkg of packages) {
+    const pkgDir = path.join(packagesDir, pkg);
+    await execa('sudo', [
+      '-u',
+      'nxtcore',
+      'npm',
+      'install',
+    ], {
+      cwd: pkgDir,
+    });
+  }
+}
+
+export const chownForGroup = async (pth: string) => {
+  await execa('sudo', [
+    'chown',
+    '-R',
+    ':gp_nxtranet',
+  ]);
+}
+
 export const install = async () => {
   if (process.getuid() !== 0) {
     console.log("Install commande have to be run as root");
@@ -107,6 +131,9 @@ export const install = async () => {
   await createUserIfnotExist('nxtcore');
   await addUserToSysGroup('nxtcore');
   console.log('nxtcore user created');
+  await installPackagesDeps();
+  console.log('packages deps installed');
+  await chownForGroup('/etc/nxtranet/packages');
   for (const dir of nxtDev.serviceDirectories) {
     const services = getServiceConfig(path.join(nxtDev._path, dir));
     for (const service of services) {
