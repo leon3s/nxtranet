@@ -71,7 +71,7 @@ async function createUserIfnotExist(username: string) {
 }
 
 async function addUserToSysGroup(username: string) {
-  const res = await execa('groups', [username]);
+  const res = await execa('sudo', ['groups', username]);
   const isIngroup = res.stdout.includes("gp_nxtranet");
   if (!isIngroup) {
     await execa('sudo', [
