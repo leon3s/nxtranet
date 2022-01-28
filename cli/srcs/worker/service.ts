@@ -31,8 +31,6 @@ function ensureDir(dirPath: string) {
   }
 }
 
-
-
 async function ensureUser(user: string): Promise<void> {
   const res = await execa('whoami', []);
   if (res.stdout !== user) {

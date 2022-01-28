@@ -17,6 +17,7 @@ RUN apt-get install nginx -y
 RUN apt-get install dnsmasq -y
 RUN apt-get install mongodb -y
 RUN apt-get install docker.io -y
+RUN apt-get install bash -y
 
 RUN useradd nxtranet
 RUN mkdir /home/nxtranet
@@ -39,14 +40,13 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 WORKDIR /etc
 # Install nxtranet
-RUN sudo git clone https://github.com/leon3s/nxtranet nxtranet
+RUN sudo git clone https://github.com/leon3s/nxtranet
 RUN sudo chown -R nxtranet:nxtranet /etc/nxtranet
 WORKDIR /etc/nxtranet/cli
 RUN sudo cp ../config/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
 RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
 RUN sudo service mongodb start
 RUN sudo service nginx start
-RUN sudo service dnsmasq start
 
 RUN npm install
 RUN npm run build
@@ -59,5 +59,3 @@ RUN sudo nxtranet run prod
 
 EXPOSE 54
 EXPOSE 80
-
-CMD ['/bin/bash']

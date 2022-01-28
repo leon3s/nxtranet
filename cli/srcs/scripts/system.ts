@@ -123,6 +123,15 @@ export const installPackagesDeps = async () => {
     ], {
       cwd: pkgDir,
     });
+    await execa('sudo', [
+      '-u',
+      'nxtcore',
+      'npm',
+      'run',
+      'build'
+    ], {
+      cwd: pkgDir,
+    });
   }
 }
 
