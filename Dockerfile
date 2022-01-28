@@ -18,6 +18,10 @@ RUN apt-get install dnsmasq -y
 RUN apt-get install mongodb -y
 RUN apt-get install docker -y
 
+RUN sudo service nginx start
+RUN sudo service dnsmasq start
+RUN sudo service mongodb start
+
 WORKDIR /tmp
 # Install node v16.13
 RUN curl https://nodejs.org/dist/v16.13.0/node-v16.13.0-linux-x64.tar.xz -s -o _node.tar
@@ -29,7 +33,7 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 WORKDIR /etc
 # Install nxtranet
-RUN git clone https://github.com/leon3s/nxtranet
+RUN git clone https://github.com/leon3s/nxtranet nxtranet
 WORKDIR /etc/nxtranet/cli
 RUN sudo npm install
 RUN sudo npm run build

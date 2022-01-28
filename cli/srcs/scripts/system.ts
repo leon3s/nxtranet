@@ -112,6 +112,15 @@ export const installPackagesDeps = async () => {
   }
 }
 
+export const chownForCoreUser = async (pth: string) => {
+  await execa('sudo', [
+    'chown',
+    '-R',
+    'nxtcore:gp_nxtranet',
+    pth,
+  ]);
+}
+
 export const chownForGroup = async (pth: string) => {
   await execa('sudo', [
     'chown',
@@ -131,6 +140,7 @@ export const install = async () => {
   console.log(`${sysGroup} group created.`);
   await createUserIfnotExist('nxtcore');
   await addUserToSysGroup('nxtcore');
+  await chownForCoreUser('/etc/nxtranet');
   console.log('nxtcore user created');
   await installPackagesDeps();
   console.log('packages deps installed');
