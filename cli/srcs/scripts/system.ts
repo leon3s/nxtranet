@@ -43,7 +43,8 @@ async function createGroupIfNotExist() {
 
 /** Create user to run services if not exist */
 async function createUser(userName: string) {
-  await execa('useradd', [
+  await execa('sudo', [
+    'useradd',
     '-m',
     userName
   ]);
@@ -51,7 +52,11 @@ async function createUser(userName: string) {
 
 async function userExist(userName: string) {
   try {
-    await execa('getent', ['passwd', userName]);
+    await execa('sudo', [
+      'getent',
+      'passwd',
+      userName,
+    ]);
     return true;
   } catch ({ }) {
     return false;
@@ -69,7 +74,13 @@ async function addUserToSysGroup(username: string) {
   const res = await execa('groups', [username]);
   const isIngroup = res.stdout.includes("gp_nxtranet");
   if (!isIngroup) {
-    await execa('usermod', ['-a', '-G', sysGroup, username]);
+    await execa('sudo', [
+      'usermod',
+      '-a',
+      '-G',
+      sysGroup,
+      username,
+    ]);
   }
 }
 
