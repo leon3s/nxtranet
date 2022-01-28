@@ -37,13 +37,13 @@ async function createGroupIfNotExist() {
   try {
     await execa('getent', ['group', sysGroup]);
   } catch ({ }) {
-    await execa('groupadd', [sysGroup])
+    await execa('addgroup', [sysGroup])
   }
 }
 
 /** Create user to run services if not exist */
 async function createUser(userName: string) {
-  await execa('useradd', [userName]);
+  await execa('adduser', [userName]);
 }
 
 async function userExist(userName: string) {
