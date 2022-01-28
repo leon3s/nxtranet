@@ -139,7 +139,7 @@ export const chownForCoreUser = async (pth: string) => {
   await execa('sudo', [
     'chown',
     '-R',
-    'nxtcore:gp_nxtranet',
+    `nxtcore:${sysGroup}`,
     pth,
   ]);
 }
@@ -149,13 +149,18 @@ export const createLogsDir = async () => {
     'mkdir',
     '/etc/nxtranet/logs',
   ]);
+  await execa('sudo', [
+    'chmod',
+    '777',
+    '/etc/nxtranet/logs'
+  ]);
 }
 
 export const chownForGroup = async (pth: string) => {
   await execa('sudo', [
     'chown',
     '-R',
-    ':gp_nxtranet',
+    `:${sysGroup}`,
     pth,
   ]);
 }
@@ -176,7 +181,7 @@ export const install = async () => {
   console.log('packages deps installed');
   await chownForGroup('/etc/nxtranet/packages');
   await createLogsDir();
-  await chownForGroup('/etc/nxtranet/logs');
+  await chownForCoreUser('/etc/nxtranet/logs');
   for (const dir of nxtDev.serviceDirectories) {
     const services = getServiceConfig(path.join(nxtDev._path, dir));
     for (const service of services) {

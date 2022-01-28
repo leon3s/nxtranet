@@ -5,7 +5,7 @@ const port = +(process.env.PORT ?? 3365);
 const server = new Server();
 
 const prepare = async () => {
-  await dnsmasq.start();
+  // await dnsmasq.start();
   return new Promise<void>((resolve) => {
     server.httpServer.listen(port, () => {
       resolve();
