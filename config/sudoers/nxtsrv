@@ -1,4 +1,4 @@
-nxtcore ALL=(nxtsrv-nginx, nxtsrv-docker, nxtsrv-proxies, nxtsrv-api) NOPASSWD:ALL
+nxtcore ALL=(nxtsrv-nginx, nxtsrv-docker, nxtsrv-proxies, nxtsrv-api, nxtsrv-dashboard) NOPASSWD:ALL
 
 nxtsrv-dnsmasq ALL=(root) NOPASSWD: /sbin/service dnsmasq start, /sbin/service dnsmasq restart
 
