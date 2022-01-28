@@ -43,7 +43,10 @@ async function createGroupIfNotExist() {
 
 /** Create user to run services if not exist */
 async function createUser(userName: string) {
-  await execa('useradd', [userName]);
+  await execa('useradd', [
+    '-m',
+    userName
+  ]);
 }
 
 async function userExist(userName: string) {

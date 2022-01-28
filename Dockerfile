@@ -18,28 +18,41 @@ RUN apt-get install dnsmasq -y
 RUN apt-get install mongodb -y
 RUN apt-get install docker -y
 
-RUN sudo service nginx start
-RUN sudo service dnsmasq start
-RUN sudo service mongodb start
+RUN useradd nxtranet
+RUN mkdir /home/nxtranet
+RUN chown -R nxtranet:nxtranet /home/nxtranet
+RUN usermod -aG sudo nxtranet
+RUN echo "%nxtranet   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nxtranet_admin
+
+USER nxtranet
+
+RUN sudo service mongodb enable
+RUN sudo service nginx enable
 
 WORKDIR /tmp
 # Install node v16.13
 RUN curl https://nodejs.org/dist/v16.13.0/node-v16.13.0-linux-x64.tar.xz -s -o _node.tar
 RUN tar -xf _node.tar
 WORKDIR /tmp/node-v16.13.0-linux-x64
-RUN cp -r ./bin ./include ./lib ./share /usr
+RUN sudo cp -r ./bin ./include ./lib ./share /usr
 RUN rm /tmp/_node.tar
 RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 WORKDIR /etc
 # Install nxtranet
-RUN git clone https://github.com/leon3s/nxtranet nxtranet
+RUN sudo git clone https://github.com/leon3s/nxtranet nxtranet
+RUN sudo chown -R nxtranet:nxtranet /etc/nxtranet
 WORKDIR /etc/nxtranet/cli
-RUN sudo npm install
-RUN sudo npm run build
+RUN sudo cp ../config/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
+RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
+
+RUN npm install
+RUN npm run build
 RUN sudo npm install -g .
 RUN sudo nxtranet install
 RUN sudo nxtranet run prod
 
-EXPOSE 80
+# RUN sudo service dnsmasq start
+
 EXPOSE 54
+EXPOSE 80
