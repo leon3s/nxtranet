@@ -168,6 +168,7 @@ export const install = async () => {
   await installPackagesDeps();
   console.log('packages deps installed');
   await chownForGroup('/etc/nxtranet/packages');
+  await chownForGroup('/etc/nxtranet/logs');
   for (const dir of nxtDev.serviceDirectories) {
     const services = getServiceConfig(path.join(nxtDev._path, dir));
     for (const service of services) {

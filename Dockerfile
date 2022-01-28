@@ -40,11 +40,12 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 WORKDIR /etc
 # Install nxtranet
-RUN sudo git clone https://github.com/leon3s/nxtranet
+RUN sudo git clone https://github.com/leon3s/nxtranet nxtranet
+RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
+RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
+RUN sudo cp ../config/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
 RUN sudo chown -R nxtranet:nxtranet /etc/nxtranet
 WORKDIR /etc/nxtranet/cli
-RUN sudo cp ../config/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
-RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
 RUN sudo service mongodb start
 RUN sudo service nginx start
 
