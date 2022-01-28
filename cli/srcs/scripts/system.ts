@@ -117,6 +117,7 @@ export const chownForGroup = async (pth: string) => {
     'chown',
     '-R',
     ':gp_nxtranet',
+    pth,
   ]);
 }
 
