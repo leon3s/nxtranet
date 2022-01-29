@@ -4,10 +4,11 @@ import {HttpErrors} from '@loopback/rest';
 import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
-import {DockerServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
+import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
 import {Cluster, ClusterProduction, Container} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
+import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
 import {ProxiesService} from './proxies-service';
 
@@ -47,11 +48,16 @@ export default
     protected dockerService: DockerService,
     @inject(NginxServiceBindings.NGINX_SERVICE)
     protected nginxService: NginxService,
+    @inject(GithubServiceBindings.GITHUB_SERVICE)
+    protected githubService: GithubService,
   ) { }
 
   boot = async () => {
     await this.dockerService.syncContainers();
     await this.proxiesService.updateDomains();
+    const projects = await this.projectRepository.find();
+    await Promise.all(projects.map((project) =>
+      this.githubService.syncProjectBranch(project)));
     const containers = await this.containerRepository.find({
       include: [
         {
@@ -108,6 +114,7 @@ export default
       });
       console.log('updated');
       await this.dockerService.whenContainerReady(container);
+      await this.proxiesService.updateDomains();
       console.log('ready');
       const containers = await this.containerRepository.find({
         where: {

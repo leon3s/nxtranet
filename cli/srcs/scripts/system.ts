@@ -147,6 +147,7 @@ export const chownForCoreUser = async (pth: string) => {
 export const createLogsDir = async () => {
   await execa('sudo', [
     'mkdir',
+    '-p',
     '/etc/nxtranet/logs',
   ]);
   await execa('sudo', [

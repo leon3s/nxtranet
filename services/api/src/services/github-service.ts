@@ -46,22 +46,28 @@ export class GithubService {
       auth,
     });
     await Promise.all(branches.map(async ({name, commit}) => {
+      console.log({
+        name,
+        commit,
+      });
       const item = await this.githubBranchRepository.findOne({
-        where: {name},
+        where: {
+          name,
+          projectName: project.name,
+        },
       });
       if (!item) {
-        return this.githubBranchRepository.create({
+        await this.githubBranchRepository.create({
           projectName: project.name,
           namespace: `${project.name}.${name}`,
           name: name,
           lastCommitSHA: commit.sha,
         });
+      } else {
+        await this.githubBranchRepository.updateById(item.id, {
+          lastCommitSHA: commit.sha,
+        });
       }
-      item.lastCommitSHA = commit.sha;
-      this.githubBranchRepository.updateById(item.id, {
-        lastCommitSHA: item.lastCommitSHA,
-      });
-      return item;
     }));
   }
 

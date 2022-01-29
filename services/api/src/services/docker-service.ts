@@ -172,8 +172,8 @@ export
           value: PipelineStatusEnum.FAILED,
         });
         clearInterval(interval);
-        reject(new Error('Container timeout after 50000ms.'));
-      }, 50000);
+        reject(new Error('Container timeout after 1200000ms.'));
+      }, 1200000);
     });
   }
 

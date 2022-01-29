@@ -392,6 +392,7 @@ class Clusters extends
                     path: `/projects/${projectName}/git-branches`,
                     displayKey: 'name',
                     returnKey: 'namespace',
+                    isAnyEnabled: true,
                   }
                 }
               ]}
