@@ -134,9 +134,11 @@ export default
         });
         if (!project) throw new HttpErrors.NotAcceptable('Cluster project is deleted ?');
         const mainDomain = project?.clusterProduction?.domain || 'nextra.net';
-        const nginxFilename = `${cluster.projectName}_${cluster.name}`;
+        const nginxFilename = `${cluster.name}_${cluster.projectName}`;
         await this.writeNginxConfigDev(nginxFilename, {
-          domain: `${cluster.name}.${mainDomain}`,
+          domain: mainDomain === 'nextra.net' ?
+            `${nginxFilename}.${mainDomain}` :
+            `${cluster.name}.${mainDomain}`,
           port: container.appPort,
         });
         await this.nginxService.deploySiteAvaible(nginxFilename);

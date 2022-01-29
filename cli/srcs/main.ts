@@ -1,8 +1,8 @@
 #!/usr/bin/node
 import fs from 'fs';
 import path from 'path';
+import install from './scripts/install';
 import * as run from './scripts/run';
-import * as system from './scripts/system';
 
 const help = fs.readFileSync(path.join(__dirname, '../README.md'));
 
@@ -16,7 +16,7 @@ const printHelp = () => {
     return printHelp();
   }
   if (type === 'install') {
-    await system.install();
+    await install();
   }
   if (type === 'run') {
     if (action === 'dev') {
@@ -24,6 +24,9 @@ const printHelp = () => {
     }
     if (action === 'prod') {
       await run.prod();
+    }
+    if (action === 'windev') {
+      await run.winDev();
     }
   }
   process.exit(0);

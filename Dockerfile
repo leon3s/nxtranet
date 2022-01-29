@@ -13,11 +13,12 @@ RUN apt-get install systemd -y
 RUN apt-get install git -y
 RUN apt-get install curl -y
 RUN apt-get install sudo -y
-RUN apt-get install nginx -y
-RUN apt-get install dnsmasq -y
-RUN apt-get install mongodb -y
-RUN apt-get install docker-compose -y
 RUN apt-get install bash -y
+
+# RUN apt-get install nginx -y
+# RUN apt-get install dnsmasq -y
+# RUN apt-get install mongodb -y
+# RUN apt-get install docker-compose -y
 
 RUN useradd nxtranet
 RUN mkdir /home/nxtranet
@@ -26,8 +27,6 @@ RUN usermod -aG sudo nxtranet
 RUN echo "%nxtranet   ALL=(ALL:ALL) NOPASSWD:ALL" > /etc/sudoers.d/nxtranet_admin
 
 USER nxtranet
-
-#RUN sudo service --status-all
 
 WORKDIR /tmp
 # Install node v16.13

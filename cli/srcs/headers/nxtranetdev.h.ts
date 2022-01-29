@@ -16,7 +16,8 @@ export type ServiceConfig = {
 export type NxtdevConfig = {
   name: string;
   _path: string;
-  projectDirectories: string[];
+  servicesDirectories: string[];
+  packagesDirectories: string[];
 }
 
 export type NxthatPJ = {

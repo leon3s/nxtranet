@@ -3,25 +3,6 @@ echo "======================"
 echo "====== NXTRANET ======"
 echo "======================"
 
-isWsl=false;
-suname=$(uname -a)
-sWsl="microsoft-standard-WSL"
-
-## NEED TO BE ROOT
-## It will install packages like node nginx dnsmasq and create users to manage them.
-if [ "$EUID" -ne 0 ]
-then
-  echo "nxtranet install script must be run as root."
-  exit 1
-fi
-
-echo -n "Verifying if we are in WSL"
-if [[ $suname == *$sWsl* ]]; then
-  echo " - wsl detected skipping docker installation."
-  isWsl=true
-fi
-
-## FUNCTIONS
 function print_red() {
   RED='\033[0;31m'
   NC='\033[0m' # No Color
@@ -46,10 +27,15 @@ function print_fail() {
   echo "]"
 }
 
-## END FUNTIONS
+## NEED TO BE ROOT
+## It will install packages like node nginx dnsmasq and create users to manage them.
+if [ "$EUID" -ne 0 ]
+then
+  echo "nxtranet install script must be run as root."
+  exit 1
+fi
 
-## START PACKAGES VERIFICATION
-echo "# Verifying system packages"
+echo "Verifying node installation"
 
 echo -n "  - node "
 if ! [ -x "$(command -v node)" ]
@@ -69,42 +55,8 @@ else
   print_pass
 fi
 
-echo -n "  - nginx "
-if ! [ -x "$(command -v nginx)" ]; then
-  echo -n "installing "
-  apt-get install nginx nginx-extras -y > /dev/null
-  print_pass
-else
-  echo -n "installed "
-  print_pass
-fi
-
-echo -n "  - dnsmasq "
-if ! [ -x "$(command -v dnsmasq)" ]; then
-  echo -n "installing "
-  apt-get install dnsmasq -y > /dev/null
-  print_pass
-else
-  echo -n "installed "
-  print_pass
-fi
-
-echo -n "  - mongodb "
-if ! [ -x "$(command -v mongodb)"]; then
-  echo -n "installing "
-  apt-get install mongodb -y > /dev/null
-  print_pass
-else
-  echo -n "installed "
-  print_pass
-fi
-
-echo -n "  - docker "
-if ! [ -x "$(command -v docker)"] && ["$isWsl" == false]; then
-  echo "installing "
-  apt-get install docker -y > /dev/null
-  print_pass
-else
-  echo -n "skiping "
-  print_pass
-fi
+git clone https://github.com/leon3s/nxtranet
+cd nxtranet/cli
+echo "Run npm install && npm run build"
+echo "Then run sudo install -g . to install nxtranet cli"
+echo "Then run sudo nxtranet install to install and setup project"
