@@ -11,7 +11,7 @@ const installDir = path.resolve(path.join(__dirname, '../../..'));
 const logsDir = path.join(installDir, 'logs');
 const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
 
-const defaultSystemPkg = ['nginx', 'dnsmasq', 'mongodb'];
+const defaultSystemPkg = ['nginx', 'dnsmasq'];
 
 async function installSystemPkg(name: string) {
   await execa('sudo', [
