@@ -15,7 +15,11 @@ List of system compatible
 
 ## Installation
 
-Scripts are actually not fully working we are working on it.
+```sh
+git clone https://github.com/leon3s/nxtranet
+cd nxtranet
+sudo bash ubuntu.install.bash
+```
 
 ## Project structure
 

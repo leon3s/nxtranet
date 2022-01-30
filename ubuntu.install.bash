@@ -38,8 +38,8 @@ fi
 echo "Verifying node installation"
 
 echo -n "  - node "
-if ! [ -x "$(command -v node)" ]
-then
+# if ! [ -x "$(command -v node)" ]
+# then
   echo -n " installing "
   curl https://nodejs.org/dist/v16.13.0/node-v16.13.0-linux-x64.tar.xz _node.tar -s -o ./_node.tar > /dev/null
   tar -xf _node.tar
@@ -50,13 +50,12 @@ then
   rm -r node-v16.13.0-linux-x64
   rm _node.tar
   print_pass
-else
-  echo -n "installed "
-  print_pass
-fi
+# else
+#   echo -n "installed "
+#   print_pass
+# fi
 
-git clone https://github.com/leon3s/nxtranet
-cd nxtranet/cli
+cd ./cli
 echo "Run npm install && npm run build"
 echo "Then run sudo install -g . to install nxtranet cli"
 echo "Then run sudo nxtranet install to install and setup project"
