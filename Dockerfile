@@ -15,10 +15,10 @@ RUN apt-get install curl -y
 RUN apt-get install sudo -y
 RUN apt-get install bash -y
 
-# RUN apt-get install nginx -y
-# RUN apt-get install dnsmasq -y
-# RUN apt-get install mongodb -y
-# RUN apt-get install docker-compose -y
+RUN apt-get install nginx -y
+RUN apt-get install dnsmasq -y
+RUN apt-get install mongodb -y
+RUN apt-get install docker-compose -y
 
 RUN useradd nxtranet
 RUN mkdir /home/nxtranet
@@ -39,24 +39,20 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 # Install nxtranet
 WORKDIR /etc
-RUN sudo service mongodb start
-RUN sudo service nginx start
 RUN sudo git clone https://github.com/leon3s/nxtranet nxtranet
 RUN sudo chown -R nxtranet:nxtranet /etc/nxtranet
 WORKDIR /etc/nxtranet/cli
 RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
 RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
-RUN sudo cp ../config/dnsmasq/dnsmasq.conf /etc/dnsmasq.conf
+RUN sudo cp ../config/dnsmasq/dnsmasq.docker.conf /etc/dnsmasq.conf
 RUN npm install
 RUN npm run build
 RUN sudo npm install -g .
 RUN sudo nxtranet install
-#RUN chown nxtsrv-docker /var/run/docker.sock
+RUN sudo service mongodb start
+RUN sudo service nginx start
+RUN sudo service dnsmasq start
 RUN sudo nxtranet run prod
-
-# RUN sudo service dnsmasq start
 
 EXPOSE 80/tcp
 EXPOSE 53/udp
-
-# ENTRYPOINT ["dnsmasq", "-k", "--port=5353"]
