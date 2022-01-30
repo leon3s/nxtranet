@@ -1,17 +1,19 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import type {NxtdevConfig, ServiceConfig} from '../headers/nxtranetdev.h';
-import {findNxtDev, getServiceConfig} from '../lib/nxtconfig';
+import type {NxtGlobalConfig, PackageDef, ServiceDef} from '../headers/nxtranetdev.h';
+import {getConfig} from '../lib/nxtconfig';
 
-const mainUser = 'nxtcore';
+const coreUser = 'nxtcore';
 const sysGroup = 'gp_nxtranet';
 
+const installDir = path.resolve(path.join(__dirname, '../../..'));
+const logsDir = path.join(installDir, 'logs');
 const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
 
 const defaultSystemPkg = ['nginx', 'dnsmasq', 'mongodb'];
 
-const installSystemPkg = async (name: string) => {
+async function installSystemPkg(name: string) {
   await execa('sudo', [
     'apt-get',
     'install',
@@ -20,13 +22,13 @@ const installSystemPkg = async (name: string) => {
   ]);
 }
 
-const configureNginx = async () => {
+async function configureNginx() {
   await execa('cp', [nextranetNginx, '/etc/nginx/sites-available']);
   if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nextra.net'))) {
     await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);
   }
-  // await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
-  // await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
+  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
+  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
 }
 
 async function createGroupIfNotExist() {
@@ -37,7 +39,6 @@ async function createGroupIfNotExist() {
   }
 }
 
-/** Create user to run services if not exist */
 async function createUser(userName: string) {
   await execa('sudo', [
     'useradd',
@@ -80,11 +81,11 @@ async function addUserToSysGroup(username: string) {
   }
 }
 
-const chownService = (service: ServiceConfig) => {
+async function chownService(service: ServiceDef) {
   return execa('chown', ['-R', service.user, service.path]);
 }
 
-const installNodeDeps = (service: ServiceConfig) => {
+async function installNodeDeps(service: ServiceDef) {
   const child = execa('sudo', ['-u', service.user, 'npm', 'install'], {
     cwd: service.path,
     stdio: 'pipe',
@@ -92,32 +93,29 @@ const installNodeDeps = (service: ServiceConfig) => {
   return child;
 }
 
-const installPackages = async () => {
-  const packagesDir = '/etc/nxtranet/packages';
-  const packages = fs.readdirSync(packagesDir);
-  for (const pkg of packages) {
-    const pkgDir = path.join(packagesDir, pkg);
+async function installPackages(packages: PackageDef[]) {
+  return Promise.all(packages.map(async (pkg) => {
     await execa('sudo', [
       '-u',
-      mainUser,
+      coreUser,
       'npm',
       'install',
     ], {
-      cwd: pkgDir,
+      cwd: pkg.path,
     });
     await execa('sudo', [
       '-u',
-      mainUser,
+      coreUser,
       'npm',
       'run',
       'build'
     ], {
-      cwd: pkgDir,
+      cwd: pkg.path,
     });
-  }
+  }))
 }
 
-const chownForCoreUser = async (pth: string) => {
+async function chownForCoreUser(pth: string) {
   await execa('sudo', [
     'chown',
     '-R',
@@ -126,20 +124,20 @@ const chownForCoreUser = async (pth: string) => {
   ]);
 }
 
-const createLogsDir = async () => {
+async function createLogsDir(logsDir: string) {
   await execa('sudo', [
     'mkdir',
     '-p',
-    '/etc/nxtranet/logs',
+    logsDir,
   ]);
   await execa('sudo', [
     'chmod',
     '777',
-    '/etc/nxtranet/logs'
+    logsDir
   ]);
 }
 
-const chownForGroup = async (pth: string) => {
+async function chownForGroup(pth: string) {
   await execa('sudo', [
     'chown',
     '-R',
@@ -148,50 +146,57 @@ const chownForGroup = async (pth: string) => {
   ]);
 }
 
-const installService = async (service: ServiceConfig) => {
-  console.log('Configuring service : ', service.pkg.name);
+async function installService(service: ServiceDef) {
   await createUserIfnotExist(service.user);
   await addUserToSysGroup(service.user);
-  console.log(`${service.user} user created`);
   await chownService(service);
-  console.log(`${service.path} chown for user ${service.user}`);
   try {
     await installNodeDeps(service);
-    console.log('Node dependencies installed.');
   } catch (err: any) {
     console.error('Error while installing dependencies for ', service.path, err.stderr);
   }
 }
 
-const installServices = async (nxtDev: NxtdevConfig) => {
-  await Promise.all(nxtDev.servicesDirectories.map(async (dir) => {
-    const services = getServiceConfig(path.join(nxtDev._path, dir));
-    await Promise.all(services.map(installService));
-  }));
+async function installServices(services: ServiceDef[]) {
+  return Promise.all(services.map(installService));
 }
 
-const installSystemPkgs = async () => {
-  await Promise.all(defaultSystemPkg.map(async (pkg) => {
+async function installSystemPkgs() {
+  for (const pkg of defaultSystemPkg) {
     await installSystemPkg(pkg);
+  }
+}
+
+async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
+  return Promise.all(nxtconfig.packagesDirectories.map((packageDirectory) => {
+    const ppath = path.join(nxtconfig.path, packageDirectory);
+    return chownForGroup(ppath);
   }));
 }
 
-const install = async () => {
+async function configureSystem() {
+  await installSystemPkgs();
+  await createGroupIfNotExist();
+  await createUserIfnotExist(coreUser);
+  await addUserToSysGroup(coreUser);
+  await chownForCoreUser(installDir);
+  await createLogsDir(logsDir);
+  await chownForCoreUser(logsDir);
+}
+
+async function installNxtranet() {
+  const nxtconfig = await getConfig();
+  await installPackages(nxtconfig.packages);
+  await chownPackagesDirectories(nxtconfig);
+  await installServices(nxtconfig.services);
+}
+
+export default async function install() {
   if (process.getuid() !== 0) {
-    console.log("Install commande have to be run as root.");
+    process.stdout.write("Install commande have to be run as root.\n");
     process.exit(0);
   }
-  const nxtDev = findNxtDev();
-  await createGroupIfNotExist();
-  await createUserIfnotExist(mainUser);
-  await addUserToSysGroup(mainUser);
-  await chownForCoreUser('/etc/nxtranet');
-  await installPackages();
-  await chownForGroup('/etc/nxtranet/packages');
-  await createLogsDir();
-  await chownForCoreUser('/etc/nxtranet/logs');
-  await installServices(nxtDev);
+  await configureSystem();
+  await installNxtranet();
   await configureNginx();
 }
-
-export default install;

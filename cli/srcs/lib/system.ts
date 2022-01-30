@@ -6,16 +6,15 @@ type WlsOptions = {
   windowTitle?: string;
 } & execa.Options;
 
-// Start-Process powershell -ArgumentList "-noexit", "-noprofile", "-command wsl ls"
 /** Windows only */
-export const execaWsl = async (cmd: string, args: string[], options?: WlsOptions) => {
+export async function execaWsl(cmd: string, args: string[], options?: WlsOptions) {
   return execSync(`wt.exe -w 0 nt ${options?.windowTitle ? `--title ${options?.windowTitle} ` : ''}powershell.exe -NoExit -Command "& {"wsl -u ${options?.username} ${cmd} ${args.join(' ')}}"`, {
     cwd: options?.cwd,
   });
 }
 
 /** Verify if the script is run as root */
-export const ensureRoot = () => {
+export async function ensureRoot() {
   if (process.getuid() !== 0) {
     console.log("Install commande have to be run as root");
     process.exit(0);
@@ -23,7 +22,7 @@ export const ensureRoot = () => {
 }
 
 /** UNIX only */
-export const getUserInfo = async (username: string): Promise<{uid: number, gid: number}> => {
+export async function getUserInfo(username: string): Promise<{uid: number, gid: number}> {
   const {stdout} = await execa('id', [username]);
   const uid = +(stdout.replace(/(uid=)([0-9]{4})(.*)/g, '$2'));
   const gid = +(stdout.replace(/(.*gid=)([0-9]{4})(.*)/g, '$2'));
@@ -31,4 +30,12 @@ export const getUserInfo = async (username: string): Promise<{uid: number, gid: 
     uid,
     gid,
   };
+}
+
+/** Unix only */
+export async function ensureUser(user: string): Promise<void> {
+  const res = await execa('whoami', []);
+  if (res.stdout !== user) {
+    throw new Error('User not matching.');
+  }
 }

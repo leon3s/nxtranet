@@ -1,33 +1,40 @@
 export type Pkgjson = {
   name: string;
+  main: string;
   scripts: {
     dev: string;
     start: string;
   }
 }
 
-export type ServiceConfig = {
+export type NxtConfig = {
   name: string;
   path: string;
-  user: string;
-  pkg: Pkgjson;
-}
-
-export type NxtdevConfig = {
-  name: string;
-  _path: string;
   servicesDirectories: string[];
   packagesDirectories: string[];
 }
 
-export type NxthatPJ = {
+export type NxtSrvConfig = {
   user?: string;
   skipDevBuild?: boolean;
   watchDirectories?: string[];
 }
 
-export type Project = {
-  _path: string;
-  pkg: Pkgjson | null;
-  settings: NxthatPJ | null;
+export type ServiceDef = {
+  path: string;
+  name: string;
+  user: string;
+  pkg: Pkgjson;
+  skipDevBuild?: boolean;
 }
+
+export type PackageDef = {
+  path: string;
+  name: string;
+  pkg: Pkgjson;
+}
+
+export type NxtGlobalConfig = {
+  services: ServiceDef[];
+  packages: PackageDef[];
+} & NxtConfig;
