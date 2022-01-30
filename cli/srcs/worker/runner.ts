@@ -2,7 +2,7 @@ import {spawn} from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-const logsDirPath = '/etc/nxtranet/logs';
+const logsDirPath = path.join('../../../', 'logs');
 
 const [{ }, { }, name, sPath] = process.argv;
 
