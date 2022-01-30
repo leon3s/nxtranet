@@ -6,6 +6,8 @@ import type {ServiceDef} from '../headers/nxtranetdev.h';
 import {getConfig, installDir} from '../lib/nxtconfig';
 import {ensureUser} from '../lib/system';
 
+const pidPath = path.join(installDir, '.nxtranet.pid');
+
 const services: {
   pid: number;
   user: string;
@@ -60,7 +62,7 @@ async function startServices(serviceDefs: ServiceDef[]) {
 }
 
 async function killServices(signal: string) {
-  fs.rmSync('/etc/nxtranet/.nxtranet.pid');
+  fs.rmSync(pidPath);
   for (const service of services) {
     try {
       await execa('sudo', ['-u', service.user, 'kill', `-${signal}`, `${service.pid}`]);
@@ -80,7 +82,7 @@ prepare().then(() => {
   const server = new Server(6587);
   server.on('connection', (socket) => { });
   console.log('master process started listening on port : ', 6587, ' with pid ', process.pid);
-  fs.writeFileSync(path.join(installDir, '.nxtranet.pid'), process.pid.toString());
+  fs.writeFileSync(pidPath, process.pid.toString());
 }).catch((err) => {
   console.error(err);
 });
