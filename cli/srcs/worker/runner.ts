@@ -1,12 +1,11 @@
 import {spawn} from 'child_process';
 import fs from 'fs';
 import path from 'path';
-
-const logsDirPath = path.join('../../../', 'logs');
+import {logsDir} from '../lib/nxtconfig';
 
 const [{ }, { }, name, sPath] = process.argv;
 
-const fd = fs.openSync(path.join(logsDirPath, `${name}.log`), 'a');
+const fd = fs.openSync(path.join(logsDir, `${name}.log`), 'a');
 
 const p = spawn('node', [sPath], {
   detached: true,
