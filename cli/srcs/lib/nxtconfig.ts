@@ -4,8 +4,14 @@ import type {
   NxtConfig, NxtGlobalConfig, PackageDef, Pkgjson, ServiceDef
 } from '../headers/nxtranetdev.h';
 
+export const installDir = path.resolve(path.join(__dirname, '../../..'));
+
+export const logsDir = path.join(installDir, 'logs');
+
+export const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
+
 /** Get .nxt from project to know settings */
-export function findNxtConf(inpath = path.join(__dirname, '../../../.nxt')): NxtConfig {
+export function findNxtConf(inpath = path.join(installDir, '.nxt')): NxtConfig {
   if (inpath === '/') {
     throw new Error('Error .nxt not found.');
   }

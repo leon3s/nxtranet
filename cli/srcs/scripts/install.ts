@@ -1,15 +1,15 @@
 import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
-import type {NxtGlobalConfig, PackageDef, ServiceDef} from '../headers/nxtranetdev.h';
-import {getConfig} from '../lib/nxtconfig';
+import type {
+  NxtGlobalConfig, PackageDef, ServiceDef
+} from '../headers/nxtranetdev.h';
+import {
+  getConfig, installDir, logsDir, nextranetNginx
+} from '../lib/nxtconfig';
 
 const coreUser = 'nxtcore';
 const sysGroup = 'gp_nxtranet';
-
-const installDir = path.resolve(path.join(__dirname, '../../..'));
-const logsDir = path.join(installDir, 'logs');
-const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
 
 const defaultSystemPkg = ['nginx', 'dnsmasq'];
 

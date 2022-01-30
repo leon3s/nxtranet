@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import {Server} from 'socket.io';
 import type {ServiceDef} from '../headers/nxtranetdev.h';
-import {getConfig} from '../lib/nxtconfig';
+import {getConfig, installDir} from '../lib/nxtconfig';
 import {ensureUser} from '../lib/system';
 
 const services: {
@@ -80,7 +80,7 @@ prepare().then(() => {
   const server = new Server(6587);
   server.on('connection', (socket) => { });
   console.log('master process started listening on port : ', 6587, ' with pid ', process.pid);
-  fs.writeFileSync('/etc/nxtranet/.nxtranet.pid', process.pid.toString());
+  fs.writeFileSync(path.join(installDir, '.nxtranet.pid'), process.pid.toString());
 }).catch((err) => {
   console.error(err);
 });
