@@ -32,11 +32,7 @@ type ProjectsPageProps = {
 export const getServerSideProps = wrapper.getServerSideProps(store =>
   async ({ }): Promise<GetServerSidePropsResult<any>> => {
     let errorCode = 0;
-    try {
-      await store.dispatch(projectActions.get());
-    } catch (e) {
-      console.log(e);
-    }
+    await store.dispatch(projectActions.get());
     return {
       props: {
         errorCode,

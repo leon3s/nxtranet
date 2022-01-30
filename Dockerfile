@@ -39,7 +39,7 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 # Install nxtranet
 WORKDIR /etc
-RUN sudo git clone https://github.com/leon3s/nxtranet nxtranet
+RUN sudo git clone https://github.com/leon3s/nxtranet
 RUN sudo chown -R nxtranet:nxtranet /etc/nxtranet
 WORKDIR /etc/nxtranet/cli
 RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
