@@ -6,3 +6,4 @@ Restart / Stop container
 
 Request monitoring de nginx
 
+Add directories and file to give right in services/*/.nxtsrv

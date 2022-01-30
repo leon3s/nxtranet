@@ -36,7 +36,7 @@ const server = new Server();
 
 server.io.on('connection', (socket) => {
   const connectToContainer = (namespace: string, port: number) => {
-    const containerSock = io(`http://127.0.0.1:${port}`);
+    const containerSock = io(`http://172.17.0.1:${port}`);
     containerSock.on('action', (output) => {
       socket.emit(namespace, output);
     });
