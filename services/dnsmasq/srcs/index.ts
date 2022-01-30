@@ -7,7 +7,7 @@ const server = new Server();
 const prepare = async () => {
   // await dnsmasq.start();
   return new Promise<void>((resolve) => {
-    server.httpServer.listen(port, () => {
+    server.httpServer.listen(port, '127.0.0.1', () => {
       resolve();
     });
   })

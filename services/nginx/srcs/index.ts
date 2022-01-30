@@ -18,7 +18,7 @@ if (!isProd) {
 const prepare = async () => {
   // await nginx.startService();
   return new Promise<void>((resolve) => {
-    server.httpServer.listen(port, () => {
+    server.httpServer.listen(port, '127.0.0.1', () => {
       resolve();
     });
   })

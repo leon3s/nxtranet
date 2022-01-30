@@ -13,7 +13,7 @@ class DomainProxy {
     }
 
     public listen(port: number, callback = () => { }) {
-        this._server.listen(port, callback);
+        this._server.listen(port, '127.0.0.1', callback);
     }
 
     public updateDomains(domains: Domains) {

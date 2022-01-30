@@ -20,6 +20,6 @@ server.io.on('connection', (socket) => {
   });
 });
 
-server.httpServer.listen(port, () => {
+server.httpServer.listen(port, '127.0.0.1', () => {
   console.log(`nextranet system service started on port ${port}`);
 });

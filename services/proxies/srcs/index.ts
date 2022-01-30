@@ -46,6 +46,6 @@ domainProxy.listen(port, () => {
   console.log('Internal domain proxies listening on port ', port);
 });
 
-server.httpServer.listen(servicePort, () => {
+server.httpServer.listen(servicePort, '127.0.0.1', () => {
   console.log(`nextranet proxies service started on port ${servicePort}`);
 });
