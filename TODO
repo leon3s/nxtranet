@@ -1,0 +1,8 @@
+ALLOW Rewrite nginx conf if existing by replacing or addind content;
+
+Copy env variable to the container and update container env independentaly
+
+Restart / Stop container
+
+Request monitoring de nginx
+
