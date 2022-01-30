@@ -42,7 +42,7 @@ export class GithubService {
       password: project.github_password,
     }
     const {data: branches} = await this.request.get<{name: string, commit: {sha: string}}[]>(
-      `/repos/${auth.username}/${project.name}/branches`, {
+      `/repos/${auth.username}/${project.github_project}/branches`, {
       auth,
     });
     await Promise.all(branches.map(async ({name, commit}) => {
