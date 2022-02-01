@@ -1,15 +1,15 @@
-import { AnyAction } from "redux";
+import type {NginxSiteAvailable} from "@nxtranet/headers";
+import {AnyAction} from "redux";
+import {NGINX_DEFINES} from "../defines";
 
-import { NGINX_DEFINES } from "../defines";
 
-import type { NginxSiteAvaible } from "@nxtranet/headers";
 
 export type NginxState = {
-  data: NginxSiteAvaible[],
-  target: null | NginxSiteAvaible;
+  data: NginxSiteAvailable[],
+  target: null | NginxSiteAvailable;
 }
 
-const projectReducer = (state:NginxState = {
+const projectReducer = (state: NginxState = {
   data: [],
   target: null,
 }, action: AnyAction): NginxState => {

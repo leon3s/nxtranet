@@ -1,4 +1,4 @@
-export type ModelDisk = {
+export type SystemDisk = {
   filesystem: string;
   size: number;
   used: number;

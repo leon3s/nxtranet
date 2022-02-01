@@ -1,6 +1,5 @@
 export * from './cluster-container.controller';
 export * from './cluster-env-var.controller';
-export * from './disk.controller';
 export * from './metrix.controller';
 export * from './nginx.controller';
 export * from './ping.controller';

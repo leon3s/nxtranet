@@ -1,14 +1,14 @@
 import Styled from 'styled-components';
-
 import Image from '~/components/Shared/Image';
-
 import * as GlobalStyle from '~/styles/global';
+
+
 
 export const FixedContainer = Styled.div`
   top: 0;
   width: 100%;
   height: 80px;
-  min-height: 80px; 
+  min-height: 80px;
   max-height: 80px;
 `;
 
@@ -123,7 +123,7 @@ ${props.sticky ? `
 `}`;
 
 interface NavItemProps {
-  active:boolean;
+  active: boolean;
 }
 
 export const NavItem = Styled.a<NavItemProps>`

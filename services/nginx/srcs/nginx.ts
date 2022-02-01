@@ -72,7 +72,7 @@ export const reloadService = async () => {
 }
 
 export const testConfig = () => {
-  return execa('sudo', ['nginx', '-T'], {
+  return execa('sudo', ['nginx', '-t'], {
     cwd: __dirname,
   });
 }

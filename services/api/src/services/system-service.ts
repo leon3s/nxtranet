@@ -1,5 +1,5 @@
 import {repository} from '@loopback/repository';
-import {ModelDisk} from '@nxtranet/headers';
+import {SystemDisk} from '@nxtranet/headers';
 import type {NetworkInterfaceInfo} from 'os';
 import io, {Socket} from 'socket.io-client';
 import {ContainerRepository} from '../repositories';
@@ -24,8 +24,8 @@ export
     }
   }
 
-  getDiskInfo = () => new Promise<ModelDisk[]>((resolve, reject) => {
-    this._socket.emit('/disk/info', (err: Error, diskInfos: ModelDisk[]) => {
+  getDiskInfo = () => new Promise<SystemDisk[]>((resolve, reject) => {
+    this._socket.emit('/disk/info', (err: Error, diskInfos: SystemDisk[]) => {
       if (err) return reject(err);
       return resolve(diskInfos);
     });

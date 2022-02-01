@@ -31,18 +31,6 @@ class MyApp extends App<AppInitialProps> {
             <title>Docktron</title>
             <link rel="shortcut icon" href="/images/icon.ico" type="image/x-icon" />
             <meta name="viewport" content="width=device-width, user-scalable=no" />
-            <script async src="https://www.googletagmanager.com/gtag/js?id=UA-64766741-2"></script>
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', 'UA-64766741-2');
-                `}
-              }
-            />
-
           </Head>
           <Component {...pageProps} />
         </React.Fragment>

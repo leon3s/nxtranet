@@ -1,4 +1,4 @@
-import type {NginxSiteAvaible} from '@nxtranet/headers';
+import type {NginxSiteAvailable} from '@nxtranet/headers';
 import type TCodeEditor from '@uiw/react-textarea-code-editor';
 import "@uiw/react-textarea-code-editor/dist.css";
 import dynamic from "next/dynamic";
@@ -9,10 +9,10 @@ import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
 
 type NginxCardProps = {
-  data: NginxSiteAvaible;
+  data: NginxSiteAvailable;
   isVisible?: boolean;
-  onClick: (data: NginxSiteAvaible) => void;
-  onUpdateNginxSiteAvaible: (name: string, content: string) => void;
+  onClick: (data: NginxSiteAvailable) => void;
+  onUpdateNginxSiteAvailable: (name: string, content: string) => void;
 }
 
 const CodeEditor = dynamic(
@@ -32,8 +32,8 @@ export default function NginxCard(props: NginxCardProps) {
     props.onClick(data);
   }
 
-  function updateNginxSiteAvaible() {
-    props.onUpdateNginxSiteAvaible(props.data.name, content);
+  function updateNginxSiteAvailable() {
+    props.onUpdateNginxSiteAvailable(props.data.name, content);
   }
 
   return (
@@ -54,7 +54,7 @@ export default function NginxCard(props: NginxCardProps) {
                   <Style.NginxCardAction>
                     <Style.NginxCardActionButton
                       isActive={props.data.content !== content}
-                      onClick={updateNginxSiteAvaible}
+                      onClick={updateNginxSiteAvailable}
                     >
                       <FiEdit2 size={10} />
                     </Style.NginxCardActionButton>

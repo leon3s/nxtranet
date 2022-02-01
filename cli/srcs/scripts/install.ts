@@ -5,7 +5,7 @@ import type {
   NxtGlobalConfig, PackageDef, ServiceDef
 } from '../headers/nxtranetdev.h';
 import {
-  getConfig, installDir, logsDir, nextranetNginx
+  getConfig, installDir, logsDir, nextranetNginx, nginxDefault
 } from '../lib/nxtconfig';
 
 const coreUser = 'nxtcore';
@@ -23,6 +23,7 @@ async function installSystemPkg(name: string) {
 }
 
 async function configureNginx() {
+  await execa('cp', [nginxDefault, '/etc/nginx']);
   await execa('cp', [nextranetNginx, '/etc/nginx/sites-available']);
   if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nextra.net'))) {
     await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);

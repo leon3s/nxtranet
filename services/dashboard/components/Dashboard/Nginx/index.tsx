@@ -1,4 +1,4 @@
-import type {NginxSiteAvaible} from '@nxtranet/headers';
+import type {NginxSiteAvailable} from '@nxtranet/headers';
 import React from 'react';
 import api from '~/api';
 import ModalActionFetcher from '~/components/Shared/ModalActionFetcher';
@@ -6,21 +6,16 @@ import {ContainerWrapper} from '~/styles/global';
 import NginxCard from './NginxCard';
 import * as Style from './style';
 
-
-
-
-
 type NginxProps = {
-  data: NginxSiteAvaible[];
+  data: NginxSiteAvailable[];
 }
 
 type NginxState = {
-  site: NginxSiteAvaible | null;
+  site: NginxSiteAvailable | null;
   isUpdateNginxModalOpen: boolean;
 }
 
 export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
-
   state: NginxState = {
     site: null,
     isUpdateNginxModalOpen: false,
@@ -73,16 +68,7 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
             },
             {
               title: 'Reloading service',
-              fn: () => new Promise(async (resolve, reject) => {
-                try {
-                  await api.get('/nginx/reload');
-                } catch (e) {
-                  e;
-                  setTimeout(() => {
-                    api.get('/ping').then(() => resolve()).catch(reject);
-                  }, 5000);
-                }
-              })
+              fn: () => api.get('/nginx/reload'),
             },
           ]}
         />
@@ -96,7 +82,7 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
                   <NginxCard
                     data={siteAvaible}
                     onClick={() => { }}
-                    onUpdateNginxSiteAvaible={this.openUpdateNginxModal}
+                    onUpdateNginxSiteAvailable={this.openUpdateNginxModal}
                   />
                 </Style.NginxCardContainer>
               ))}

@@ -1,25 +1,29 @@
-import React from 'react';
+import {GetServerSidePropsResult} from 'next';
 import Head from 'next/head';
-import { connect } from 'react-redux';
-
+import React from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import DashboardHeader from '~/components/Dashboard/Header';
 import Dashboard from '~/components/Dashboard/Home';
+import {homeActions} from '~/redux/actions';
+import {wrapper} from '~/redux/store';
 
-import { bindActionCreators } from 'redux';
-import { GetServerSidePropsResult } from 'next';
-
-import { wrapper } from '~/redux/store';
-import { meActions } from '~/redux/actions';
 
 export const getServerSideProps = wrapper.getServerSideProps(store =>
-  async (ctx): Promise<GetServerSidePropsResult<any>> => {
-    store;
-    ctx;
+  async ({ }): Promise<GetServerSidePropsResult<any>> => {
     // const state = store.getState();
     // if (state.me.errors.whoiam) {
     //   ctx.res.writeHead(301, { Location: '/' });
     //   ctx.res.end();
     // }
+    await store.dispatch(homeActions.getUptime());
+    await store.dispatch(homeActions.getNetworkInterfaces());
+    await store.dispatch(homeActions.getAverageResponseTime());
+    await store.dispatch(homeActions.getMetrixNginxReq());
+    await store.dispatch(homeActions.getMetrixClusterProduction());
+    await store.dispatch(homeActions.getMetrixContainerRunning());
+    await store.dispatch(homeActions.getMetrixNginxDomains());
+    await store.dispatch(homeActions.getMetrixNginxStatus());
     return {
       props: {},
     }
@@ -41,7 +45,6 @@ function DashboardPage() {
 export default connect(() => ({
 }), (dispatch) =>
   bindActionCreators({
-    login: meActions.login,
   }, dispatch)
 )(DashboardPage);
 

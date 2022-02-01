@@ -9,6 +9,7 @@ export const installDir = path.resolve(path.join(__dirname, '../../..'));
 export const logsDir = path.join(installDir, 'logs');
 
 export const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
+export const nginxDefault = path.resolve(path.join(__dirname, '../../../config/nginx/nginx.template.conf'));
 
 /** Get .nxt from project to know settings */
 export function findNxtConf(inpath = path.join(installDir, '.nxt')): NxtConfig {

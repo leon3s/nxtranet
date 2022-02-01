@@ -11,9 +11,6 @@ import {createAction} from '~/utils/redux';
 import {PROJECT_DEFINES} from '../defines';
 import type {State} from '../reducers';
 
-
-
-
 export const get = createAction<[
 ], State, AxiosResponse<ModelProject>>(
   PROJECT_DEFINES.GET,

@@ -151,6 +151,7 @@ export default class ModalActionFetcher
               Cancel
             </Style.Cancel>
             <ButtonLoading
+              isResolving
               title={this.state.isSuccess ? "Close" : "Execute"}
               onClick={this.onExecute}
             >

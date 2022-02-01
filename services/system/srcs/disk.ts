@@ -1,4 +1,4 @@
-import {ModelDisk} from '@nxtranet/headers';
+import {SystemDisk} from '@nxtranet/headers';
 import execa from 'execa';
 
 type DfIndexFormat = (item: string) => {key: string, value: string | number};
@@ -42,7 +42,7 @@ const dfIndexFormat: DfIndexFormat[] = [
   },
 ];
 
-export const getDiskInfo = async (): Promise<ModelDisk[]> => {
+export const getDiskInfo = async (): Promise<SystemDisk[]> => {
   const res = await execa('df');
   return res.stdout.split('\n').reduce((acc, line, i) => {
     if (!i) return acc;
@@ -50,7 +50,7 @@ export const getDiskInfo = async (): Promise<ModelDisk[]> => {
       const format = dfIndexFormat[i](item);
       acc[format.key] = format.value;
       return acc;
-    }, {} as Partial<ModelDisk>));
+    }, {} as Partial<SystemDisk>));
     return acc;
   }, []);
 }

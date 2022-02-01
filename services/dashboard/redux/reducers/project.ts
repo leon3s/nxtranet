@@ -194,7 +194,7 @@ const fnPtrs: FN_PTRS = {
   }
 }
 
-const projectReducer = (state: ProjectState = {
+const reducer = (state: ProjectState = {
   data: [],
   target: null,
   target_clusters: [],
@@ -210,4 +210,4 @@ const projectReducer = (state: ProjectState = {
   return fn(state, action);
 }
 
-export default projectReducer;
+export default reducer;

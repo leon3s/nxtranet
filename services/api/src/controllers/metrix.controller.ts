@@ -1,11 +1,15 @@
 import {repository} from '@loopback/repository';
 import {get} from '@loopback/rest';
-import {NginxAccessLogRepository} from '../repositories';
+import {ClusterProductionRepository, ContainerRepository, NginxAccessLogRepository} from '../repositories';
 
 export class MetrixController {
   constructor(
     @repository(NginxAccessLogRepository)
     protected nginxAccessLogRepository: NginxAccessLogRepository,
+    @repository(ContainerRepository)
+    protected containerRepository: ContainerRepository,
+    @repository(ClusterProductionRepository)
+    protected clusterProductionRepository: ClusterProductionRepository,
   ) { }
 
   @get('/metrix/nginx/average-response-time', {
@@ -93,5 +97,65 @@ export class MetrixController {
         }
       }]).get();
     return res;
+  }
+
+  @get('/metrix/nginx/req/count', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 800,
+            }
+          }
+        },
+      },
+    },
+  })
+  async nginxReqCount() {
+    const {count} = await this.nginxAccessLogRepository.count();
+    return count;
+  }
+
+  @get('/metrix/cluster-production/count', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 10,
+            }
+          }
+        },
+      },
+    },
+  })
+  async clusterProductionCount() {
+    const {count} = await this.clusterProductionRepository.count();
+    return count;
+  }
+
+  @get('/metrix/docker/containers/count', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 10,
+            }
+          }
+        },
+      },
+    },
+  })
+  async dockerContainersCount() {
+    const {count} = await this.containerRepository.count();
+    return count;
   }
 }
