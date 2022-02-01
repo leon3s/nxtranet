@@ -115,12 +115,16 @@ export class ProjectClusterProductionController {
       .production(clusterDB.namespace)
       .create(clusterProduction);
     const background = async () => {
-      if (!clusterProdDB) return;
-      await this.projectService.deployProduction(clusterDB, clusterProdDB);
+      const clusterBackgound = await this.clusterRepository.findById(clusterDB.id, {
+        include: ['gitBranch', 'production'],
+      });
+      if (!clusterBackgound.gitBranch) throw new Error('Cannot deploy Cluster not git branch found.');
+      await this.projectService.deployCluster(clusterBackgound, {
+        branchName: clusterBackgound.gitBranch.name,
+        lastCommit: clusterBackgound.gitBranch.lastCommitSHA,
+      });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
-      await this.nginxService.deploySiteAvaible(`${clusterDB.projectName}_${clusterDB.name}`);
-      await this.nginxService.reloadService();
     }
     background().then(() => {
       console.log('success');
@@ -159,22 +163,20 @@ export class ProjectClusterProductionController {
       include: ['gitBranch'],
     });
     if (!clusterDB) throw new HttpErrors.BadRequest('Cluster not found.');
-    const containersToDelete = await this.containerRepository.find({
-      where: {
-        clusterNamespace,
-      }
-    });
     clusterProductionDB.numberOfInstances = clusterProduction.numberOfInstances || clusterProductionDB.numberOfInstances;
     clusterProductionDB.domain = clusterProduction.domain || clusterProductionDB.domain;
     await this.clusterProductionRepository.updateById(clusterProductionDB.id, clusterProduction);
     const background = async () => {
-      await this.projectService.deployProduction(clusterDB, clusterProductionDB);
+      const clusterBackgound = await this.clusterRepository.findById(clusterDB.id, {
+        include: ['gitBranch', 'production'],
+      });
+      if (!clusterBackgound.gitBranch) throw new Error('Cannot deploy Cluster not git branch found.');
+      await this.projectService.deployCluster(clusterBackgound, {
+        branchName: clusterBackgound.gitBranch.name,
+        lastCommit: clusterBackgound.gitBranch.lastCommitSHA,
+      });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
-      await this.nginxService.reloadService();
-      await Promise.all(containersToDelete.map((container) => {
-        return this.dockerService.clusterContainerRemove(container);
-      }));
     }
     background().then(() => {
       console.log('path project cluster production success');

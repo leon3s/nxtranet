@@ -1,9 +1,6 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
-import fs from 'fs';
-import mustache from 'mustache';
-import path from 'path';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
 import {Cluster, ClusterProduction, Container} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, ProjectRepository} from '../repositories';
@@ -12,23 +9,12 @@ import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
 import {ProxiesService} from './proxies-service';
 
+
 type DeployPayload = {
   branchName: string,
   lastCommit: string,
   isProduction?: boolean,
   isGeneratedDeploy?: boolean,
-}
-
-type NginxConfigProd = {
-  domain: string;
-  ports: number[];
-  cache_name: string;
-  upstream: string;
-}
-
-type NginxConfigDev = {
-  domain: string;
-  port: number;
 }
 
 export default
@@ -53,6 +39,9 @@ export default
   ) { }
 
   boot = async () => {
+    this.nginxService.monitorAccessLog((err, log) => {
+      console.log(err, log);
+    });
     await this.dockerService.syncContainers();
     await this.proxiesService.updateDomains();
     const projects = await this.projectRepository.find();
@@ -116,7 +105,7 @@ export default
       await this.dockerService.whenContainerReady(container);
       await this.proxiesService.updateDomains();
       console.log('ready');
-      const containers = await this.containerRepository.find({
+      const containersToDelete = await this.containerRepository.find({
         where: {
           commitSHA: {
             nin: [lastCommit],
@@ -134,51 +123,43 @@ export default
         });
         if (!project) throw new HttpErrors.NotAcceptable('Cluster project is deleted ?');
         const mainDomain = project?.clusterProduction?.domain || 'nextra.net';
-        const nginxFilename = `${cluster.name}_${cluster.projectName}`;
-        await this.writeNginxConfigDev(nginxFilename, {
+        const nginxFilename = this.nginxService.formatFilename(cluster.projectName, cluster.name);
+        await this.nginxService.writeDevConfig(nginxFilename, {
           domain: mainDomain === 'nextra.net' ?
             `${nginxFilename}.${mainDomain}` :
             `${cluster.name}.${mainDomain}`,
           port: container.appPort,
         });
-        await this.nginxService.deploySiteAvaible(nginxFilename);
-        await this.nginxService.reloadService();
+        await this.deployNginxConf(nginxFilename);
       }
-      await Promise.all(containers.map((container) => {
+      await Promise.all(containersToDelete.map((container) => {
         return this.dockerService.clusterContainerRemove(container);
       }));
     }
   }
 
-  writeNginxConfigProd = async (filename: string, config: NginxConfigProd) => {
-    const d = fs.readFileSync(path.join(__dirname, '../../../../config/nginx/template.production.com')).toString();
-    const render = mustache.render(d, {
-      ports: config.ports,
-      domain_name: config.domain,
-      upstream: config.upstream,
-      cache_name: config.cache_name,
-    });
-    await this.nginxService.writeSiteAvaible(filename, render);
-  }
-
-  writeNginxConfigDev = async (filename: string, config: NginxConfigDev) => {
-    const d = fs.readFileSync(path.join(__dirname, '../../../../config/nginx/template.single.com')).toString();
-    const render = mustache.render(d, {
-      port: config.port,
-      domain_name: config.domain,
-    });
-    await this.nginxService.writeSiteAvaible(filename, render);
+  deployNginxConf = async (filename: string) => {
+    const isDeployed = await this.nginxService.siteEnabledExists(filename);
+    if (!isDeployed) {
+      await this.nginxService.deploySiteAvailable(filename);
+    }
+    await this.nginxService.reloadService();
   }
 
   deployProduction = async (cluster: Cluster, clusterProduction: ClusterProduction): Promise<Container[] | null> => {
+    const {
+      name,
+      namespace,
+      projectName,
+    } = cluster;
     const minInstances = Array(clusterProduction.numberOfInstances).fill(1);
     if (!cluster?.gitBranch?.name) return null;
     const containers = await Promise.all<Container>(minInstances.map(async () => {
       const container = await this.dockerService.clusterDeploy({
-        namespace: cluster.namespace,
-        branch: cluster?.gitBranch?.name || '',
+        namespace,
         isProduction: true,
         isGeneratedDeploy: true,
+        branch: cluster?.gitBranch?.name || '',
       });
       await this.dockerService.whenContainerReady(container);
       return container;
@@ -186,11 +167,17 @@ export default
     const nginxConfig = {
       domain: clusterProduction.domain,
       ports: containers.map((container) => container.appPort),
-      cache_name: `cache_${cluster.projectName}`,
-      upstream: `upstream_${cluster.projectName}`,
+      projectName: cluster.projectName,
+      clusterName: cluster.name,
     };
-    await this.writeNginxConfigProd(`${cluster.projectName}_${cluster.name}`, nginxConfig);
-    await this.proxiesService.updateDomains();
+    const nginxFilename = this.nginxService.formatFilename(projectName, name);
+    const nginxFileExists = await this.nginxService.siteAvailableExists(nginxFilename);
+    if (nginxFileExists) {
+      await this.nginxService.updateProdConfig(nginxConfig);
+    } else {
+      await this.nginxService.createProdConfig(nginxConfig);
+    }
+    await this.deployNginxConf(nginxFilename);
     return containers;
   }
 }

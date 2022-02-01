@@ -64,28 +64,22 @@ export class ClusterController {
       ]
     });
     if (!cluster) throw new HttpErrors.NotFound('Target cluster not found.');
-    if (cluster.gitBranch) {
-      await this.projectService.deployCluster(cluster, {
-        lastCommit: cluster.gitBranch.lastCommitSHA,
-        branchName: cluster.gitBranch.name,
-        isGeneratedDeploy: false,
-        isProduction: false,
-      });
-    } else {
-      const gitBranch = await this.gitBranchRepository.findOne({
+    let gitBranch = cluster.gitBranch || null;
+    if (!gitBranch) {
+      gitBranch = await this.gitBranchRepository.findOne({
         where: {
           projectName: cluster.projectName,
           name: payload.branch,
         }
       });
       if (!gitBranch) throw new HttpErrors.NotFound('Target git branch not found.');
-      await this.projectService.deployCluster(cluster, {
-        lastCommit: gitBranch.lastCommitSHA,
-        branchName: gitBranch.name,
-        isGeneratedDeploy: false,
-        isProduction: false,
-      });
     }
+    await this.projectService.deployCluster(cluster, {
+      lastCommit: gitBranch.lastCommitSHA,
+      branchName: gitBranch.name,
+      isGeneratedDeploy: false,
+      isProduction: false,
+    });
     return "Ok";
   }
 }

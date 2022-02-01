@@ -1,13 +1,13 @@
 /*
- *  ___   _   _ |  _|_ __  _     
+ *  ___   _   _ |  _|_ __  _
  *  |__) [_] |_ |<  |_ |  [_] |\|
- * 
+ *
  * File: \jest.config.js
- * Project: @nxtranet/service
+ * Project: @nxtranet/nginx
  * Created Date: Monday, 15th November 2021 12:01:18 pm
  * Author: leone
  * -----
- * Last Modified: Mon Nov 15 2021
+ * Last Modified: Mon Jan 31 2022
  * Modified By: leone
  * -----
  * Copyright (c) 2021 docktron
@@ -17,4 +17,6 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  verbose: true,
+  collectCoverage: true,
 };

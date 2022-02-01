@@ -172,6 +172,25 @@ const fnPtrs: FN_PTRS = {
       ...state,
       target_clusterProduction: action.payload.data,
     }
+  },
+  [PROJECT_DEFINES.PATCH_MODEL_PIPELINE_CMD.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_pipelines: state.target_pipelines.map((pipeline) => {
+        if (pipeline.namespace === action.payload.pipelineNamespace) {
+          return {
+            ...pipeline,
+            commands: pipeline.commands.map((cmd) => {
+              if (cmd.id === action.payload.id) {
+                return action.payload;
+              }
+              return cmd;
+            }),
+          }
+        }
+        return pipeline;
+      })
+    }
   }
 }
 

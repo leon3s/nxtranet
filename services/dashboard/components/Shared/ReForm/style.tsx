@@ -1,16 +1,15 @@
 /*
- * Filename: c:\Users\leone\Documents\code\nextranet\projects\dashboard\components\Shared\ReForm\style.tsx
+ * Filename: c:\Users\leone\Documents\code\nextranet\services\dashboard\components\Shared\ReForm\Inputs\style.tsx
  * Path: c:\Users\leone\Documents\code\docktron\org
  * Created Date: Wednesday, October 27th 2021, 5:10:53 pm
  * Author: leone
- * 
+ *
  * Copyright (c) 2021 docktron
  */
 
 import Styled from 'styled-components';
 import {
-  ButtonSubmitDefault,
-  ButtonCancelDefault,
+  ButtonCancelDefault, ButtonSubmitDefault
 } from '~/styles/buttons';
 
 export const Container = Styled.div`
@@ -49,7 +48,7 @@ type InputErrorProps = {
   isVisible: boolean;
 }
 
-export const InputError = Styled(InputDescription)<InputErrorProps>`
+export const InputError = Styled(InputDescription) <InputErrorProps>`
   color: red;
   overflow: hidden;
   transition: all .4s ease;

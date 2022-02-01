@@ -1,9 +1,9 @@
 /*
- * Filename: c:\Users\leone\Documents\code\nextranet\projects\dashboard\components\Shared\ReForm\Inputs\style.tsx
+ * Filename: c:\Users\leone\Documents\code\nextranet\services\dashboard\components\Shared\ReForm\Inputs\style.tsx
  * Path: c:\Users\leone\Documents\code\docktron\org
  * Created Date: Wednesday, October 27th 2021, 5:17:33 pm
  * Author: leone
- * 
+ *
  * Copyright (c) 2021 docktron
  */
 
@@ -21,7 +21,7 @@ export const BaseInput = Styled.input`
   -webkit-appearance: none;
   transition: border-color .15s ease;
   border: 1px solid rgba(0, 0, 0, 0.2);
-${props =>`
+${props => `
 :focus {
   border-color: ${props.theme.borderColorPrimary};
 }`}`;
@@ -39,8 +39,8 @@ export const InputIconContainer = Styled.div`
   align-items: center;
 `;
 
-interface         InputIconImgProps {
-  backgroundSrc?: string|null;
+interface InputIconImgProps {
+  backgroundSrc?: string | null;
 }
 
 export const InputIconImg = Styled.div<InputIconImgProps>`
@@ -70,17 +70,7 @@ export const StringBadge = Styled.p`
   width: fit-content;
   padding: 6px;
   font-size: 10px;
-  :first-child {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-  }
-  :last-child {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-  }
-${props => `
-  border: 1px solid ${props.theme.borderColorDefault};
-`}
+  margin: 0px;
 `;
 
 export const ArrayStringInput = Styled(BaseInput)`
@@ -116,7 +106,7 @@ export const InputRelationSelect = Styled.select`
   padding: 0px 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   outline: none;
-${props =>`
+${props => `
 :focus {
   border-color: ${props.theme.borderColorPrimary};
 }`}`;
@@ -125,7 +115,68 @@ export const InputRelationOptions = Styled.option`
   padding: 0px 12px;
   height: 30px;
   font-size: 10px;
-  
-${props =>`
+
+${props => `
     border-color: ${props.theme.borderColorPrimary};
 `}`;
+
+export const Delete = Styled.div`
+  position: relative;
+  background-color: rgba(220, 20, 60, 0.25);
+  width: 100%;
+  transition: all .2s ease;
+${props => `
+  :hover {
+    border: 1px solid ${props.theme.borderColorDefault};
+    box-shadow: ${props.theme.boxShadowDefault};
+  }
+`}`;
+
+export const Edit = Styled.div`
+  position: relative;
+  background-color: rgba(0, 191, 255, 0.25);
+  width: 100%;
+  transition: all .2s ease;
+${props => `
+  :hover {
+    border: 1px solid ${props.theme.borderColorDefault};
+    box-shadow: ${props.theme.boxShadowDefault};
+  }
+`}`;
+
+export const StringBadgeAbs = Styled.div`
+  width: 100%;
+  height: 100%;
+  display: none;
+  position: absolute;
+  z-index: 101;
+`;
+
+export const StringBadgeWrapper = Styled.div`
+  position: relative;
+  margin: 8px 0px;
+  :hover {
+    ${StringBadgeAbs} {
+      display: flex;
+    }
+  }
+  :first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    ${Delete} {
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+    }
+  }
+  :last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    ${Edit} {
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+  }
+  ${props => `
+    border: 1px solid ${props.theme.borderColorDefault};
+  `}
+`;

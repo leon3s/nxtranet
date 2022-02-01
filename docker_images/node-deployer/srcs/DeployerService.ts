@@ -18,13 +18,24 @@ export default class DeployerService {
 
   init = () => {
     this.sockServ.on('connection', (socket: Socket) => {
+      const actionEmitter = (action) => {
+        socket.emit('action', action);
+      }
+
+      const errorEmitter = (err) => {
+        socket.emit('deployer_error', err);
+      }
+
+      socket.on('disconnect', () => {
+        console.log('disconnected remove listenners');
+        this.deployer.emitter.off('action', actionEmitter);
+        this.deployer.emitter.off('error', errorEmitter);
+        console.log('done');
+      });
+
       socket.on('/github', (cluster: ModelCluster, branch: string, callback) => {
-        this.deployer.emitter.on('action', (action) => {
-          socket.emit('action', action);
-        });
-        this.deployer.emitter.on('error', (err) => {
-          socket.emit('deployer_error', err);
-        });
+        this.deployer.emitter.on('action', actionEmitter);
+        this.deployer.emitter.on('error', errorEmitter);
         this.deployer.deploy(cluster, branch).then((res) => {
           callback(null, res);
         }).catch((err) => {
@@ -43,23 +54,15 @@ export default class DeployerService {
         }
         this.deployer.lastCommand = cache.cmd;
         this.deployer.projectDir = cache.projectPath;
-        this.deployer.emitter.on('action', (action) => {
-          socket.emit('action', action);
-        });
-        this.deployer.emitter.on('error', (err) => {
-          socket.emit('deployer_error', err);
-        });
+        this.deployer.emitter.on('action', actionEmitter);
+        this.deployer.emitter.on('error', errorEmitter);
         this.deployer.start(cache.cmd, cache.envVars, cache.projectPath);
         callback();
       });
 
       socket.on('/attach', () => {
-        this.deployer.emitter.on('action', (action) => {
-          socket.emit('action', action);
-        });
-        this.deployer.emitter.on('error', (err) => {
-          socket.emit('deployer_error', err);
-        });
+        this.deployer.emitter.on('action', actionEmitter);
+        this.deployer.emitter.on('error', errorEmitter);
       });
     });
   }

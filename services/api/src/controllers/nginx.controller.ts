@@ -1,6 +1,6 @@
 import {inject} from '@loopback/core';
 import {get, param, post, requestBody, response} from '@loopback/rest';
-import type {NginxSiteAvaible} from '@nxtranet/headers';
+import type {NginxSiteAvailable} from '@nxtranet/headers';
 import {NginxServiceBindings} from '../keys';
 import {NginxService} from '../services/nginx-service';
 
@@ -73,8 +73,8 @@ export class NginxController {
       },
     },
   })
-  async getSiteAvaible(): Promise<NginxSiteAvaible[]> {
-    return this.nginxService.getSitesAvaible();
+  async getSiteAvaible(): Promise<NginxSiteAvailable[]> {
+    return this.nginxService.getSitesAvailable();
   }
 
   @post('/nginx/sites-avaible/{filename}/write')
@@ -107,7 +107,7 @@ export class NginxController {
       filename,
       content,
     })
-    await this.nginxService.writeSiteAvaible(filename, content);
+    await this.nginxService.writeSiteAvailable(filename, content);
     return "Ok";
   }
 }

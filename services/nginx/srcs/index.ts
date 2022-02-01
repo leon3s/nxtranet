@@ -16,66 +16,90 @@ if (!isProd) {
 }
 
 const prepare = async () => {
-  // await nginx.startService();
   return new Promise<void>((resolve) => {
     server.httpServer.listen(port, '127.0.0.1', () => {
       resolve();
     });
-  })
+  });
 }
 
 server.io.on('connection', (socket) => {
-  socket.on('/sites-avaible', (callback) => {
+  socket.on('/sites-available', (callback) => {
     try {
-      const sitesAvaible = nginx.getSitesAvaible();
+      const sitesAvaible = nginx.getSitesAvailable();
       callback(null, sitesAvaible);
     } catch (e) {
       callback(e);
     }
   });
 
-  socket.on('/sites-avaible/write', (payload, callback) => {
+  socket.on('/sites-available/read', (filename: string, callback) => {
+    try {
+      const content = nginx.readSiteAvailable(filename);
+      callback(null, content);
+    } catch (e) {
+      callback(e);
+    }
+  });
+
+  socket.on('/sites-available/write', (payload, callback) => {
     const {filename, content} = payload;
     try {
-      nginx.writeSiteAvaible(filename, content);
+      nginx.writeSiteAvailable(filename, content);
       callback();
     } catch (e) {
       callback(e);
     }
   });
 
-  socket.on('/sites-avaible/deploy', async (filename: string, callback) => {
-    console.log('sites-avaible/deploy')
+  socket.on('/sites-available/exists', (filename, callback) => {
+    try {
+      const exists = nginx.siteAvailableExists(filename);
+      callback(null, exists);
+    } catch (e) {
+      callback(e);
+    }
+  });
+
+  socket.on('/sites-enabled/exists', (filename, callback) => {
+    try {
+      const exists = nginx.siteEnabledExists(filename);
+      callback(null, exists);
+    } catch (e) {
+      callback(e);
+    }
+  });
+
+  socket.on('/sites-available/deploy', async (filename: string, callback) => {
     try {
       await nginx.deployConfig(filename);
-      await nginx.reloadService();
-      console.log('deploy and reload success');
       callback();
     } catch (err) {
-      console.log('deploy and reload error ', err);
       callback(err);
     }
+  });
 
+  socket.on('/monitor/access-log', () => {
+    nginx.watchAccessLog((error, log) => {
+      if (error) return socket.emit('/monitor/access-log/error');
+      return socket.emit('/monitor/access-log/new', log);
+    });
   });
 
   socket.on('/test', (callback) => {
-    callback(null, '');
-    // nginx.testConfig().then((res) => {
-    //   callback(null, res);
-    // }).catch(callback);
+    nginx.testConfig().then((res) => {
+      callback(null, res);
+    }).catch(callback);
   });
 
   socket.on('/restart', (callback) => {
-    console.log('restart called !');
     nginx.restartService().then(() => {
       callback();
     }).catch(callback);
   });
 
   socket.on('/reload', (callback) => {
-    console.log('reload called !');
     nginx.reloadService().then(() => {
-      console.log('reload success !');
       callback();
     }).catch(callback);
   });

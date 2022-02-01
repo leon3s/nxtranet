@@ -16,6 +16,7 @@ import * as Style from './style';
 
 const actions = {
   createPipeline: projectActions.createPipeline,
+  patchPipelineCmd: projectActions.patchPipelineCmd,
   createPipelineCmd: projectActions.createPipelineCmd,
 };
 
@@ -54,6 +55,7 @@ class Pipelines extends
 
   onCreatePipeLine = async (data: ModelPipeline) => {
     await this.props.createPipeline(this.props.projectName, data);
+    this.closeModalCreatePipeline();
   }
 
   closeModalCreatePipeline = () => {
@@ -65,6 +67,10 @@ class Pipelines extends
 
   onCreatePipelineCmd = async (namespace: string, data: Partial<ModelPipelineCmd>): Promise<void> => {
     await this.props.createPipelineCmd(namespace, data);
+  }
+
+  onPatchPipelineCmd = async (namespace: string, data: ModelPipelineCmd): Promise<void> => {
+    await this.props.patchPipelineCmd(namespace, data);
   }
 
   render() {
@@ -119,6 +125,7 @@ class Pipelines extends
                 key={pipeline.id}
                 isVisible={false}
                 data={pipeline}
+                onPatchPipelineCmd={this.onPatchPipelineCmd}
                 onCreatePipelineCmd={this.onCreatePipelineCmd}
                 onClick={() => { }}
               />

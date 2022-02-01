@@ -1,5 +1,5 @@
 import Styled from 'styled-components';
-import { Text } from "~/styles/text";
+import {Text} from "~/styles/text";
 
 export const Overlay = Styled.div`
   position: absolute;

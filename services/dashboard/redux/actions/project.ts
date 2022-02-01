@@ -287,6 +287,24 @@ export const createPipelineCmd = createAction<[
     }
 )
 
+export const patchPipelineCmd = createAction<[
+  string,
+  ModelPipelineCmd
+], State, ModelPipelineCmd>(
+  PROJECT_DEFINES.PATCH_MODEL_PIPELINE_CMD,
+  (namespace, pipelineCmd) =>
+    async ({ }, { }, api) => {
+      await api.patch(`/pipelines/${namespace}/cmds`, pipelineCmd, {
+        params: {
+          where: {
+            id: pipelineCmd.id,
+          }
+        }
+      });
+      return pipelineCmd;
+    }
+)
+
 export const patchProject = createAction<[
   string,
   Partial<ModelProject>

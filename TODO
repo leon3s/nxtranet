@@ -1,5 +1,3 @@
-ALLOW Rewrite nginx conf if existing by replacing or addind content;
-
 Copy env variable to the container and update container env independentaly
 
 Restart / Stop container
@@ -7,3 +5,5 @@ Restart / Stop container
 Request monitoring de nginx
 
 Add directories and file to give right in services/*/.nxtsrv
+
+DOCKER HOST AND MAIN HOST may be required as variable are required
