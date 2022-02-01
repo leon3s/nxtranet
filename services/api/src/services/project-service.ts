@@ -3,12 +3,11 @@ import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
 import {Cluster, ClusterProduction, Container} from '../models';
-import {ClusterProductionRepository, ClusterRepository, ContainerRepository, ProjectRepository} from '../repositories';
+import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
 import {ProxiesService} from './proxies-service';
-
 
 type DeployPayload = {
   branchName: string,
@@ -28,6 +27,8 @@ export default
     protected clusterRepository: ClusterRepository,
     @repository(ProjectRepository)
     protected projectRepository: ProjectRepository,
+    @repository(NginxAccessLogRepository)
+    protected nginxAccessLogRepository: NginxAccessLogRepository,
     @inject(ProxiesServiceBindings.PROXIES_SERVICE)
     protected proxiesService: ProxiesService,
     @inject(DockerServiceBindings.DOCKER_SERVICE)
@@ -39,8 +40,12 @@ export default
   ) { }
 
   boot = async () => {
-    this.nginxService.monitorAccessLog((err, log) => {
-      console.log(err, log);
+    this.nginxService.monitorAccessLog(async (err, log) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      await this.nginxAccessLogRepository.create(log);
     });
     await this.dockerService.syncContainers();
     await this.proxiesService.updateDomains();

@@ -1,6 +1,4 @@
-import {Entity, hasMany, model, property} from '@loopback/repository';
-import {PortMapping} from './port-mapping.model';
-import {Port} from './port.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class ClusterProduction extends Entity {
@@ -23,11 +21,6 @@ export class ClusterProduction extends Entity {
     required: true,
   })
   numberOfInstances: number;
-
-  @hasMany(() => Port, {
-    through: {model: () => PortMapping}
-  })
-  ports: Port[];
 
   @property({
     type: 'string',

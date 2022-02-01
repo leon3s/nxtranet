@@ -6,4 +6,4 @@ Request monitoring de nginx
 
 Add directories and file to give right in services/*/.nxtsrv
 
-DOCKER HOST AND MAIN HOST may be required as variable are required
+DOCKER HOST AND MAIN HOST may be required as variable

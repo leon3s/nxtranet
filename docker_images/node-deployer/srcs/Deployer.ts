@@ -135,6 +135,7 @@ export default class Deployer {
           value: 'failed',
           error: JSON.stringify(e),
         });
+        throw e;
       }
     }
   }
@@ -197,13 +198,42 @@ export default class Deployer {
   }
 
   public start = (cmd: ModelPipelineCmd, envVars: Record<string, string>, projectDir: string) => {
+    this._emitAction('cmd', {
+      exe: cmd.name,
+      cwd: projectDir,
+      args: cmd.args,
+      isLast: false,
+      isFirst: true,
+    });
     this.project = this.hookCmd({
       exe: cmd.name,
       args: cmd.args,
       env: envVars,
       cwd: projectDir,
     });
+    this.project.then((child) => {
+      this._emitAction('cmd', {
+        exe: cmd.name,
+        cwd: projectDir,
+        args: cmd.args,
+        isLast: true,
+        isFirst: false,
+        signal: child.signal,
+        exitCode: child.exitCode,
+        signalDescription: child.signalDescription,
+      });
+    })
     this.project.catch((err) => {
+      this._emitAction('cmd', {
+        exe: cmd.name,
+        cwd: projectDir,
+        args: cmd.args,
+        isLast: true,
+        isFirst: false,
+        signal: err.signal,
+        exitCode: err.exitCode,
+        signalDescription: err.signalDescription,
+      });
       this._emitAction('pipelineStatus', {
         pipelineNamespace: cmd.pipelineNamespace,
         value: 'failed',

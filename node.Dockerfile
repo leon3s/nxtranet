@@ -2,6 +2,7 @@
 FROM node:16-slim
 
 RUN apt-get update && apt install -y git
+RUN npm install -g npm@latest
 
 # Set to a non-root built-in user `node`
 USER node

@@ -1,9 +1,7 @@
-import {inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, HasManyThroughRepositoryFactory} from '@loopback/repository';
+import {inject} from '@loopback/core';
+import {DefaultCrudRepository} from '@loopback/repository';
 import {MongoDbDataSource} from '../datasources';
-import {ClusterProduction, ClusterProductionRelations, Port, PortMapping} from '../models';
-import {PortMappingRepository} from './port-mapping.repository';
-import {PortRepository} from './port.repository';
+import {ClusterProduction, ClusterProductionRelations} from '../models';
 
 export class ClusterProductionRepository extends DefaultCrudRepository<
   ClusterProduction,
@@ -11,16 +9,9 @@ export class ClusterProductionRepository extends DefaultCrudRepository<
   ClusterProductionRelations
 > {
 
-  public readonly ports: HasManyThroughRepositoryFactory<Port, typeof Port.prototype.id,
-          PortMapping,
-          typeof ClusterProduction.prototype.id
-        >;
-
   constructor(
-    @inject('datasources.mongoDB') dataSource: MongoDbDataSource, @repository.getter('PortMappingRepository') protected portMappingRepositoryGetter: Getter<PortMappingRepository>, @repository.getter('PortRepository') protected portRepositoryGetter: Getter<PortRepository>,
+    @inject('datasources.mongoDB') dataSource: MongoDbDataSource,
   ) {
     super(ClusterProduction, dataSource);
-    this.ports = this.createHasManyThroughRepositoryFactoryFor('ports', portRepositoryGetter, portMappingRepositoryGetter,);
-    this.registerInclusionResolver('ports', this.ports.inclusionResolver);
   }
 }
