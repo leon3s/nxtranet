@@ -8,17 +8,18 @@ export const installDir = path.resolve(path.join(__dirname, '../../..'));
 
 export const logsDir = path.join(installDir, 'logs');
 
-export const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nextra.net'));
+export const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nxtranet.template.conf'));
 export const nginxDefault = path.resolve(path.join(__dirname, '../../../config/nginx/nginx.template.conf'));
+export const dnsmasqDefault = path.resolve(path.join(__dirname, '../../../config/dnsmasq/dnsmasq.template.conf'));
 
 /** Get .nxt from project to know settings */
 export function findNxtConf(inpath = path.join(installDir, '.nxt')): NxtConfig {
   if (inpath === '/') {
     throw new Error('Error .nxt not found.');
   }
-  const nxtConfigPath = path.join(inpath, '.nxt');
+  const nxtConfigPath = path.join(inpath, '.nxt.json');
   try {
-    const data = JSON.parse(fs.readFileSync(nxtConfigPath).toString());
+    const data = JSON.parse(fs.readFileSync(nxtConfigPath, 'utf-8'));
     data.path = inpath;
     return data;
   } catch (e) {

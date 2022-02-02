@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const config = require('../../../.nxt.json');
+
 const api = axios.create({
-  baseURL: 'http://api.nextra.net',
+  baseURL: `http://api.${config.domain}`,
   withCredentials: true,
 });
 

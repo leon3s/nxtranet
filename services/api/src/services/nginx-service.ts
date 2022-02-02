@@ -19,12 +19,12 @@ type NginxDevConfig = {
 
 const templateProdPath = path.join(
   __dirname,
-  '../../../../config/nginx/template.production.com',
+  '../../../../config/nginx/template.production.conf',
 );
 
 const templateDevPath = path.join(
   __dirname,
-  '../../../../config/nginx/template.single.com',
+  '../../../../config/nginx/template.single.conf',
 )
 
 export

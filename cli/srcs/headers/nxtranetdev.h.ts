@@ -8,8 +8,10 @@ export type Pkgjson = {
 }
 
 export type NxtConfig = {
-  name: string;
   path: string;
+  domain: string;
+  docker_host: string;
+  nxtranet_host: string;
   servicesDirectories: string[];
   packagesDirectories: string[];
 }

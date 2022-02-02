@@ -1,10 +1,13 @@
 import execa from 'execa';
 import fs from 'fs';
+import mustache from 'mustache';
 import path from 'path';
 import type {
+  NxtConfig,
   NxtGlobalConfig, PackageDef, ServiceDef
 } from '../headers/nxtranetdev.h';
 import {
+  dnsmasqDefault,
   getConfig, installDir, logsDir, nextranetNginx, nginxDefault
 } from '../lib/nxtconfig';
 
@@ -22,11 +25,23 @@ async function installSystemPkg(name: string) {
   ]);
 }
 
-async function configureNginx() {
-  await execa('cp', [nginxDefault, '/etc/nginx']);
-  await execa('cp', [nextranetNginx, '/etc/nginx/sites-available']);
-  if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nextra.net'))) {
-    await execa('ln', ['-s', '/etc/nginx/sites-available/nextra.net', '/etc/nginx/sites-enabled']);
+function generateNginxNxtranet(nxtconf: NxtConfig) {
+  const template = fs.readFileSync(nextranetNginx, 'utf-8');
+  const render = mustache.render(template, nxtconf);
+  fs.writeFileSync('/etc/nginx/sites-available/nxtranet', render);
+}
+
+function generateDnsmasqConf(nxtconf: NxtConfig) {
+  const template = fs.readFileSync(dnsmasqDefault, 'utf-8');
+  const render = mustache.render(template, nxtconf);
+  fs.writeFileSync('/etc/dnsmasq.conf', render);
+}
+
+async function configureNginx(nxtconf: NxtConfig) {
+  await execa('cp', [nginxDefault, '/etc/nginx/nginx.conf']);
+  generateNginxNxtranet(nxtconf);
+  if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nxtranet'))) {
+    await execa('ln', ['-s', '/etc/nginx/sites-available/nxtranet', '/etc/nginx/sites-enabled']);
   }
   await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
   await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
@@ -190,6 +205,8 @@ async function installNxtranet() {
   await installPackages(nxtconfig.packages);
   await chownPackagesDirectories(nxtconfig);
   await installServices(nxtconfig.services);
+  await configureNginx(nxtconfig);
+  generateDnsmasqConf(nxtconfig);
 }
 
 export default async function install() {
@@ -199,5 +216,4 @@ export default async function install() {
   }
   await configureSystem();
   await installNxtranet();
-  await configureNginx();
 }

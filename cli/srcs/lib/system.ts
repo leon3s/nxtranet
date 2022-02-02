@@ -10,6 +10,7 @@ type WlsOptions = {
 export async function execaWsl(cmd: string, args: string[], options?: WlsOptions) {
   return execSync(`wt.exe -w 0 nt ${options?.windowTitle ? `--title ${options?.windowTitle} ` : ''}powershell.exe -NoExit -Command "& {"wsl -u ${options?.username} ${cmd} ${args.join(' ')}}"`, {
     cwd: options?.cwd,
+    env: options?.env,
   });
 }
 
