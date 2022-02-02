@@ -6,6 +6,7 @@ const port = +(process.env.PORT ?? 9877);
 const server = new Server();
 
 server.io.on('connection', (socket) => {
+  console.log('new socket !', socket.id);
   socket.on('/os/network/interfaces', (callback) => {
     try {
       const networks = os.networkInterfaces();

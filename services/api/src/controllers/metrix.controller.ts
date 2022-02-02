@@ -63,12 +63,13 @@ export class MetrixController {
   async nginxDomains() {
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const res = await nginxAccessLogCollection
-      .aggregate([{
-        $group: {
-          _id: "$host",
-          count: {$sum: 1}
-        }
-      }]).get();
+      .aggregate()
+      .match({host: {$not: /.*nxtra.net/}})
+      .group({
+        _id: "$host",
+        count: {$sum: 1}
+      })
+      .get();
     return res;
   }
 

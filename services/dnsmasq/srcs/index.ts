@@ -10,7 +10,7 @@ const prepare = async () => {
     server.httpServer.listen(port, '127.0.0.1', () => {
       resolve();
     });
-  })
+  });
 }
 
 server.io.on('connection', (socket) => {

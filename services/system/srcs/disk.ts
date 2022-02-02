@@ -54,9 +54,3 @@ export const getDiskInfo = async (): Promise<SystemDisk[]> => {
     return acc;
   }, []);
 }
-
-getDiskInfo().then((res) => {
-  console.log(res);
-}).catch((err) => {
-  console.error(err);
-});

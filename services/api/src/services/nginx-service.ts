@@ -27,13 +27,14 @@ const templateDevPath = path.join(
   '../../../../config/nginx/template.single.conf',
 )
 
+const socket = io('http://localhost:3211');
+
 export
   class NginxService {
-  private _socket: Socket
+  private _socket: Socket = socket;
 
   constructor(
   ) {
-    this._socket = io('http://localhost:3211');
   }
 
   formatCacheName(name: string) {

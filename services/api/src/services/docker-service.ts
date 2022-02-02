@@ -30,9 +30,11 @@ export type DockerContainerInfo = {
   },
 }
 
+const socket = io('http://localhost:1243');
+
 export
   class DockerService {
-  private _socket: Socket
+  private _socket: Socket = socket;
 
   constructor(
     @inject(WebSockerServiceBindings.WEBSOCKET_SERVICE)
@@ -45,9 +47,7 @@ export
     protected containerOutputRepository: ContainerOutputRepository,
     @repository(PipelineStatusRepository)
     protected pipelineStatusRepository: PipelineStatusRepository,
-  ) {
-    this._socket = io('http://localhost:1243');
-  }
+  ) { }
 
   private _serviceEmitDeploy = (cluster: Cluster, branch: string): Promise<Container> =>
     new Promise((resolve, reject) => {

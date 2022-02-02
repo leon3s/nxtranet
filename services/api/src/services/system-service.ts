@@ -4,25 +4,17 @@ import type {NetworkInterfaceInfo} from 'os';
 import io, {Socket} from 'socket.io-client';
 import {ContainerRepository} from '../repositories';
 
+const socket: Socket = io('http://localhost:9877');
+
 export
   class SystemService {
 
-  protected _socket: Socket;
+  protected _socket: Socket = socket;
 
   constructor(
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
-  ) {
-    if (!this._socket) {
-      this._socket = io('http://localhost:9877');
-      this._socket.on('connect', () => {
-        console.log('system service connected !');
-      });
-      this._socket.on('disconnect', (reason) => {
-        console.log('system service disconnected ', reason);
-      });
-    }
-  }
+  ) { }
 
   getDiskInfo = () => new Promise<SystemDisk[]>((resolve, reject) => {
     this._socket.emit('/disk/info', (err: Error, diskInfos: SystemDisk[]) => {

@@ -7,28 +7,17 @@ type PortProduction = {
   listen: number;
 }
 
+const socket = io('http://localhost:7898');
+
 export
   class ProxiesService {
 
-  protected socket: Socket;
+  protected socket: Socket = socket;
 
   constructor(
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
-  ) {
-    this.socket = io('http://localhost:7898');
-    this.socket.on('connect', () => {
-      console.log('domain connected !');
-      this.ready().then(() => {
-        console.log('ready success');
-      }).catch((err) => {
-        console.error('ready error', err);
-      });
-    });
-    this.socket.on('disconnect', (reason) => {
-      console.log('proxies service disconnected ', reason);
-    });
-  }
+  ) { }
 
   ready = async () => {
     const domains = await this.formatDomains();

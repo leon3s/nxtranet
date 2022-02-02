@@ -5,14 +5,15 @@ import {ClusterProductionRepository} from '../repositories';
 
 const config = require('../../../../.nxt.json');
 
+const socket = io('http://localhost:3365');
+
 export class DnsmasqService {
-  _socket: Socket;
+  _socket: Socket = socket;
 
   constructor(
     @repository(ClusterProductionRepository)
     protected clusterProductionRepository: ClusterProductionRepository,
   ) {
-    this._socket = io('http://localhost:3365');
   }
 
   private _emitConfigSyncData = (data: string) => {
