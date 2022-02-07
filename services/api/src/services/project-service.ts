@@ -1,8 +1,7 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {HttpErrors} from '@loopback/rest';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
-import {Cluster, ClusterProduction, Container} from '../models';
+import {Cluster, Container} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
@@ -39,6 +38,7 @@ export default
     protected githubService: GithubService,
   ) { }
 
+  /** Called when application boot */
   boot = async () => {
     this.nginxService.monitorAccessLog(async (err, log) => {
       if (err) {
@@ -68,81 +68,7 @@ export default
     }));
   }
 
-  deployClusters = async (clusters: Cluster[], opts: DeployPayload) => {
-    const {branchName, lastCommit} = opts;
-    await Promise.all(clusters.map((cluster) => {
-      return this.deployCluster(cluster, {
-        branchName,
-        lastCommit,
-      });
-    }));
-    await this.proxiesService.updateDomains();
-  }
-
-  deployCluster = async (cluster: Cluster, opts: DeployPayload) => {
-    const {branchName, lastCommit} = opts;
-    if (cluster.production) { // Deploy for production
-      const containersToDelete = await this.containerRepository.find({
-        where: {
-          clusterNamespace: cluster.namespace,
-        }
-      });
-      await this.deployProduction(cluster, cluster.production);
-      await Promise.all(containersToDelete.map(async (container) => {
-        await this.containerRepository.updateById(container.id, {
-          commitSHA: lastCommit,
-        });
-        return this.dockerService.clusterContainerRemove(container);
-      }));
-    } else { // Deploy for any others cases //
-      console.log('DEPLOY FOR ANY OTHER CASES');
-      const container = await this.dockerService.clusterDeploy({
-        branch: branchName,
-        isProduction: false,
-        isGeneratedDeploy: true,
-        namespace: cluster.namespace,
-      });
-      console.log('deployed');
-      await this.containerRepository.updateById(container.id, {
-        commitSHA: lastCommit,
-      });
-      console.log('updated');
-      await this.dockerService.whenContainerReady(container);
-      await this.proxiesService.updateDomains();
-      console.log('ready');
-      const containersToDelete = await this.containerRepository.find({
-        where: {
-          commitSHA: {
-            nin: [lastCommit],
-          },
-          gitBranchName: branchName,
-        },
-      });
-      // IF cluster is linked to a branch we write a nginx config //
-      if (cluster?.gitBranch?.name) {
-        const project = await this.projectRepository.findOne({
-          where: {
-            name: cluster.projectName,
-          },
-          include: ['clusterProduction'],
-        });
-        if (!project) throw new HttpErrors.NotAcceptable('Cluster project is deleted ?');
-        const mainDomain = project?.clusterProduction?.domain || 'nextra.net';
-        const nginxFilename = this.nginxService.formatFilename(cluster.projectName, cluster.name);
-        await this.nginxService.writeDevConfig(nginxFilename, {
-          domain: mainDomain === 'nextra.net' ?
-            `${nginxFilename}.${mainDomain}` :
-            `${cluster.name}.${mainDomain}`,
-          port: container.appPort,
-        });
-        await this.deployNginxConf(nginxFilename);
-      }
-      await Promise.all(containersToDelete.map((container) => {
-        return this.dockerService.clusterContainerRemove(container);
-      }));
-    }
-  }
-
+  /** Deploy nginx config if file not exists */
   deployNginxConf = async (filename: string) => {
     const isDeployed = await this.nginxService.siteEnabledExists(filename);
     if (!isDeployed) {
@@ -151,29 +77,86 @@ export default
     await this.nginxService.reloadService();
   }
 
-  deployProduction = async (cluster: Cluster, clusterProduction: ClusterProduction): Promise<Container[] | null> => {
+  deployDev = async (cluster: Cluster, opts: DeployPayload): Promise<Container> => {
+    const {branchName, lastCommit} = opts;
+    const container = await this.dockerService.clusterDeploy({
+      branch: branchName,
+      commitSHA: lastCommit,
+      isProduction: false,
+      isGeneratedDeploy: true,
+      namespace: cluster.namespace,
+    });
+    return container;
+  }
+
+  // Background operation that setup container if he is correctly running
+  deployBGDev = async (cluster: Cluster, container: Container, opts: DeployPayload) => {
+    const {lastCommit, branchName} = opts;
+    await this.dockerService.whenContainerReady(container);
+    const containersToDelete = await this.containerRepository.find({
+      where: {
+        commitSHA: {
+          nin: [lastCommit],
+        },
+        gitBranchName: branchName,
+      },
+    });
+    const clusterProd = await this.clusterProductionRepository.findOne({
+      where: {
+        projectName: cluster.projectName,
+      }
+    });
+    const mainDomain = clusterProd?.domain || 'nxtra.net';
+    await this.nginxService.writeDevConfig(container.namespace, {
+      domain: `${container.name}.${mainDomain}`,
+      port: container.appPort,
+      host: '127.0.0.1',
+    });
+    await this.deployNginxConf(container.namespace);
+    await Promise.all(containersToDelete.map((container) => {
+      return this.dockerService.clusterContainerRemove(container);
+    }));
+  }
+
+  deployProd = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
+    const {lastCommit} = opts;
     const {
-      name,
       namespace,
-      projectName,
+      production,
     } = cluster;
-    const minInstances = Array(clusterProduction.numberOfInstances).fill(1);
-    if (!cluster?.gitBranch?.name) return null;
-    const containers = await Promise.all<Container>(minInstances.map(async () => {
-      const container = await this.dockerService.clusterDeploy({
+    const containersToDelete = await this.containerRepository.find({
+      where: {
+        clusterNamespace: cluster.namespace,
+      }
+    });
+    const minInstances = Array(production.numberOfInstances).fill(1);
+    const containers = await Promise.all<Container>(minInstances.map(() =>
+      this.dockerService.clusterDeploy({
         namespace,
+        commitSHA: lastCommit,
         isProduction: true,
         isGeneratedDeploy: true,
+        // Tricks for ts branch is sure to be set there.
         branch: cluster?.gitBranch?.name || '',
-      });
-      await this.dockerService.whenContainerReady(container);
-      return container;
+      })
+    ));
+    await Promise.all(containersToDelete.map(async (container) => {
+      return this.dockerService.clusterContainerRemove(container);
     }));
+    return containers;
+  }
+
+  deployBGProd = async (cluster: Cluster, containers: Container[]) => {
+    const {production, projectName, name} = cluster;
+    const ports = await Promise.all((containers.map(async (container) => {
+      await this.dockerService.whenContainerReady(container);
+      return container.appPort;
+    })));
     const nginxConfig = {
-      domain: clusterProduction.domain,
-      ports: containers.map((container) => container.appPort),
-      projectName: cluster.projectName,
+      ports,
+      domain: production.domain,
       clusterName: cluster.name,
+      projectName: cluster.projectName,
     };
     const nginxFilename = this.nginxService.formatFilename(projectName, name);
     const nginxFileExists = await this.nginxService.siteAvailableExists(nginxFilename);
@@ -183,6 +166,33 @@ export default
       await this.nginxService.createProdConfig(nginxConfig);
     }
     await this.deployNginxConf(nginxFilename);
-    return containers;
+  }
+
+  deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
+    if (cluster.production) { // deploy for production means real ip binding to serve the project.
+      const containers = await this.deployProd(cluster, opts);
+      this.deployBGProd(cluster, containers).catch((err) => {
+        console.error('deployDB Prod error ', err);
+      });
+      return containers;
+    } else { // Deploy for any others cases //
+      const container = await this.deployDev(cluster, opts);
+      this.deployBGDev(cluster, container, opts)
+        .catch((err) => {
+          console.error('deployBG Dev error ', err);
+        });
+      return [container];
+    }
+  }
+
+  /** Deploy for every clusters that matched branch binding used for github webhook */
+  deployClusters = async (clusters: Cluster[], opts: DeployPayload) => {
+    const {branchName, lastCommit} = opts;
+    await Promise.all(clusters.map((cluster) => {
+      return this.deployCluster(cluster, {
+        branchName,
+        lastCommit,
+      });
+    }));
   }
 }

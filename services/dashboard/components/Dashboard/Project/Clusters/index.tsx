@@ -83,11 +83,10 @@ class Clusters extends
     } = this.props;
     const [cluster] = clusters;
     const res = await this.props.clusterDeploy(cluster.namespace, data);
-    res.value.data.name;
     this.setState({
       isModalDeployOpen: false,
     }, () => {
-      router.push(`/dashboard/projects/${projectName}/containers/${res.value.data.name}`);
+      router.push(`/dashboard/projects/${projectName}/containers/${res.value.data[0].name}`);
     });
   }
 
@@ -353,7 +352,21 @@ class Clusters extends
           <Style.ModalContent>
             <Reform
               schema={[
-                {title: 'Branch', key: 'branch', type: 'String'},
+                {
+                  title: 'Branch',
+                  key: 'branch',
+                  type: 'Relation',
+                  description: `
+                    Select branch to deploy inside this cluster
+                  `,
+                  isDescriptionEnabled: true,
+                  options: {
+                    path: `/projects/${projectName}/git-branches`,
+                    displayKey: 'name',
+                    returnKey: 'name',
+                    isAnyEnabled: true,
+                  }
+                }
               ]}
               onSubmit={this.deploySubmitForm}
               onCancel={this.closeModalDeploy}
@@ -427,6 +440,7 @@ class Clusters extends
                 onClickDeleteEnvVar={this.openModalDeleteEnvVar}
                 onClickShowContainer={this.onClickShowContainer}
                 onClickDeleteContainer={this.openModalDeleteContainer}
+                onClicClusterDeploy={this.openModalDeploy}
               />
             ))}
           </Style.ClustersContainer>

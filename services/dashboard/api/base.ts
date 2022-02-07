@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-const config = require('../../../.nxt.json');
-
 const api = axios.create({
-  baseURL: `http://api.${config.domain}`,
+  baseURL: `http://api.${process.env.NXTRANET_DOMAIN}`,
   withCredentials: true,
 });
 

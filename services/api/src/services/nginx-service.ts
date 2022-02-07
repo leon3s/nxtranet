@@ -15,6 +15,7 @@ export type NginxProdConfig = {
 type NginxDevConfig = {
   domain: string;
   port: number;
+  host: string;
 }
 
 const templateProdPath = path.join(
@@ -81,10 +82,7 @@ upstream ${upstream} {
 
   writeDevConfig = async (filename: string, config: NginxDevConfig) => {
     const d = fs.readFileSync(templateDevPath, 'utf-8');
-    const render = mustache.render(d, {
-      port: config.port,
-      domain_name: config.domain,
-    });
+    const render = mustache.render(d, config);
     await this.writeSiteAvailable(filename, render);
   }
 

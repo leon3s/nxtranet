@@ -1,18 +1,18 @@
-import React, { FormEvent } from 'react';
+import type {GetServerSidePropsResult} from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-
+import {useRouter} from 'next/router';
+import React, {FormEvent} from 'react';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
 import Header from '~/components/Landing/Header';
 import Login from '~/components/Landing/Login';
+import {meActions} from '~/redux/actions';
+import type {State} from '~/redux/reducers';
+import {wrapper} from '~/redux/store';
+import type {Dispatch} from '~/utils/redux';
 
-import { wrapper } from '~/redux/store';
-import { meActions } from '~/redux/actions';
 
-import type { GetServerSidePropsResult } from 'next';
-import type { Dispatch } from '~/utils/redux';
-import type { State } from '~/redux/reducers';
+
 
 const actions = {
   login: meActions.login,
@@ -26,14 +26,14 @@ const mapDispatchToProps = (dispatch: Dispatch<State>) =>
 
 type LoginPageProps = {
 }
-& ReturnType<typeof mapStateToprops>
-& ReturnType<typeof mapDispatchToProps>
+  & ReturnType<typeof mapStateToprops>
+  & ReturnType<typeof mapDispatchToProps>
 
 export const getServerSideProps = wrapper.getServerSideProps(store =>
   async (ctx): Promise<GetServerSidePropsResult<any>> => {
     const state = store.getState();
     if (state.me.me) {
-      ctx.res.writeHead(301, { Location: '/dashboard' });
+      ctx.res.writeHead(301, {Location: '/dashboard'});
       ctx.res.end();
     }
     return {
@@ -42,9 +42,9 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
   }
 )
 
-function IndexPage(props:LoginPageProps) {
+function IndexPage(props: LoginPageProps) {
   const router = useRouter();
-  async function login(e:FormEvent<HTMLFormElement>) {
+  async function login(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     // @ts-ignore
     const email = e.target[0].value;
@@ -60,7 +60,7 @@ function IndexPage(props:LoginPageProps) {
   return (
     <React.Fragment>
       <Head>
-        <title>Login - Nextranet</title>
+        <title>Login - nxtranet</title>
       </Head>
       <Header />
       <Login

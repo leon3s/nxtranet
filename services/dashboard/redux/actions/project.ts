@@ -87,12 +87,12 @@ export const postClusters = createAction<[
 
 export const clusterDeploy = createAction<[
   string,
-  {branch: string}
-], State, AxiosResponse<ModelCluster>>(
+  {branch?: string}?
+], State, AxiosResponse<ModelContainer[]>>(
   PROJECT_DEFINES.CLUSTER_DEPLOY,
   (namespace, data) =>
     ({ }, { }, api) => {
-      return api.post<ModelCluster>(`/clusters/${namespace}/deploy`, data);
+      return api.post<ModelContainer[]>(`/clusters/${namespace}/deploy`, data);
     });
 
 export const getContainers = createAction<[

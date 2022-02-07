@@ -178,8 +178,8 @@ export
   }
 
   clusterDeploy = async ({
-    namespace, branch, isProduction, isGeneratedDeploy,
-  }: {namespace: string, branch: string, isProduction: boolean, isGeneratedDeploy: boolean}): Promise<Container> => {
+    namespace, branch, isProduction, isGeneratedDeploy, commitSHA
+  }: {namespace: string, commitSHA: string, branch: string, isProduction: boolean, isGeneratedDeploy: boolean}): Promise<Container> => {
     const cluster = await this.clusterRepository.findOne({
       where: {
         namespace,
@@ -198,6 +198,7 @@ export
     });
     if (!cluster) throw new HttpErrors.NotFound('Cluster not found');
     const partialContainer = await this._serviceEmitDeploy(cluster, branch);
+    partialContainer.commitSHA = commitSHA;
     partialContainer.gitBranchName = branch;
     partialContainer.isProduction = isProduction;
     partialContainer.isGeneratedDeploy = isGeneratedDeploy;

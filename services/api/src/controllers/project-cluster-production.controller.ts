@@ -125,6 +125,7 @@ export class ProjectClusterProductionController {
       });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
+      await this.proxiesService.updateDomains();
     }
     background().then(() => {
       console.log('success');
@@ -177,12 +178,13 @@ export class ProjectClusterProductionController {
       });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
+      await this.proxiesService.updateDomains();
     }
     background().then(() => {
       console.log('path project cluster production success');
     }).catch((err) => {
       console.error(err);
     });
-    return this.clusterProductionRepository.findById(clusterProductionDB.id);
+    return clusterProductionDB;
   }
 }

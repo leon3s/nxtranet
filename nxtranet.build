@@ -1,7 +1,4 @@
 {
-  "domain": "nxtra.net",
-  "docker_host": "172.17.0.1",
-  "nxtranet_host": "127.0.0.1",
   "servicesDirectories": [
     "./services"
   ],

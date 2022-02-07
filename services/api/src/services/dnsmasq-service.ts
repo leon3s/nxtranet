@@ -3,8 +3,6 @@ import type {Socket} from 'socket.io-client';
 import io from 'socket.io-client';
 import {ClusterProductionRepository} from '../repositories';
 
-const config = require('../../../../.nxt.json');
-
 const socket = io('http://localhost:3365');
 
 export class DnsmasqService {
@@ -28,7 +26,7 @@ export class DnsmasqService {
   configSync = async () => {
     const clusterProds = await this.clusterProductionRepository.find();
     const data = clusterProds.reduce((acc, clusterProd) => {
-      acc += `address=/${clusterProd.domain}/${config.nxtranet_host}\n`;
+      acc += `address=/${clusterProd.domain}/${process.env.NXTRANET_HOST}\n`;
       return acc;
     }, '');
     await this._emitConfigSyncData(data);

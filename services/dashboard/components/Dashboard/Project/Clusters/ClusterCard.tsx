@@ -19,6 +19,7 @@ type CusterCardProps = {
   onClickEditEnvVar: (data: ModelEnvVar) => void;
   onClickCreateEnvVar: (namespace: string) => void;
   onClickCreateContainer: () => void;
+  onClicClusterDeploy: () => void;
 }
 
 export default function ClusterCard(props: CusterCardProps) {
@@ -28,6 +29,7 @@ export default function ClusterCard(props: CusterCardProps) {
     onClickShowContainer,
     onClickDeleteEnvVar,
     onClickEditEnvVar,
+    onClicClusterDeploy,
     onClickDeleteContainer,
   } = props;
 
@@ -77,6 +79,15 @@ export default function ClusterCard(props: CusterCardProps) {
               <Style.Title>
                 Containers
               </Style.Title>
+              <ActionWrapper>
+                <ActionBar actions={[
+                  {
+                    title: 'Deploy',
+                    icon: () => <AiOutlinePlus size={12} />,
+                    fn: onClicClusterDeploy,
+                  }
+                ]} />
+              </ActionWrapper>
               <Style.ClusterContainers>
                 {data?.containers?.map((container) => (
                   <ClusterContainer

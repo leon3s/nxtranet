@@ -7,3 +7,14 @@ Request monitoring de nginx
 Add directories and file to give right in services/*/.nxtsrv
 
 DOCKER HOST AND MAIN HOST may be required as variable
+
+config file in /etc/nxtranet.conf
+log file in /var/log/nxtranet/{servicename}.log
+pids in /var/run/nxtranet/proc/{servicename}/pid
+
+production choose hosts
+other deploy use nxtranet hosts
+
+droit de ficher sur /var/run/docker.sock | /var/log/nginx/access.log
+
+ajouter server_names_hash_bucket_size 128; dans la config par default;

@@ -3,12 +3,13 @@ import {
   repository
 } from '@loopback/repository';
 import {
+  getModelSchemaRef,
   HttpErrors,
   param, post,
   requestBody
 } from '@loopback/rest';
 import {ProjectServiceBindings} from '../keys';
-import {Cluster} from '../models';
+import {Cluster, Container} from '../models';
 import {ClusterRepository, GitBranchRepository} from '../repositories';
 import ProjectService from '../services/project-service';
 
@@ -22,16 +23,13 @@ export class ClusterController {
     protected gitBranchRepository: GitBranchRepository,
   ) { }
 
-  @post('/cluster/{namespace}/deploy', {
+  @post('/clusters/{namespace}/deploy', {
     responses: {
       '200': {
         description: '"Ok" if success',
         content: {
           'application/json': {
-            schema: {
-              type: 'string',
-              example: 'Ok',
-            }
+            schema: {type: 'array', items: getModelSchemaRef(Container)},
           }
         }
       }
@@ -52,7 +50,7 @@ export class ClusterController {
         },
       },
     }) payload: {branch: string},
-  ): Promise<"Ok"> {
+  ): Promise<Container[]> {
     const cluster = await this.clusterRepository.findOne({
       where: {
         namespace,
@@ -74,12 +72,12 @@ export class ClusterController {
       });
       if (!gitBranch) throw new HttpErrors.NotFound('Target git branch not found.');
     }
-    await this.projectService.deployCluster(cluster, {
+    const containers = await this.projectService.deployCluster(cluster, {
       lastCommit: gitBranch.lastCommitSHA,
       branchName: gitBranch.name,
       isGeneratedDeploy: false,
       isProduction: false,
     });
-    return "Ok";
+    return containers;
   }
 }

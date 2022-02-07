@@ -13,11 +13,11 @@ export const nginxDefault = path.resolve(path.join(__dirname, '../../../config/n
 export const dnsmasqDefault = path.resolve(path.join(__dirname, '../../../config/dnsmasq/dnsmasq.template.conf'));
 
 /** Get .nxt from project to know settings */
-export function findNxtConf(inpath = path.join(installDir, '.nxt')): NxtConfig {
+export function findNxtConf(inpath = installDir): NxtConfig {
   if (inpath === '/') {
     throw new Error('Error .nxt not found.');
   }
-  const nxtConfigPath = path.join(inpath, '.nxt.json');
+  const nxtConfigPath = path.join(inpath, 'nxtranet.build');
   try {
     const data = JSON.parse(fs.readFileSync(nxtConfigPath, 'utf-8'));
     data.path = inpath;

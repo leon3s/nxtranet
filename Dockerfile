@@ -15,7 +15,7 @@ RUN apt-get install curl -y
 RUN apt-get install sudo -y
 RUN apt-get install bash -y
 
-RUN apt-get install nginx -y
+RUN apt-get install nginx nginx-extras -y
 RUN apt-get install dnsmasq -y
 RUN apt-get install mongodb -y
 RUN apt-get install docker-compose -y
@@ -49,9 +49,6 @@ RUN npm install
 RUN npm run build
 RUN sudo npm install -g .
 RUN sudo nxtranet install
-RUN sudo service mongodb start
-RUN sudo service nginx start
-RUN sudo service dnsmasq start
 RUN sudo nxtranet run prod
 
 EXPOSE 80/tcp

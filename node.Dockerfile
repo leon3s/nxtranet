@@ -35,4 +35,4 @@ ENV HOST=0.0.0.0 DP_SERVICE_PORT=1337
 EXPOSE ${PORT}
 EXPOSE ${DP_SERVICE_PORT}
 
-CMD [ "node", "." ]
+CMD [ "npm", "start" ]
