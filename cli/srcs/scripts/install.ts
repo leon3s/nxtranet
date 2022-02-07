@@ -3,55 +3,68 @@ import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
 import type {
-  NxtConfig,
-  NxtGlobalConfig, PackageDef, ServiceDef
+  NxtGlobalConfig,
+  NxtUserConfig,
+  PackageDef,
+  ServiceDef
 } from '../headers/nxtranetdev.h';
 import {
   dnsmasqDefault,
-  getConfig,
+  getBuildConfig,
   installDir,
   logsDir,
-  nextranetNginx,
-  nginxDefault
+  nginxDefault,
+  nxtranetNginx,
+  nxtranetUserconf,
+  nxtranetUserConfDefault,
+  nxtranetUserconfDir,
+  runDir
 } from '../lib/nxtconfig';
+import getUserConfig from '../lib/nxtUserconfig';
 
 const coreUser = 'nxtcore';
 const sysGroup = 'gp_nxtranet';
 
-const defaultSystemPkg = ['nginx', 'dnsmasq'];
-
-async function installSystemPkg(name: string) {
-  await execa('sudo', [
-    'apt-get',
-    'install',
-    '-y',
-    name,
-  ]);
-}
-
-function generateNginxNxtranet(nxtconf: NxtConfig) {
-  const template = fs.readFileSync(nextranetNginx, 'utf-8');
-  const render = mustache.render(template, nxtconf);
+function generateNginxNxtranet(nxtUserconf: NxtUserConfig) {
+  const template = fs.readFileSync(nxtranetNginx, 'utf-8');
+  const render = mustache.render(template, nxtUserconf);
   fs.writeFileSync('/etc/nginx/sites-available/nxtranet', render);
 }
 
-function generateDnsmasqConf(nxtconf: NxtConfig) {
+function generateDnsmasqConf(nxtUserconf: NxtUserConfig) {
   const template = fs.readFileSync(dnsmasqDefault, 'utf-8');
-  const render = mustache.render(template, nxtconf);
+  const render = mustache.render(template, nxtUserconf);
   fs.writeFileSync('/etc/dnsmasq.conf', render);
 }
 
-async function configureNginx(nxtconf: NxtConfig) {
+async function configureDnsmasq(nxtUserconf: NxtUserConfig) {
+  generateDnsmasqConf(nxtUserconf);
+}
+
+async function configureNginx(nxtUserconf: NxtUserConfig) {
   await execa('cp', [nginxDefault, '/etc/nginx/nginx.conf']);
-  generateNginxNxtranet(nxtconf);
+  generateNginxNxtranet(nxtUserconf);
   if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nxtranet'))) {
     await execa('ln', ['-s', '/etc/nginx/sites-available/nxtranet', '/etc/nginx/sites-enabled']);
   }
-  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-available']);
-  await execa('chown', ['-R', 'nxtsrv-nginx', '/etc/nginx/sites-enabled']);
 }
 
-async function createGroupIfNotExist() {
+function setServiceFilePerms(service: ServiceDef) {
+  return Promise.all((service?.filePermissions || []).map((filePath) =>
+    execa('sudo', [
+      'chown',
+      '-R',
+      `${service.user}`,
+      filePath,
+    ])
+  ));
+}
+
+function setServicesFilePerms(services: ServiceDef[]) {
+  return Promise.all(services.map(setServiceFilePerms));
+}
+
+async function createSysGroupIfNotExist() {
   try {
     await execa('getent', ['group', sysGroup]);
   } catch ({ }) {
@@ -59,11 +72,13 @@ async function createGroupIfNotExist() {
   }
 }
 
-async function createUser(userName: string) {
+async function createUser(userName: string, homedir: string) {
   await execa('sudo', [
     'useradd',
     '-m',
-    userName
+    '-d',
+    homedir,
+    userName,
   ]);
 }
 
@@ -80,10 +95,10 @@ async function userExist(userName: string) {
   }
 }
 
-async function createUserIfnotExist(username: string) {
+async function createUserIfnotExist(username: string, homedir: string) {
   const isUserExist = await userExist(username);
   if (!isUserExist) {
-    await createUser(username);
+    await createUser(username, homedir);
   }
 }
 
@@ -144,15 +159,16 @@ async function chownForCoreUser(pth: string) {
   ]);
 }
 
-async function createLogsDir(logsDir: string) {
+async function initLogsDir() {
   await execa('sudo', [
     'mkdir',
     '-p',
     logsDir,
   ]);
+  await chownForCoreUser(logsDir);
   await execa('sudo', [
     'chmod',
-    '777',
+    '770',
     logsDir
   ]);
 }
@@ -167,7 +183,7 @@ async function chownForGroup(pth: string) {
 }
 
 async function installService(service: ServiceDef) {
-  await createUserIfnotExist(service.user);
+  await createUserIfnotExist(service.user, service.path);
   await addUserToSysGroup(service.user);
   await chownService(service);
   try {
@@ -181,12 +197,6 @@ async function installServices(services: ServiceDef[]) {
   return Promise.all(services.map(installService));
 }
 
-async function installSystemPkgs() {
-  for (const pkg of defaultSystemPkg) {
-    await installSystemPkg(pkg);
-  }
-}
-
 async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
   return Promise.all(nxtconfig.packagesDirectories.map((packageDirectory) => {
     const ppath = path.join(nxtconfig.path, packageDirectory);
@@ -194,23 +204,51 @@ async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
   }));
 }
 
-async function configureSystem() {
-  await installSystemPkgs();
-  await createGroupIfNotExist();
-  await createUserIfnotExist(coreUser);
-  await addUserToSysGroup(coreUser);
-  await chownForCoreUser(installDir);
-  await createLogsDir(logsDir);
-  await chownForCoreUser(logsDir);
+async function initNxtranetRunDir() {
+  if (!fs.existsSync(runDir)) {
+    fs.mkdirSync(runDir);
+  }
+  await chownForCoreUser(runDir);
 }
 
-async function installNxtranet() {
-  const nxtconfig = await getConfig();
+async function initNxtranetUserconfig() {
+  if (!fs.existsSync(nxtranetUserconfDir)) {
+    fs.mkdirSync(nxtranetUserconfDir);
+  }
+  await execa('sudo', [
+    'cp',
+    nxtranetUserConfDefault,
+    nxtranetUserconf,
+  ]);
+  await chownForCoreUser(nxtranetUserconfDir);
+}
+
+async function initCoreUserAndGroup() {
+  await createSysGroupIfNotExist();
+  await createUserIfnotExist(coreUser, installDir);
+  await addUserToSysGroup(coreUser);
+  await chownForCoreUser(installDir);
+}
+
+async function configureSystem() {
+  await initCoreUserAndGroup();
+  await initNxtranetUserconfig();
+  await initNxtranetRunDir();
+  await initLogsDir();
+}
+
+async function configureNxtServices() {
+  const nxtconfig = await getBuildConfig();
   await installPackages(nxtconfig.packages);
   await chownPackagesDirectories(nxtconfig);
   await installServices(nxtconfig.services);
-  await configureNginx(nxtconfig);
-  generateDnsmasqConf(nxtconfig);
+  await setServicesFilePerms(nxtconfig.services);
+}
+
+async function generateConfigFiles() {
+  const nxtUserconf = getUserConfig();
+  await configureNginx(nxtUserconf);
+  await generateDnsmasqConf(nxtUserconf);
 }
 
 export default async function install() {
@@ -219,5 +257,6 @@ export default async function install() {
     process.exit(0);
   }
   await configureSystem();
-  await installNxtranet();
+  await configureNxtServices();
+  await generateConfigFiles();
 }

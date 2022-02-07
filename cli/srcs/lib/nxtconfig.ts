@@ -1,19 +1,33 @@
 import fs from 'fs';
 import path from 'path';
 import type {
-  NxtConfig, NxtGlobalConfig, PackageDef, Pkgjson, ServiceDef
+  NxtConfig,
+  NxtGlobalConfig,
+  PackageDef,
+  Pkgjson,
+  ServiceDef
 } from '../headers/nxtranetdev.h';
 
 export const installDir = path.resolve(path.join(__dirname, '../../..'));
 
-export const logsDir = path.join(installDir, 'logs');
+export const logsDir = path.join('/var/log', 'nxtranet');
 
-export const nextranetNginx = path.resolve(path.join(__dirname, '../../../config/nginx/nxtranet.template.conf'));
-export const nginxDefault = path.resolve(path.join(__dirname, '../../../config/nginx/nginx.template.conf'));
-export const dnsmasqDefault = path.resolve(path.join(__dirname, '../../../config/dnsmasq/dnsmasq.template.conf'));
+export const runDir = path.join('/var/run', 'nxtranet');
+
+export const nxtranetUserconfDir = path.join('/etc', 'nxtranet');
+
+export const nxtranetUserconf = path.join(nxtranetUserconfDir, 'nxtranet.conf');
+
+export const nxtranetUserConfDefault = path.join(installDir, 'config/nxtranet/nxtranet.conf');
+
+export const nxtranetNginx = path.join(installDir, 'config/nginx/nxtranet.template.conf');
+
+export const nginxDefault = path.join(installDir, 'config/nginx/nginx.template.conf');
+
+export const dnsmasqDefault = path.join(installDir, 'config/dnsmasq/dnsmasq.template.conf');
 
 /** Get .nxt from project to know settings */
-export function findNxtConf(inpath = installDir): NxtConfig {
+export function getNxtranetBuild(inpath = installDir): NxtConfig {
   if (inpath === '/') {
     throw new Error('Error .nxt not found.');
   }
@@ -23,7 +37,7 @@ export function findNxtConf(inpath = installDir): NxtConfig {
     data.path = inpath;
     return data;
   } catch (e) {
-    return findNxtConf(path.resolve(path.join(inpath, '..')));
+    return getNxtranetBuild(path.resolve(path.join(inpath, '..')));
   }
 }
 
@@ -80,8 +94,8 @@ export async function getPackagesDefs(nxtConfig: NxtConfig) {
 }
 
 /** Get all config of the project including services and packages to builds */
-export async function getConfig(): Promise<NxtGlobalConfig> {
-  const nxtConfig = findNxtConf();
+export async function getBuildConfig(): Promise<NxtGlobalConfig> {
+  const nxtConfig = getNxtranetBuild();
   const services = await getServicesDefs(nxtConfig);
   const packages = await getPackagesDefs(nxtConfig);
   return {

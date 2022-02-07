@@ -2,20 +2,30 @@ import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Server} from 'socket.io';
-import type {ServiceDef} from '../headers/nxtranetdev.h';
-import {getConfig, installDir} from '../lib/nxtconfig';
+import type {NxtUserConfig, ServiceDef} from '../headers/nxtranetdev.h';
+import {getBuildConfig, runDir} from '../lib/nxtconfig';
+import getUserConfig from '../lib/nxtUserconfig';
 import {ensureUser} from '../lib/system';
 
-const pidPath = path.join(installDir, '.nxtranet.pid');
+const pidPath = path.join(runDir, 'nxtranet.pid');
 
 const services: {
   pid: number;
   user: string;
 }[] = [];
 
-async function buildService(serviceDef: ServiceDef) {
-  await execa('sudo', [
+function generateEnv(userConfig: NxtUserConfig) {
+  return [
     `NODE_ENV=${process.env.NODE_ENV}`,
+    `NXTRANET_HOST=${userConfig.nxtranet.host}`,
+    `NXTRANET_DOMAIN=${userConfig.nxtranet.domain}`,
+    `NXTRANET_DOCKER_HOST=${userConfig.docker.host}`,
+  ];
+}
+
+async function buildService(serviceDef: ServiceDef, envs: string[]) {
+  await execa('sudo', [
+    ...envs,
     '-u',
     serviceDef.user,
     'npm',
@@ -27,10 +37,10 @@ async function buildService(serviceDef: ServiceDef) {
   });
 }
 
-async function startService(serviceDef: ServiceDef) {
+async function startService(serviceDef: ServiceDef, envs: string[]) {
   const runnerPath = path.join(__dirname, './runner');
   const child = await execa('sudo', [
-    `NODE_ENV=${process.env.NODE_ENV}`,
+    ...envs,
     '-u',
     serviceDef.user,
     'node',
@@ -43,16 +53,16 @@ async function startService(serviceDef: ServiceDef) {
   return +child.stdout;
 }
 
-async function startServices(serviceDefs: ServiceDef[]) {
+async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
   Promise.all<void>(serviceDefs.map(async (serviceDef) => {
     if (!serviceDef.pkg.main) {
       console.warn(`Service ${serviceDef.name} doesn't have main defined in package.json cannot start.`);
       return;
     }
     if (process.env.NODE_ENV !== 'development' || !serviceDef.skipDevBuild) {
-      await buildService(serviceDef);
+      await buildService(serviceDef, envs);
     }
-    const pid = await startService(serviceDef);
+    const pid = await startService(serviceDef, envs);
     console.log('Service :\t', serviceDef.name, '\tstarted with pid :\t', pid);
     services.push({
       pid,
@@ -74,8 +84,10 @@ async function killServices(signal: string) {
 
 async function prepare() {
   await ensureUser('nxtcore');
-  const nxtconfig = await getConfig();
-  startServices(nxtconfig.services);
+  const nxtconfig = await getBuildConfig();
+  const userConfig = getUserConfig();
+  const envs = generateEnv(userConfig);
+  startServices(nxtconfig.services, envs);
 }
 
 prepare().then(() => {

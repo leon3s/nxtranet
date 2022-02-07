@@ -1,8 +1,9 @@
-node_modules
 **/*/dist
 **/*/coverage
 **/*/node_modules
 **/*/.next
 **/*/tmp
-logs
 **/*.pid
+**/*.npm
+**/*.cache
+**/*.config

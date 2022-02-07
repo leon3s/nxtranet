@@ -149,7 +149,7 @@ export
     return new Promise<void>(async (resolve, reject) => {
       const interval = setInterval(async () => {
         try {
-          await axios.get(`http://127.0.0.1:${container.appPort}`);
+          await axios.get(`http://${process.env.NXTRANET_DOCKER_HOST}:${container.appPort}`);
           const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
             fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
           });

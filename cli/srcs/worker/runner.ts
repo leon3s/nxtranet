@@ -10,9 +10,7 @@ const fd = fs.openSync(path.join(logsDir, `${name}.log`), 'a');
 const p = spawn('node', [sPath], {
   detached: true,
   stdio: ['ignore', fd, fd],
-  env: {
-    NODE_ENV: process.env.NODE_ENV,
-  }
+  env: process.env,
 });
 
 p.unref();

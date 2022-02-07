@@ -35,8 +35,7 @@ export
   private _socket: Socket = socket;
 
   constructor(
-  ) {
-  }
+  ) { }
 
   formatCacheName(name: string) {
     return `cache_${name}`;

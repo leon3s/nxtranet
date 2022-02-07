@@ -1,4 +1,9 @@
 {
   "user": "nxtsrv-docker",
-  "watchDirectories": ["srcs"]
+  "watchDirectories": [
+    "srcs"
+  ],
+  "filePermissions": [
+    "/var/run/docker.sock"
+  ]
 }

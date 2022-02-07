@@ -1,7 +1,7 @@
 import execa from 'execa';
 import path from 'path';
 import {
-  getConfig
+  getBuildConfig
 } from '../lib/nxtconfig';
 import {
   ensureRoot, execaWsl
@@ -21,7 +21,7 @@ export const dev = async () => {
 
 /** This aim to fix hot reload when dashboard is started inside wsl */
 export async function winDev() {
-  const nxtConf = await getConfig();
+  const nxtConf = await getBuildConfig();
   await Promise.all(nxtConf.services.map((service) =>
     execaWsl('npm', [
       'start'

@@ -16,6 +16,16 @@ export type NxtConfig = {
   packagesDirectories: string[];
 }
 
+export type NxtUserConfig = {
+  nxtranet: {
+    domain: string;
+    host: string;
+  };
+  docker: {
+    host: string;
+  };
+}
+
 export type NxtSrvConfig = {
   user?: string;
   skipDevBuild?: boolean;
@@ -28,6 +38,7 @@ export type ServiceDef = {
   user: string;
   pkg: Pkgjson;
   skipDevBuild?: boolean;
+  filePermissions: string[];
 }
 
 export type PackageDef = {
