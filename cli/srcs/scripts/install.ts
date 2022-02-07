@@ -8,7 +8,11 @@ import type {
 } from '../headers/nxtranetdev.h';
 import {
   dnsmasqDefault,
-  getConfig, installDir, logsDir, nextranetNginx, nginxDefault
+  getConfig,
+  installDir,
+  logsDir,
+  nextranetNginx,
+  nginxDefault
 } from '../lib/nxtconfig';
 
 const coreUser = 'nxtcore';
