@@ -101,6 +101,20 @@ export const convertLogLine = (line: string): NginxAccessLog => {
   }
 }
 
+export const clearSite = (filename: string): Promise<void> => {
+  const available = protectTraversing(siteAvailablePath, filename);
+  const enabled = protectTraversing(siteEnabledPath, filename);
+  return new Promise((resolve, reject) => {
+    try {
+      fs.rmSync(enabled);
+      fs.rmSync(available);
+      resolve();
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
 export const watchAccessLog = (callback = (err: Error | null, s?: NginxAccessLog) => { }) => {
   fs.watch(accessLogPath, async (event, filename) => {
     console.log(event, filename);

@@ -49,7 +49,6 @@ RUN npm install
 RUN npm run build
 RUN sudo npm install -g .
 RUN sudo nxtranet install
-RUN sudo nxtranet run prod
 
 EXPOSE 80/tcp
 EXPOSE 53/udp

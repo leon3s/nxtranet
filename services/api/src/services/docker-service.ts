@@ -54,6 +54,7 @@ export
       this._socket.emit('/cluster/deploy', cluster, branch,
         (err: Error, container: Container) => {
           if (err) return reject(err);
+          console.log(container);
           return resolve(container);
         });
     });

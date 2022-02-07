@@ -1,5 +1,10 @@
 import {execSync} from 'child_process';
 import execa from 'execa';
+import fs from 'fs';
+import {
+  coreUser, sysGroup
+} from './nxtconfig';
+
 
 type WlsOptions = {
   username?: string;
@@ -39,4 +44,20 @@ export async function ensureUser(user: string): Promise<void> {
   if (res.stdout !== user) {
     throw new Error('User not matching.');
   }
+}
+
+export async function chownForCoreUser(pth: string) {
+  await execa('sudo', [
+    'chown',
+    '-R',
+    `${coreUser}:${sysGroup}`,
+    pth,
+  ]);
+}
+
+export async function ensureRunDir(runDir: string) {
+  fs.mkdirSync(runDir, {
+    recursive: true,
+  });
+  await chownForCoreUser(runDir);
 }

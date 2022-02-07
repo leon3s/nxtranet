@@ -95,7 +95,7 @@ upstream ${upstream} {
     const d = fs.readFileSync(templateProdPath, 'utf-8');
     const render = mustache.render(d, {
       ports,
-      domain_name: domain,
+      domain,
       upstream: this.formatUpstreamName(projectName),
       cache_name: this.formatCacheName(projectName),
     });
@@ -180,6 +180,15 @@ upstream ${upstream} {
   restartService = (): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       this._socket.emit('/restart', (err: Error) => {
+        if (err) return reject(err);
+        return resolve();
+      });
+    });
+  }
+
+  clearSite = async (filename: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      this._socket.emit('/sites/clear', filename, (err: Error) => {
         if (err) return reject(err);
         return resolve();
       });

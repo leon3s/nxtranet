@@ -1,12 +1,13 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings} from '../keys';
+import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings, SystemServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
 import {ProxiesService} from './proxies-service';
+import {SystemService} from './system-service';
 
 type DeployPayload = {
   branchName: string,
@@ -28,6 +29,8 @@ export default
     protected projectRepository: ProjectRepository,
     @repository(NginxAccessLogRepository)
     protected nginxAccessLogRepository: NginxAccessLogRepository,
+    @inject(SystemServiceBindings.SYSTEM_SERVICE)
+    protected systemService: SystemService,
     @inject(ProxiesServiceBindings.PROXIES_SERVICE)
     protected proxiesService: ProxiesService,
     @inject(DockerServiceBindings.DOCKER_SERVICE)
@@ -77,14 +80,46 @@ export default
     await this.nginxService.reloadService();
   }
 
+  removeContainer = async (container: Container) => {
+    await this.nginxService.clearSite(container.name);
+    await this.dockerService.clusterContainerRemove(container);
+  }
+
+  dockerHookClusterDeploy = async (cluster: Cluster, opts: DeployPayload) => {
+    const {branchName, lastCommit, isGeneratedDeploy, isProduction} = opts;
+    console.log('im called !');
+    const container = await this.dockerService.clusterDeploy({
+      commitSHA: lastCommit,
+      isProduction: isProduction || false,
+      isGeneratedDeploy: isGeneratedDeploy || false,
+      branch: branchName,
+      namespace: cluster.namespace,
+    });
+    console.log('docker hook');
+    console.error('docker hook');
+    const clusterProd = await this.clusterProductionRepository.findOne({
+      where: {
+        projectName: cluster.projectName,
+      }
+    });
+    const mainDomain = clusterProd?.domain || process.env.NXTRANET_DOMAIN;
+    await this.nginxService.writeDevConfig(container.name, {
+      domain: `${container.name}.${mainDomain}`,
+      port: container.appPort,
+      host: process.env.NXTRANET_HOST || '127.0.0.1',
+    });
+    await this.deployNginxConf(container.name);
+    console.error('docker hook', container);
+    return container;
+  }
+
   deployDev = async (cluster: Cluster, opts: DeployPayload): Promise<Container> => {
     const {branchName, lastCommit} = opts;
-    const container = await this.dockerService.clusterDeploy({
-      branch: branchName,
-      commitSHA: lastCommit,
+    const container = await this.dockerHookClusterDeploy(cluster, {
+      lastCommit,
       isProduction: false,
       isGeneratedDeploy: true,
-      namespace: cluster.namespace,
+      branchName,
     });
     return container;
   }
@@ -106,15 +141,15 @@ export default
         projectName: cluster.projectName,
       }
     });
-    const mainDomain = clusterProd?.domain || 'nxtra.net';
-    await this.nginxService.writeDevConfig(container.namespace, {
-      domain: `${container.name}.${mainDomain}`,
+    const mainDomain = clusterProd?.domain || process.env.NXTRANET_DOMAIN;
+    await this.nginxService.writeDevConfig(cluster.namespace, {
+      domain: `${cluster.name}.${mainDomain}`,
       port: container.appPort,
-      host: '127.0.0.1',
+      host: process.env.NXTRANET_HOST || '127.0.0.1',
     });
-    await this.deployNginxConf(container.namespace);
+    await this.deployNginxConf(cluster.namespace);
     await Promise.all(containersToDelete.map((container) => {
-      return this.dockerService.clusterContainerRemove(container);
+      return this.removeContainer(container);
     }));
   }
 
@@ -126,22 +161,20 @@ export default
     } = cluster;
     const containersToDelete = await this.containerRepository.find({
       where: {
-        clusterNamespace: cluster.namespace,
+        clusterNamespace: namespace,
       }
     });
     const minInstances = Array(production.numberOfInstances).fill(1);
     const containers = await Promise.all<Container>(minInstances.map(() =>
-      this.dockerService.clusterDeploy({
-        namespace,
-        commitSHA: lastCommit,
+      this.dockerHookClusterDeploy(cluster, {
+        lastCommit,
         isProduction: true,
         isGeneratedDeploy: true,
-        // Tricks for ts branch is sure to be set there.
-        branch: cluster?.gitBranch?.name || '',
+        branchName: cluster?.gitBranch?.name || '',
       })
     ));
     await Promise.all(containersToDelete.map(async (container) => {
-      return this.dockerService.clusterContainerRemove(container);
+      return this.removeContainer(container);
     }));
     return containers;
   }

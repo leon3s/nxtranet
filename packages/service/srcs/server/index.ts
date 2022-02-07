@@ -21,7 +21,7 @@ export class Server {
     this.io = new WsServer(this.httpServer, { /* options */});
     this.app.get('/', (req, res) => {
       res.send(JSON.stringify({
-        name: process.env._NXTSRVNAME,
+        env: process.env,
         uptime: process.uptime(),
       }));
     });

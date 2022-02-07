@@ -9,7 +9,7 @@ import type {
   ServiceDef
 } from '../headers/nxtranetdev.h';
 import {
-  dnsmasqDefault,
+  coreUser, dnsmasqDefault,
   getBuildConfig,
   installDir,
   logsDir,
@@ -18,12 +18,10 @@ import {
   nxtranetUserconf,
   nxtranetUserConfDefault,
   nxtranetUserconfDir,
-  runDir
+  runDir, sysGroup
 } from '../lib/nxtconfig';
 import getUserConfig from '../lib/nxtUserconfig';
-
-const coreUser = 'nxtcore';
-const sysGroup = 'gp_nxtranet';
+import {chownForCoreUser} from '../lib/system';
 
 function generateNginxNxtranet(nxtUserconf: NxtUserConfig) {
   const template = fs.readFileSync(nxtranetNginx, 'utf-8');
@@ -150,15 +148,6 @@ async function installPackages(packages: PackageDef[]) {
   }))
 }
 
-async function chownForCoreUser(pth: string) {
-  await execa('sudo', [
-    'chown',
-    '-R',
-    `nxtcore:${sysGroup}`,
-    pth,
-  ]);
-}
-
 async function initLogsDir() {
   await execa('sudo', [
     'mkdir',
@@ -215,19 +204,20 @@ async function initNxtranetUserconfig() {
   if (!fs.existsSync(nxtranetUserconfDir)) {
     fs.mkdirSync(nxtranetUserconfDir);
   }
-  await execa('sudo', [
-    'cp',
-    nxtranetUserConfDefault,
-    nxtranetUserconf,
-  ]);
-  await chownForCoreUser(nxtranetUserconfDir);
+  if (!fs.existsSync(nxtranetUserconf)) {
+    await execa('sudo', [
+      'cp',
+      nxtranetUserConfDefault,
+      nxtranetUserconf,
+    ]);
+    await chownForCoreUser(nxtranetUserconfDir);
+  }
 }
 
 async function initCoreUserAndGroup() {
   await createSysGroupIfNotExist();
   await createUserIfnotExist(coreUser, installDir);
   await addUserToSysGroup(coreUser);
-  await chownForCoreUser(installDir);
 }
 
 async function configureSystem() {
@@ -248,7 +238,7 @@ async function configureNxtServices() {
 async function generateConfigFiles() {
   const nxtUserconf = getUserConfig();
   await configureNginx(nxtUserconf);
-  await generateDnsmasqConf(nxtUserconf);
+  await configureDnsmasq(nxtUserconf);
 }
 
 export default async function install() {

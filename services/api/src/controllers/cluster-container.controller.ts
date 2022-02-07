@@ -5,13 +5,13 @@ import {
 import {
   del, HttpErrors, param
 } from '@loopback/rest';
-import {DockerServiceBindings} from '../keys';
+import {ProjectServiceBindings} from '../keys';
 import {ContainerRepository} from '../repositories';
-import {DockerService} from '../services/docker-service';
+import ProjectService from '../services/project-service';
 
 export class ClusterContainerController {
   constructor(
-    @inject(DockerServiceBindings.DOCKER_SERVICE) protected dockerService: DockerService,
+    @inject(ProjectServiceBindings.PROJECT_SERVICE) protected projectService: ProjectService,
     @repository(ContainerRepository) protected containerRepository: ContainerRepository,
   ) { }
 
@@ -34,6 +34,6 @@ export class ClusterContainerController {
       }
     });
     if (!container) throw new HttpErrors.NotAcceptable('Container not found');
-    await this.dockerService.clusterContainerRemove(container);
+    await this.projectService.removeContainer(container);
   }
 }

@@ -1,14 +1,16 @@
 import execa from 'execa';
 import path from 'path';
 import {
-  getBuildConfig
+  getBuildConfig,
+  runDir
 } from '../lib/nxtconfig';
 import {
-  ensureRoot, execaWsl
+  ensureRoot, ensureRunDir, execaWsl
 } from '../lib/system';
 
 export const dev = async () => {
   ensureRoot();
+  ensureRunDir(runDir);
   await execa('sudo', [
     'NODE_ENV=development',
     '-u',
@@ -35,6 +37,7 @@ export async function winDev() {
 
 export const prod = async () => {
   ensureRoot();
+  ensureRunDir(runDir);
   const res = execa('sudo', [
     'NODE_ENV=production',
     '-u',

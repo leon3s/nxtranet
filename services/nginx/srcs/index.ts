@@ -70,13 +70,16 @@ server.io.on('connection', (socket) => {
     }
   });
 
-  socket.on('/sites-available/deploy', async (filename: string, callback) => {
-    try {
-      await nginx.deployConfig(filename);
-      callback();
-    } catch (err) {
-      callback(err);
-    }
+  socket.on('/sites-available/deploy', (filename: string, callback) => {
+    nginx.deployConfig(filename)
+      .then(() => callback())
+      .catch(callback);
+  });
+
+  socket.on('/sites/clear', (filename: string, callback) => {
+    nginx.clearSite(filename)
+      .then(() => callback())
+      .catch(() => callback());
   });
 
   socket.on('/monitor/access-log', () => {

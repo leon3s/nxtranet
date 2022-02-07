@@ -8,6 +8,10 @@ import type {
   ServiceDef
 } from '../headers/nxtranetdev.h';
 
+export const coreUser = 'nxtcore';
+
+export const sysGroup = 'gp_nxtranet';
+
 export const installDir = path.resolve(path.join(__dirname, '../../..'));
 
 export const logsDir = path.join('/var/log', 'nxtranet');
