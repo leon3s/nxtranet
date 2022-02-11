@@ -127,7 +127,7 @@ async function installNodeDeps(service: ServiceDef) {
 }
 
 async function installPackages(packages: PackageDef[]) {
-  return Promise.all(packages.map(async (pkg) => {
+  for (const pkg of packages) {
     await execa('sudo', [
       '-u',
       coreUser,
@@ -145,7 +145,8 @@ async function installPackages(packages: PackageDef[]) {
     ], {
       cwd: pkg.path,
     });
-  }))
+
+  }
 }
 
 async function chmodForGroup(filepath: string) {
