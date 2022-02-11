@@ -15,29 +15,36 @@ List of system compatible
 
 ## Installation
 
+- Required dependencies
+```sh
+sudo apt install -y nginx dnsmasq docker-compose mongodb # For ubuntu
+```
+- Setup project
 ```sh
 git clone https://github.com/leon3s/nxtranet
 cd nxtranet
-sudo bash ubuntu.install.bash
+bash node_install.bash # If you don't have nodejs 16.x installed
 ```
 
 ## Project structure
 
 /cli # Cli used as internal dev tools
 
-/packages     # Shared packages between projects cli and services
+/packages # Shared packages between projects cli and services
   - /apiclient  # A basic client for api calls
   - /headers    # Shared types for all projects
   - /node       # Nodejs library
   - /service    # Default service helpers
 
-/docker_images
+/docker_images # Docker images
   - /node-deployer # Optimised docker image to deploy node application.
 
-/services
-  - /dashboard   # Front end dashboard for configuration
-  - /api         # Backend api
+/internal
   - /docker      # Service to manage docker
   - /nginx       # Service to manage nginx
-  - /proxies     # Service to manage nxtranet proxies used for deployment
+  - /dnsmasq     # Service to manage dnsmasq
   - /system      # Service to get system information such as disk space
+
+/exposed
+  - /dashboard   # Front end dashboard for configuration
+  - /api         # Backend api

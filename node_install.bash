@@ -31,15 +31,15 @@ function print_fail() {
 ## It will install packages like node nginx dnsmasq and create users to manage them.
 if [ "$EUID" -ne 0 ]
 then
-  echo "nxtranet install script must be run as root."
+  echo "node install script must be run as root."
   exit 1
 fi
 
 echo "Verifying node installation"
 
 echo -n "  - node "
-# if ! [ -x "$(command -v node)" ]
-# then
+if ! [ -x "$(command -v node)" ]
+then
   echo -n " installing "
   curl https://nodejs.org/dist/v16.13.0/node-v16.13.0-linux-x64.tar.xz _node.tar -s -o ./_node.tar > /dev/null
   tar -xf _node.tar
@@ -50,12 +50,11 @@ echo -n "  - node "
   rm -r node-v16.13.0-linux-x64
   rm _node.tar
   print_pass
-# else
-#   echo -n "installed "
-#   print_pass
-# fi
+else
+  echo -n "installed "
+  print_pass
+fi
 
-cd ./cli
-echo "Run npm install && npm run build"
+echo "Go to ./cli folder and do npm run build and npm install -g ."
 echo "Then run sudo install -g . to install nxtranet cli"
 echo "Then run sudo nxtranet install to install and setup project"
