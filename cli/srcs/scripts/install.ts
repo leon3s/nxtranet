@@ -183,7 +183,10 @@ async function installService(service: ServiceDef) {
 }
 
 async function installServices(services: ServiceDef[]) {
-  return Promise.all(services.map(installService));
+  for (const s of services) {
+    console.log('Installing service : ', s.name);
+    await installService(s);
+  }
 }
 
 async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {

@@ -3,7 +3,7 @@ import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {PipelineStatusEnum} from '@nxtranet/headers';
 import axios from 'axios';
-import {client} from '../../../docker';
+import {client} from '../../../../internal/docker';
 import {WebSockerServiceBindings} from '../keys';
 import {Container} from '../models';
 import {ClusterRepository, ContainerRepository} from '../repositories';

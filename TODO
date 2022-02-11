@@ -5,8 +5,8 @@ Restart / Stop container
 Request monitoring de nginx
 
 production choose hosts
-other deploy use nxtranet hosts
 
 ajouter server_names_hash_bucket_size 128; dans la config par default;
 
 delete project, update project
+

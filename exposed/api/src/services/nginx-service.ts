@@ -2,7 +2,7 @@ import type {NginxAccessLog, NginxSiteAvailable} from '@nxtranet/headers';
 import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
-import {client} from '../../../nginx';
+import {client} from '../../../../internal/nginx';
 
 export type NginxProdConfig = {
   domain: string;

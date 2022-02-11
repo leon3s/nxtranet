@@ -1,6 +1,7 @@
 {
   "servicesDirectories": [
-    "./services"
+    "./internal",
+    "./exposed"
   ],
   "packagesDirectories": [
     "./packages"

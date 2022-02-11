@@ -1,5 +1,5 @@
 import {repository} from '@loopback/repository';
-import {client} from '../../../dnsmasq';
+import {client} from '../../../../internal/dnsmasq/dist';
 import {ClusterProductionRepository} from '../repositories';
 
 export class DnsmasqService {

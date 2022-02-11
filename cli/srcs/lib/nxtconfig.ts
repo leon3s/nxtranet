@@ -61,7 +61,6 @@ export async function getServiceDef(dir: string): Promise<ServiceDef[]> {
     };
   })));
   const ret = res.filter((d) => !!d);
-  console.log(ret);
   return ret;
 }
 

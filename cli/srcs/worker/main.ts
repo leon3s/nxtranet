@@ -32,7 +32,7 @@ async function buildService(serviceDef: ServiceDef, envs: string[]) {
     'run',
     'build',
   ], {
-    stdio: ['ignore', process.stdout, process.stderr],
+    stdio: ['ignore', 'ignore', process.stderr],
     cwd: serviceDef.path,
   });
 }
@@ -54,7 +54,7 @@ async function startService(serviceDef: ServiceDef, envs: string[]) {
 }
 
 async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
-  Promise.all<void>(serviceDefs.map(async (serviceDef) => {
+  for (const serviceDef of serviceDefs) {
     if (!serviceDef.pkg.main) {
       console.warn(`Service ${serviceDef.name} doesn't have main defined in package.json cannot start.`);
       return;
@@ -63,12 +63,12 @@ async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
       await buildService(serviceDef, envs);
     }
     const pid = await startService(serviceDef, envs);
-    console.log('Service :\t', serviceDef.name, '\tstarted with pid :\t', pid);
+    console.log('Service :\t', serviceDef.name, '\t\tstarted with pid :\t\t', pid);
     services.push({
       pid,
       user: serviceDef.user,
     });
-  }));
+  }
 }
 
 async function killServices(signal: string) {

@@ -1,7 +1,6 @@
 import {repository} from '@loopback/repository';
-import {client} from '../../../system';
+import {client} from '../../../../internal/system';
 import {ContainerRepository} from '../repositories';
-
 
 export
   class SystemService {
