@@ -1,5 +1,0 @@
-nxtcore ALL=(nxtsrv-nginx, nxtsrv-docker, nxtsrv-proxies, nxtsrv-api, nxtsrv-dashboard, nxtsrv-dnsmasq, nxtsrv-system) NOPASSWD:ALL
-
-nxtsrv-dnsmasq ALL=(root) NOPASSWD: /sbin/service dnsmasq start, /sbin/service dnsmasq restart
-
-nxtsrv-nginx ALL=(root) NOPASSWD: /sbin/service nginx start, /sbin/service nginx reload, /sbin/nginx -t, /sbin/service nginx restart, /sbin/service nginx stop, /sbin/nginx -s reload, /sbin/nginx -s reopen

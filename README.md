@@ -17,7 +17,7 @@ List of system compatible
 
 - Required dependencies
 ```sh
-sudo apt install -y nginx dnsmasq docker-compose mongodb # For ubuntu
+sudo apt install -y nginx nginx-extras dnsmasq docker-compose mongodb # For ubuntu
 ```
 - Setup project
 ```sh
@@ -29,6 +29,15 @@ cd ./cli && npm install && npm run build
 sudo npm install -g .
 # Install project dependencies and config files
 sudo nxtranet install
+# Set services executable perms
+sudo mv ../config/sudoers/nxtsrv /etc/sudoers.d
+sudo chown root:root /etc/sudoers.d/nxtsrv
+```
+
+## Start
+```sh
+sudo nxtranet run dev # Will run nxtranet in development mode
+sudo nxtranet run prod # Will run nxtranet in production mode
 ```
 
 ## Project structure

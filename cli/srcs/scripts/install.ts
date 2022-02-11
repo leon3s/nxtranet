@@ -152,6 +152,7 @@ async function chmodForGroup(filepath: string) {
   await execa('sudo', [
     'chmod',
     '770',
+    '-R',
     filepath,
   ]);
 }
@@ -179,6 +180,7 @@ async function installService(service: ServiceDef) {
   await createUserIfnotExist(service.user, service.path);
   await addUserToSysGroup(service.user);
   await chownService(service);
+  await chmodForGroup(service.path);
   try {
     await installNodeDeps(service);
   } catch (err: any) {
@@ -226,6 +228,8 @@ async function initCoreUserAndGroup() {
   await createSysGroupIfNotExist();
   await createUserIfnotExist(coreUser, installDir);
   await addUserToSysGroup(coreUser);
+  await chownForGroup(installDir);
+  await chmodForGroup(installDir);
 }
 
 async function configureSystem() {
