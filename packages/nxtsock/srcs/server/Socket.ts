@@ -12,8 +12,8 @@ export default class Socket {
     this.socket = socket;
   }
 
-  on = <T>(eventName: string, callback: NxtsocketEvent.Callback<T>) => {
-    this.socket.on(eventName, (payload?: {}, res?: NxtsocketEvent.ResponseCallback) => {
+  on = <P = undefined, R = void>(eventName: string, callback: NxtsocketEvent.Callback<P, R>) => {
+    this.socket.on(eventName, (payload?: P, res?: NxtsocketEvent.ResponseCallback) => {
       if (!payload) return printEventError(eventName);
       if (!res) return printEventError(eventName);
       const ret = callback(payload);
@@ -21,9 +21,13 @@ export default class Socket {
         ret.then((response) => {
           res(null, response);
         }).catch((err) => {
-          res(err);
+          res(err, undefined);
         })
       }
     });
+  }
+
+  onDisconnect = (callback = (): void => { }) => {
+    this.socket.on('disconnect', callback);
   }
 }

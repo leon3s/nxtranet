@@ -10,7 +10,11 @@ export default class Server {
 
   onNewClient = (callback: (socket: Socket) => void) => {
     this.io.on('connect', (socket) => {
-      callback(new Socket(socket));
+      let socketHook: Socket | null = new Socket(socket);
+      socket.on('disconnect', () => {
+        socketHook = null;
+      });
+      callback(socketHook);
     });
   }
 }

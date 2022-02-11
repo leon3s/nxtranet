@@ -48,8 +48,9 @@ export function getNxtranetBuild(inpath = installDir): NxtConfig {
 /** Read services directory to get user path and name of the service */
 export async function getServiceDef(dir: string): Promise<ServiceDef[]> {
   const dirnames = fs.readdirSync(dir);
-  return Promise.all((dirnames.map(async (dirname) => {
+  const res = await Promise.all((dirnames.map(async (dirname) => {
     const spath = path.join(dir, dirname);
+    if (!fs.lstatSync(spath).isDirectory()) return null;
     const nxthatdev_pjContent = fs.readFileSync(path.join(spath, '.nxtsrv')).toString();
     const pkg: Pkgjson = JSON.parse(fs.readFileSync(path.join(spath, 'package.json')).toString());
     return {
@@ -59,6 +60,9 @@ export async function getServiceDef(dir: string): Promise<ServiceDef[]> {
       name: pkg.name.split('/').pop(),
     };
   })));
+  const ret = res.filter((d) => !!d);
+  console.log(ret);
+  return ret;
 }
 
 /** Read Services for all servicesDirectories inside .nxt config file */

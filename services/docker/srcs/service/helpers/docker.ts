@@ -1,3 +1,4 @@
+import {ModelCluster, ModelContainer} from '@nxtranet/headers';
 import crypto from 'crypto';
 import type {Container} from 'dockerode';
 import Docker from 'dockerode';
@@ -82,17 +83,9 @@ const _createContainer = (opts: ContainerOpts): Promise<Container> => {
   })
 }
 
-export const createContainer = async (cluster, branch): Promise<{
+export const createContainer = async (cluster: ModelCluster, branch: string): Promise<{
   containerInstance: Container,
-  containerApi: {
-    namespace: string;
-    name: string;
-    appPort: number;
-    dockerID: string;
-    deployerPort: number;
-    projectName: string;
-    clusterNamespace: string;
-  }
+  containerApi: Partial<ModelContainer>,
 }> => {
   const genID = crypto.randomBytes(4).toString('hex').toLowerCase();
   const name = `${branch}-${genID}`;
@@ -112,7 +105,6 @@ export const createContainer = async (cluster, branch): Promise<{
       namespace,
       deployerPort,
       dockerID: container.id,
-      projectName: cluster.projectName,
       clusterNamespace: cluster.namespace,
     }
   });

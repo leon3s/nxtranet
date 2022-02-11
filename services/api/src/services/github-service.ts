@@ -46,10 +46,6 @@ export class GithubService {
       auth,
     });
     await Promise.all(branches.map(async ({name, commit}) => {
-      console.log({
-        name,
-        commit,
-      });
       const item = await this.githubBranchRepository.findOne({
         where: {
           name,

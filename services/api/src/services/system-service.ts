@@ -1,39 +1,29 @@
 import {repository} from '@loopback/repository';
-import {SystemDisk} from '@nxtranet/headers';
-import type {NetworkInterfaceInfo} from 'os';
-import io, {Socket} from 'socket.io-client';
+import {client} from '../../../system';
 import {ContainerRepository} from '../repositories';
 
-const socket: Socket = io('http://localhost:9877');
 
 export
   class SystemService {
 
-  protected _socket: Socket = socket;
+  _client: typeof client = client;
 
   constructor(
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
   ) { }
 
-  getDiskInfo = () => new Promise<SystemDisk[]>((resolve, reject) => {
-    this._socket.emit('/disk/info', (err: Error, diskInfos: SystemDisk[]) => {
-      if (err) return reject(err);
-      return resolve(diskInfos);
-    });
-  });
+  connect = () => {
+    this._client.connect();
+  }
 
-  getNetworkInterfaces = () => new Promise<Record<string, NetworkInterfaceInfo[]>>((resolve, reject) => {
-    this._socket.emit('/os/network/interfaces', (err: Error, networks: Record<string, NetworkInterfaceInfo[]>) => {
-      if (err) return reject(err);
-      return resolve(networks);
-    })
-  });
+  disconnect = () => {
+    this._client.disconnect();
+  }
 
-  getUptime = () => new Promise<number>((resolve, reject) => {
-    this._socket.emit('/os/uptime', (err: Error, uptime: number) => {
-      if (err) return reject(err);
-      return resolve(uptime);
-    })
-  })
+  getDiskInfo = () => this._client.diskInfo();
+
+  getNetworkInterfaces = () => this._client.osNetworkInterfaces();
+
+  getUptime = () => this._client.osUptime();
 }

@@ -1,5 +1,5 @@
-import io from 'socket.io-client';
 import type {Socket} from 'socket.io-client';
+import io from 'socket.io-client';
 
 export default class Client {
   socket: Socket;
@@ -8,8 +8,8 @@ export default class Client {
     this.socket = io(opts);
   }
 
-  send = <T>(eventName: string, payload?: {}) => new Promise<T>((resolve, reject) => {
-    this.socket.emit(eventName, payload || {}, (err: Error, response: T) => {
+  send = <P, R>(eventName: string, payload?: P) => new Promise<R>((resolve, reject) => {
+    this.socket.emit(eventName, payload || {}, (err: Error, response: R) => {
       if (err) return reject(err)
       return resolve(response);
     });

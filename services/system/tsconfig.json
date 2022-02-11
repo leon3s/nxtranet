@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
@@ -23,9 +24,10 @@
   "exclude": [
     "tmp",
     "dist",
-    "test",
-    "dp_service",
-    "node_modules",
-    "test_dp_service"
+    "tests",
+    "node_modules"
+  ],
+  "include": [
+    "srcs"
   ]
 }

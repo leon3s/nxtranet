@@ -1,4 +1,5 @@
-import type { ModelPipeline } from "./model.pipeline";
+import type {ModelContainer} from './model.container';
+import type {ModelPipeline} from "./model.pipeline";
 
 export enum PipelineStatusEnum {
   STARTING = 'starting',
@@ -9,8 +10,11 @@ export enum PipelineStatusEnum {
 
 export type ModelPipelineStatus = {
   id: string;
-  pipeline: ModelPipeline;
+  creationDate?: Date;
   value: PipelineStatusEnum;
+  error?: string;
   pipelineNamespace: string;
+  pipeline?: ModelPipeline;
   containerNamespace: string;
+  container?: ModelContainer;
 }

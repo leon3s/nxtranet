@@ -2,8 +2,7 @@ import type {NginxAccessLog, NginxSiteAvailable} from '@nxtranet/headers';
 import fs from 'fs';
 import mustache from 'mustache';
 import path from 'path';
-import type {Socket} from 'socket.io-client';
-import {io} from 'socket.io-client';
+import {client} from '../../../nginx';
 
 export type NginxProdConfig = {
   domain: string;
@@ -28,14 +27,20 @@ const templateDevPath = path.join(
   '../../../../config/nginx/template.single.conf',
 )
 
-const socket = io('http://localhost:3211');
-
 export
   class NginxService {
-  private _socket: Socket = socket;
+  _client: typeof client = client;
 
   constructor(
   ) { }
+
+  disconnect = () => {
+    this._client.disconnect();
+  }
+
+  connect = () => {
+    this._client.connect();
+  }
 
   formatCacheName(name: string) {
     return `cache_${name}`;
@@ -96,6 +101,7 @@ upstream ${upstream} {
     const render = mustache.render(d, {
       ports,
       domain,
+      host: process.env.NXTRANET_HOST,
       upstream: this.formatUpstreamName(projectName),
       cache_name: this.formatCacheName(projectName),
     });
@@ -103,108 +109,56 @@ upstream ${upstream} {
   }
 
   getSitesAvailable = (): Promise<NginxSiteAvailable[]> => {
-    return new Promise<NginxSiteAvailable[]>((resolve, reject) => {
-      this._socket.emit('/sites-available',
-        (err: Error, data: NginxSiteAvailable[]) => {
-          if (err) return reject(err);
-          return resolve(data);
-        });
-    });
+    return this._client.sitesAvailable();
   }
 
   writeSiteAvailable = (filename: string, content: string): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      this._socket.emit('/sites-available/write', {
-        filename,
-        content,
-      }, (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      })
-    })
+    return this._client.sitesAvailableWrite({
+      filename,
+      content
+    });
   }
 
   readSiteAvailable = (filename: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      this._socket.emit('/sites-available/read', filename, (err: Error, content: string) => {
-        if (err) return reject(err);
-        return resolve(content);
-      });
+    return this._client.sitesAvailableRead({
+      filename
     });
   }
 
   siteAvailableExists = (filename: string): Promise<boolean> => {
-    return new Promise<boolean>((resolve, reject) => {
-      this._socket.emit('/sites-available/exists', filename, (err: Error, exists: boolean) => {
-        if (err) return reject(err);
-        return resolve(exists);
-      });
+    return this._client.sitesAvailableExists({
+      filename,
     });
   }
 
   siteEnabledExists = (filename: string): Promise<boolean> => {
-    return new Promise<boolean>((resolve, reject) => {
-      this._socket.emit('/sites-enabled/exists', filename, (err: Error, exists: boolean) => {
-        if (err) return reject(err);
-        return resolve(exists);
-      });
+    return this._client.sitesEnableExists({
+      filename,
     });
   }
 
   deploySiteAvailable = (filename: string): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      this._socket.emit('/sites-available/deploy', filename, (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      });
+    return this._client.sitesAvailableDeploy({
+      filename,
     });
   }
 
-  monitorAccessLog = (callback = (err: Error | null, log: NginxAccessLog) => { }) => {
-    this._socket.on('/monitor/access-log/error', callback);
-    this._socket.on('/monitor/access-log/new', (log: NginxAccessLog) => {
-      callback(null, log);
-    });
-    this._socket.emit('/monitor/access-log');
+  monitorAccessLog = (callback: (err: Error | null, log: NginxAccessLog) => {}) => {
+    this._client.watchAccessLog(callback);
+    this._client.monitorAccessLog();
   }
 
-  testConfig = (): Promise<{stderr: string, stdout: string}> => {
-    return new Promise<{stderr: string, stdout: string}>((resolve, reject) => {
-      this._socket.emit('/test', (err: Error, res: {stderr: string, stdout: string}) => {
-        if (err) return reject(err);
-        return resolve(res);
-      });
-    });
-  }
-
-  restartService = (): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      this._socket.emit('/restart', (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      });
-    });
+  testConfig = (): Promise<string> => {
+    return this._client.test();
   }
 
   clearSite = async (filename: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      this._socket.emit('/sites/clear', filename, (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      });
+    return this._client.sitesDelete({
+      filename,
     });
   }
 
   reloadService = (): Promise<void> => {
-    return new Promise<void>((resolve, reject) => {
-      this._socket.emit('/reload', (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      })
-    });
-  }
-
-  disconnect = () => {
-    this._socket.disconnect();
+    return this._client.reload();
   }
 }

@@ -1,16 +1,11 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {HttpErrors, param, post, Request, requestBody, RestBindings} from '@loopback/rest';
-import {DockerServiceBindings, GithubServiceBindings, ProjectServiceBindings, ProxiesServiceBindings} from '../keys';
+import {DockerServiceBindings, GithubServiceBindings, ProjectServiceBindings} from '../keys';
 import {ClusterRepository, ContainerRepository, GitBranchRepository, ProjectRepository} from '../repositories';
 import {DockerService} from '../services/docker-service';
 import {GithubService} from '../services/github-service';
 import ProjectService from '../services/project-service';
-import {ProxiesService} from '../services/proxies-service';
-
-const ActionMap = {
-
-}
 
 export class WebhooksController {
   constructor(
@@ -20,8 +15,6 @@ export class WebhooksController {
     protected dockerService: DockerService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE)
     protected projectService: ProjectService,
-    @inject(ProxiesServiceBindings.PROXIES_SERVICE)
-    protected proxiesService: ProxiesService,
     @repository(ClusterRepository)
     protected clusterRepository: ClusterRepository,
     @repository(ProjectRepository)
@@ -101,9 +94,7 @@ export class WebhooksController {
           isGeneratedDeploy: true,
           lastCommit: payload.pull_request.head.sha,
         });
-      })).then(() => {
-        return this.proxiesService.updateDomains();
-      }).catch((err) => {
+      })).catch((err) => {
         console.error('Error while deployed new pull request ', payload, err);
       });
     }

@@ -1,6 +1,6 @@
 export type ModelPipelineCmd = {
   id: string;
-  namespace: string;
+  creationDate?: Date;
   pipelineNamespace: string;
   name: string;
   args: string[];

@@ -8,7 +8,6 @@ import {GithubService} from './services/github-service';
 import {PasswordHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
-import {ProxiesService} from './services/proxies-service';
 import {SystemService} from './services/system-service';
 import {WebsocketService} from './websocket';
 
@@ -54,14 +53,8 @@ export namespace DockerServiceBindings {
   )
 }
 
-export namespace ProxiesServiceBindings {
-  export const PROXIES_SERVICE = BindingKey.create<ProxiesService>(
-    'services.subdomain',
-  )
-}
-
 export namespace TokenServiceConstants {
-  export const TOKEN_SECRET_VALUE = 'mys3cr3t';
+  export const TOKEN_SECRET_VALUE = process.env.TOKEN_SECRET_VALUE || 'mys3cr3t';
   export const TOKEN_EXPIRES_IN_VALUE = '99999';
 }
 

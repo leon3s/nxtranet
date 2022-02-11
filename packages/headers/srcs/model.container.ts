@@ -1,18 +1,24 @@
-import type { ModelCluster } from './model.cluster';
-import type { ModelPipelineStatus } from './model.pipelineStatus';
-import type { ModelContainerOutput } from './model.containerOutput';
+import type {ModelCluster} from './model.cluster';
+import type {ModelContainerOutput} from './model.containerOutput';
+import type {ModelContainerState} from './model.containerState';
+import type {ModelPipelineStatus} from './model.pipelineStatus';
 
-export type         ModelContainer = {
-  id:               string;
-  name:             string;
-  appPort:          number;
-  dockerID:         string;
-  namespace:        string;
-  deployerPort:     number;
+export type ModelContainer = {
+  id: string;
+  namespace: string;
+  creationDate?: Date;
+  dockerID: string;
+  appPort: number;
+  deployerPort: number;
+  projectName: string;
+  name: string;
+  gitBranchName: string;
+  commitSHA: string;
+  isProduction?: boolean;
+  isGeneratedDeploy?: boolean;
+  outputs: ModelContainerOutput[];
   clusterNamespace: string;
-  gitBranchName:    string;
-  commitSHA:        string;
-  cluster:          ModelCluster;
-  pipelineStatus:   ModelPipelineStatus;
-  outputs:          ModelContainerOutput[];
+  cluster?: ModelCluster;
+  pipelineStatus: ModelPipelineStatus;
+  state: ModelContainerState;
 };

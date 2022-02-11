@@ -49,7 +49,8 @@ export default class DeployerService {
       socket.on('/start', (callback = () => { }) => {
         const cache = readProjectCache();
         if (!cache) {
-          const err = new Error('No cache found considere deploy instead of restart.');
+          const err = new Error();
+          err.message = 'No cache found considere deploy instead of restart.';
           return callback(err);
         }
         this.deployer.lastCommand = cache.cmd;

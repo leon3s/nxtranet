@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es5",
+    "target": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
     "allowJs": true,
     "skipLibCheck": true,
@@ -21,7 +22,12 @@
     }
   },
   "exclude": [
+    "tmp",
     "dist",
-    "node_modules",
+    "tests",
+    "node_modules"
+  ],
+  "include": [
+    "srcs"
   ]
 }

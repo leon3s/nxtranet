@@ -1,12 +1,15 @@
-export type           ModelContainerOutput = {
-  id:                 string;
-  exe:                string;
-  args:               string[];
-  isFirst:            boolean;
-  isLast:             boolean;
-  stdout?:            string;
-  stderr?:            string;
-  exitCode?:          number;
-  signal?:            string;
-  signalDescription:  string;
+export type ModelContainerOutput = {
+  id: string;
+  creationDate?: Date;
+  containerNamespace: string;
+  exe: string;
+  cwd: string;
+  isFirst: boolean;
+  isLast: boolean;
+  signal?: string;
+  signalDescription?: string;
+  exitCode?: number;
+  args: string[];
+  stdout?: string;
+  stderr?: string;
 }

@@ -3,38 +3,26 @@ import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {PipelineStatusEnum} from '@nxtranet/headers';
 import axios from 'axios';
-import type {Socket} from 'socket.io-client';
-import {io} from 'socket.io-client';
+import {client} from '../../../docker';
 import {WebSockerServiceBindings} from '../keys';
-import {Cluster, Container} from '../models';
+import {Container} from '../models';
 import {ClusterRepository, ContainerRepository} from '../repositories';
 import {ContainerOutputRepository} from '../repositories/container-output.repository';
 import {PipelineStatusRepository} from '../repositories/pipeline-status.repository';
 import {WebsocketService} from '../websocket';
 
-export type DockerContainerInfo = {
-  Id: string,
-  Created: number,
-  State: {
-    Status: 'exited' | 'running';
-    Running: boolean;
-    Paused: boolean;
-    Restarting: boolean;
-    OOMKilled: false;
-    Dead: boolean;
-    Pid: number;
-    ExitCode: number;
-    Error: string;
-    StartedAt: Date;
-    FinishedAt: Date;
-  },
+type ClusterDeployArgs = {
+  namespace: string,
+  commitSHA: string,
+  branch: string,
+  isProduction: boolean,
+  isGeneratedDeploy: boolean
 }
-
-const socket = io('http://localhost:1243');
 
 export
   class DockerService {
-  private _socket: Socket = socket;
+
+  _client: typeof client = client;
 
   constructor(
     @inject(WebSockerServiceBindings.WEBSOCKET_SERVICE)
@@ -49,54 +37,22 @@ export
     protected pipelineStatusRepository: PipelineStatusRepository,
   ) { }
 
-  private _serviceEmitDeploy = (cluster: Cluster, branch: string): Promise<Container> =>
-    new Promise((resolve, reject) => {
-      this._socket.emit('/cluster/deploy', cluster, branch,
-        (err: Error, container: Container) => {
-          if (err) return reject(err);
-          console.log(container);
-          return resolve(container);
-        });
-    });
-
-  private _serviceEmitRemove = (container: Container) => new Promise<void>((resolve, reject) => {
-    this._socket.emit('/cluster/remove', container, (err: Error) => {
-      if (err) return reject(err);
-      return resolve();
-    });
-  });
-
-  disconnect = () => {
-    this._socket.disconnect();
+  connect = () => {
+    this._client.connect();
   }
 
-  private _emitStart = (container: Container) => {
-    return new Promise<void>((resolve, reject) => {
-      this._socket.emit('/containers/start', container, (err: Error) => {
-        if (err) return reject(err);
-        return resolve();
-      });
-    });
+  disconnect = () => {
+    this._client.disconnect();
   }
 
   startContainer = async (container: Container) => {
-    await this._emitStart(container);
+    await this._client.containersStart(container);
     this.clusterContainerStatus(container);
     await this.whenContainerReady(container);
   }
 
-  getContainersInfo = (): Promise<DockerContainerInfo[]> => {
-    return new Promise((resolve, reject) => {
-      this._socket.emit('/containers/info', (err: Error, containers: DockerContainerInfo[]) => {
-        console.log({err, containers});
-        if (err) return reject(err);
-        resolve(containers);
-      });
-    });
-  }
-
   syncContainers = async () => {
-    const containersInfo = await this.getContainersInfo();
+    const containersInfo = await this._client.containersInfo();
     await Promise.all(containersInfo.map(async (containerInfo) => {
       console.log(containerInfo);
       const container = await this.containerRepository.findOne({
@@ -108,17 +64,18 @@ export
       if (!container) {
         console.error('container isnt existing in database considere remove it! ', containerInfo);
       } else {
+        const state = containerInfo.State as any;
         if (!container.state) {
-          await this.containerRepository.state(container.namespace).create(containerInfo.State);
+          await this.containerRepository.state(container.namespace).create(state);
         } else {
-          await this.containerRepository.state(container.namespace).patch(containerInfo.State);
+          await this.containerRepository.state(container.namespace).patch(state);
         }
       }
     }));
   }
 
   clusterContainerRemove = async (container: Container) => {
-    await this._serviceEmitRemove(container);
+    await this._client.containersRemove(container);
     await this.containerRepository.state(container.namespace).delete();
     await this.containerRepository.outputs(container.namespace).delete();
     await this.containerRepository.pipelineStatus(container.namespace).delete();
@@ -126,12 +83,12 @@ export
   }
 
   attachContainer = async (container: Container) => {
-    this._socket.emit('/container/attach', container);
+    this._client.containersAttach(container);
     this.clusterContainerStatus(container);
   }
 
   clusterContainerStatus = async (container: Container) => {
-    this._socket.on(container.namespace, async (output) => {
+    this._client.watchContainersStatus(container, async (output) => {
       if (output.type === 'pipelineStatus') {
         output.payload.containerNamespace = container.namespace;
         await this.pipelineStatusRepository.createOrUpdate(output.payload);
@@ -178,9 +135,14 @@ export
     });
   }
 
-  clusterDeploy = async ({
-    namespace, branch, isProduction, isGeneratedDeploy, commitSHA
-  }: {namespace: string, commitSHA: string, branch: string, isProduction: boolean, isGeneratedDeploy: boolean}): Promise<Container> => {
+  clusterDeploy = async (args: ClusterDeployArgs): Promise<Container> => {
+    const {
+      namespace,
+      branch,
+      commitSHA,
+      isProduction,
+      isGeneratedDeploy,
+    } = args;
     const cluster = await this.clusterRepository.findOne({
       where: {
         namespace,
@@ -198,10 +160,14 @@ export
       }],
     });
     if (!cluster) throw new HttpErrors.NotFound('Cluster not found');
-    const partialContainer = await this._serviceEmitDeploy(cluster, branch);
+    const partialContainer = await this._client.clustersDeploy({
+      cluster,
+      branch
+    });
     partialContainer.commitSHA = commitSHA;
     partialContainer.gitBranchName = branch;
     partialContainer.isProduction = isProduction;
+    partialContainer.projectName = cluster.projectName;
     partialContainer.isGeneratedDeploy = isGeneratedDeploy;
     const container = await this.containerRepository.create(partialContainer);
     this.clusterContainerStatus(container);

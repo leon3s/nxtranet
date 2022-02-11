@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "es5",
+    "target": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
-    "strict": true,
-    "rootDir": "srcs",
+    "allowJs": true,
     "skipLibCheck": true,
-    "outDir": "dist",
+    "strict": false,
     "esModuleInterop": true,
+    "isolatedModules": true,
+    "rootDir": "srcs",
+    "outDir": "dist",
     "declaration": true,
     "paths": {
       "@nxtranet/service": [
@@ -19,14 +22,12 @@
     }
   },
   "exclude": [
+    "tmp",
     "dist",
     "tests",
-    "node_modules",
+    "node_modules"
   ],
-  "typedocOptions": {
-    "entryPoints": [
-      "srcs/index.ts"
-    ],
-    "out": "docs"
-  }
+  "include": [
+    "srcs"
+  ]
 }

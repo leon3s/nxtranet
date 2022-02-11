@@ -19,9 +19,7 @@ import {
   GithubServiceBindings,
   NginxServiceBindings,
   PasswordHasherBindings,
-  ProjectServiceBindings,
-  ProxiesServiceBindings,
-  SystemServiceBindings,
+  ProjectServiceBindings, SystemServiceBindings,
   TokenServiceBindings,
   TokenServiceConstants,
   UserServiceBindings
@@ -35,7 +33,6 @@ import {GithubService} from './services/github-service';
 import {BcryptHasher} from './services/hash.password-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
-import {ProxiesService} from './services/proxies-service';
 import {SystemService} from './services/system-service';
 import {MyUserService} from './services/user-service';
 
@@ -104,9 +101,6 @@ export class NextranetApi extends BootMixin(
 
     this.bind(DockerServiceBindings.DOCKER_SERVICE)
       .toClass(DockerService);
-
-    this.bind(ProxiesServiceBindings.PROXIES_SERVICE)
-      .toClass(ProxiesService);
 
     this.bind(ProjectServiceBindings.PROJECT_SERVICE)
       .toClass(ProjectService);

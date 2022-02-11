@@ -7,7 +7,12 @@
     "outDir": "dist",
     "esModuleInterop": true,
     "declaration": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@nxtranet/nxtsock": [
+        "../../packages/nxtsock"
+      ]
+    }
   },
   "exclude": [
     "dist",

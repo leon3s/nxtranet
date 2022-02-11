@@ -1,12 +1,11 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProxiesServiceBindings, SystemServiceBindings} from '../keys';
+import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SystemServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
-import {ProxiesService} from './proxies-service';
 import {SystemService} from './system-service';
 
 type DeployPayload = {
@@ -31,8 +30,6 @@ export default
     protected nginxAccessLogRepository: NginxAccessLogRepository,
     @inject(SystemServiceBindings.SYSTEM_SERVICE)
     protected systemService: SystemService,
-    @inject(ProxiesServiceBindings.PROXIES_SERVICE)
-    protected proxiesService: ProxiesService,
     @inject(DockerServiceBindings.DOCKER_SERVICE)
     protected dockerService: DockerService,
     @inject(NginxServiceBindings.NGINX_SERVICE)
@@ -51,10 +48,8 @@ export default
       await this.nginxAccessLogRepository.create(log);
     });
     await this.dockerService.syncContainers();
-    await this.proxiesService.updateDomains();
     const projects = await this.projectRepository.find();
-    await Promise.all(projects.map((project) =>
-      this.githubService.syncProjectBranch(project)));
+    await Promise.all(projects.map(this.githubService.syncProjectBranch));
     const containers = await this.containerRepository.find({
       include: [
         {
@@ -63,7 +58,8 @@ export default
       ]
     });
     await Promise.all(containers.map(async (container) => {
-      if (container.state.Running) {
+      console.log(container)
+      if (container?.state?.Running) {
         await this.dockerService.attachContainer(container);
       } else {
         await this.dockerService.startContainer(container);
@@ -95,8 +91,6 @@ export default
       branch: branchName,
       namespace: cluster.namespace,
     });
-    console.log('docker hook');
-    console.error('docker hook');
     const clusterProd = await this.clusterProductionRepository.findOne({
       where: {
         projectName: cluster.projectName,

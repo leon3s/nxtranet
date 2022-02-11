@@ -2,6 +2,6 @@ export type ModelClusterProduction = {
   id: string;
   domain: string;
   numberOfInstances: number;
-  clusterNamespace: string;
+  clusterNamespace?: string;
   projectName: string;
 }

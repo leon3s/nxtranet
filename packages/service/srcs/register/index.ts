@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const runPath = '/etc/nxtranet/run';
+const runPath = '/var/run/nxtranet/services';
 
 export function ensureRunDir() {
   if (!fs.existsSync(runPath))

@@ -1,10 +1,11 @@
-import { ModelPipelineCmd } from "./model.pipelineCmd";
+import {ModelPipelineCmd} from "./model.pipelineCmd";
 
 export type ModelPipeline = {
-  projectName: string;
-  namespace:	string;
-  color:	string;
-  name:	string;
   id: string;
-  commands: ModelPipelineCmd[];
+  creationDate?: Date;
+  projectName: string;
+  namespace: string;
+  color: string;
+  name: string;
+  commands?: ModelPipelineCmd[];
 }

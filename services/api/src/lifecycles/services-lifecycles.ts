@@ -2,14 +2,18 @@ import {
   inject
 } from '@loopback/context';
 import {ValueOrPromise} from '@loopback/core';
-import {repository} from '@loopback/repository';
-import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, ProjectServiceBindings, ProxiesServiceBindings} from '../keys';
-import {ProjectRepository} from '../repositories';
+import {
+  DnsmasqServiceBindings,
+  DockerServiceBindings,
+  NginxServiceBindings,
+  ProjectServiceBindings,
+  SystemServiceBindings
+} from '../keys';
+import {DnsmasqService} from '../services/dnsmasq-service';
 import {DockerService} from '../services/docker-service';
-import {GithubService} from '../services/github-service';
 import {NginxService} from '../services/nginx-service';
 import ProjectService from '../services/project-service';
-import {ProxiesService} from '../services/proxies-service';
+import {SystemService} from '../services/system-service';
 
 export interface LifeCycleObserver {
   init?(...injectedArgs: unknown[]): ValueOrPromise<void>;
@@ -17,28 +21,35 @@ export interface LifeCycleObserver {
 }
 
 export default class ServiceLifecycle implements LifeCycleObserver {
+  async init(
+    @inject(NginxServiceBindings.NGINX_SERVICE) nginxService: NginxService,
+    @inject(SystemServiceBindings.SYSTEM_SERVICE) systemService: SystemService,
+    @inject(DockerServiceBindings.DOCKER_SERVICE) dockerService: DockerService,
+    @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE) dnsmasqServcice: DnsmasqService,
+  ) {
+    nginxService.connect();
+    systemService.connect();
+    dockerService.connect();
+    dnsmasqServcice.connect();
+  }
+
   async start(
-    @repository(ProjectRepository) projectRepository: ProjectRepository,
-    @inject(ProxiesServiceBindings.PROXIES_SERVICE) subdomainService: ProxiesService,
-    @inject(GithubServiceBindings.GITHUB_SERVICE) githubService: GithubService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE) projectService: ProjectService,
   ) {
     projectService.boot().catch((err) => {
       console.error('project service boot error ', err);
     });
-    // const projects = await projectRepository.find();
-    // await Promise.all(projects.map((project) => {
-    //   return githubService.syncProjectBranch(project);
-    // }));
   }
 
   async stop(
     @inject(NginxServiceBindings.NGINX_SERVICE) nginxService: NginxService,
+    @inject(SystemServiceBindings.SYSTEM_SERVICE) systemService: SystemService,
     @inject(DockerServiceBindings.DOCKER_SERVICE) dockerService: DockerService,
-    @inject(ProxiesServiceBindings.PROXIES_SERVICE) subdomainService: ProxiesService,
+    @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE) dnsmasqServcice: DnsmasqService,
   ) {
     nginxService.disconnect();
+    systemService.disconnect();
     dockerService.disconnect();
-    subdomainService.disconnect();
+    dnsmasqServcice.disconnect();
   }
 }

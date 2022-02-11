@@ -36,7 +36,6 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     if (tab === 'containers') {
       try {
         await store.dispatch(projectActions.getContainers(name, subTab1));
-
       } catch (e) {
         console.error(e);
       }

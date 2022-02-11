@@ -12,15 +12,14 @@ describe('Nxtsock tests', () => {
 
   it('should create an event /hello', () => {
     server.onNewClient((socket) => {
-      socket.on<string>('/hello', async (payload) => {
-        console.log(payload);
+      socket.on<any, string>('/hello', async (payload) => {
         return "hi";
       });
     });
   });
 
   it('should receive hi from server', async () => {
-    const response = await client.send<string>('/hello');
+    const response = await client.send<void, string>('/hello');
     expect(response).toBe("hi");
   });
 

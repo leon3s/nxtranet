@@ -1,14 +1,20 @@
-import type { ModelEnvVar } from './model.envVar';
-import type { ModelProject } from './model.project';
-import type { ModelContainer } from './model.container'
+import type {ModelClusterProduction} from './model.clusterProduction';
+import type {ModelContainer} from './model.container';
+import type {ModelEnvVar} from './model.envVar';
+import type {ModelGitbranche} from './model.gitBranche';
+import type {ModelProject} from './model.project';
 
-export type               ModelCluster = {
-  id:                     string;
-  name:                   string;
-  namespace:              string;
-  projectName:            string;
-  environementNamespace:  string;
-  project:                ModelProject;
-  envVars:                ModelEnvVar[];
-  containers:             ModelContainer[];
+export type ModelCluster = {
+  id: string;
+  creationDate: Date;
+  namespace: string;
+  isProduction?: boolean;
+  projectName: string;
+  project?: ModelProject;
+  containers: ModelContainer[];
+  name: string;
+  envVars: ModelEnvVar[];
+  gitBranchNamespace: string;
+  gitBranch?: ModelGitbranche;
+  production: ModelClusterProduction;
 };

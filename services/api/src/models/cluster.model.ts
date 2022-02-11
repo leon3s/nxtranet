@@ -33,7 +33,7 @@ export class Cluster extends Entity {
     type: 'Date',
     defaultFn: 'now',
   })
-  creationDate?: Date;
+  creationDate: Date;
 
   @property({
     type: 'string',

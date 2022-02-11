@@ -1,4 +1,9 @@
 {
   "user": "nxtsrv-dnsmasq",
-  "watchDirectories": ["./srcs"]
+  "watchDirectories": [
+    "./srcs"
+  ],
+  "filePermissions": [
+    "/etc/dnsmasq.d"
+  ]
 }

@@ -13,8 +13,7 @@ import {
   DnsmasqServiceBindings,
   DockerServiceBindings,
   NginxServiceBindings,
-  ProjectServiceBindings,
-  ProxiesServiceBindings
+  ProjectServiceBindings
 } from '../keys';
 import {
   ClusterProduction, Project
@@ -27,14 +26,11 @@ import {DnsmasqService} from '../services/dnsmasq-service';
 import {DockerService} from '../services/docker-service';
 import {NginxService} from '../services/nginx-service';
 import ProjectService from '../services/project-service';
-import {ProxiesService} from '../services/proxies-service';
 
 export class ProjectClusterProductionController {
   constructor(
     @repository(ClusterProductionRepository)
     protected clusterProductionRepository: ClusterProductionRepository,
-    @inject(ProxiesServiceBindings.PROXIES_SERVICE)
-    protected proxiesService: ProxiesService,
     @inject(NginxServiceBindings.NGINX_SERVICE)
     protected nginxService: NginxService,
     @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE)
@@ -125,7 +121,6 @@ export class ProjectClusterProductionController {
       });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
-      await this.proxiesService.updateDomains();
     }
     background().then(() => {
       console.log('success');
@@ -178,7 +173,6 @@ export class ProjectClusterProductionController {
       });
       await this.dnsmasqService.configSync();
       await this.dnsmasqService.restartService();
-      await this.proxiesService.updateDomains();
     }
     background().then(() => {
       console.log('path project cluster production success');

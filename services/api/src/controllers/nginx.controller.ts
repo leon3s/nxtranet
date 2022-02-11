@@ -45,9 +45,7 @@ export class NginxController {
     }
   })
   async testConfig() {
-    const result = await this.nginxService.testConfig();
-    console.log(result);
-    return `${result.stdout}${result.stderr}`;
+    return this.nginxService.testConfig();
   }
 
   @get('/nginx/sites-avaible', {

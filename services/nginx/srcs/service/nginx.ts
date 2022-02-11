@@ -23,7 +23,6 @@ export const getSitesAvailable = (): NginxSiteAvailable[] => {
 
 const protectTraversing = (basePath: string, wantedPath: string) => {
   const p = path.resolve(path.join(basePath, wantedPath));
-  console.log(p);
   if (!p.includes(basePath)) {
     throw new Error('Error trying to write ouside of autorized directory.');
   }
@@ -47,9 +46,7 @@ export const siteAvailableExists = (filename: string) => {
 
 export const siteEnabledExists = (filename: string) => {
   const p = protectTraversing(siteEnabledPath, filename);
-  console.log('site enabled exists !');
   const r = fs.existsSync(p);
-  console.log(r);
   return r;
 }
 
@@ -71,10 +68,11 @@ export const reloadService = async () => {
   });
 }
 
-export const testConfig = () => {
-  return execa('sudo', ['nginx', '-t'], {
+export const testConfig = async () => {
+  const res = await execa('sudo', ['nginx', '-t'], {
     cwd: __dirname,
   });
+  return res.stderr;
 }
 
 export const deployConfig = (filename: string) => {
@@ -101,13 +99,17 @@ export const convertLogLine = (line: string): NginxAccessLog => {
   }
 }
 
-export const clearSite = (filename: string): Promise<void> => {
+export const deleteSite = (filename: string): Promise<void> => {
   const available = protectTraversing(siteAvailablePath, filename);
   const enabled = protectTraversing(siteEnabledPath, filename);
   return new Promise((resolve, reject) => {
     try {
-      fs.rmSync(enabled);
-      fs.rmSync(available);
+      if (fs.existsSync(enabled)) {
+        fs.rmSync(enabled);
+      }
+      if (fs.existsSync(available)) {
+        fs.rmSync(available);
+      }
       resolve();
     } catch (e) {
       reject(e);
