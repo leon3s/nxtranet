@@ -55,6 +55,6 @@ else
   print_pass
 fi
 
-echo "Go to ./cli folder and do npm run build and npm install -g ."
+echo "Go to ./cli folder and do npm install then npm run build and npm install -g ."
 echo "Then run sudo install -g . to install nxtranet cli"
 echo "Then run sudo nxtranet install to install and setup project"

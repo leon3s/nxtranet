@@ -232,8 +232,8 @@ async function configureSystem() {
 
 async function configureNxtServices() {
   const nxtconfig = await getBuildConfig();
-  await installPackages(nxtconfig.packages);
   await chownPackagesDirectories(nxtconfig);
+  await installPackages(nxtconfig.packages);
   await installServices(nxtconfig.services);
   await setServicesFilePerms(nxtconfig.services);
 }

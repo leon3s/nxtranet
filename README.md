@@ -24,6 +24,11 @@ sudo apt install -y nginx dnsmasq docker-compose mongodb # For ubuntu
 git clone https://github.com/leon3s/nxtranet
 cd nxtranet
 bash node_install.bash # If you don't have nodejs 16.x installed
+# Install cli
+cd ./cli && npm install && npm run build
+sudo npm install -g .
+# Install project dependencies and config files
+sudo nxtranet install
 ```
 
 ## Project structure
