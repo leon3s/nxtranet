@@ -148,6 +148,14 @@ async function installPackages(packages: PackageDef[]) {
   }))
 }
 
+async function chmodForGroup(filepath: string) {
+  await execa('sudo', [
+    'chmod',
+    '770',
+    filepath,
+  ]);
+}
+
 async function initLogsDir() {
   await execa('sudo', [
     'mkdir',
@@ -155,11 +163,7 @@ async function initLogsDir() {
     logsDir,
   ]);
   await chownForCoreUser(logsDir);
-  await execa('sudo', [
-    'chmod',
-    '770',
-    logsDir
-  ]);
+  await chmodForGroup(logsDir);
 }
 
 async function chownForGroup(pth: string) {
@@ -190,8 +194,9 @@ async function installServices(services: ServiceDef[]) {
 }
 
 async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
-  return Promise.all(nxtconfig.packagesDirectories.map((packageDirectory) => {
+  return Promise.all(nxtconfig.packagesDirectories.map(async (packageDirectory) => {
     const ppath = path.join(nxtconfig.path, packageDirectory);
+    await chmodForGroup(ppath);
     return chownForGroup(ppath);
   }));
 }
