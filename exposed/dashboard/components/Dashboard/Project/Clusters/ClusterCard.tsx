@@ -2,11 +2,10 @@ import type {ModelCluster, ModelContainer, ModelEnvVar} from '@nxtranet/headers'
 import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
 import Accordion from '~/components/Shared/Accordion';
-import ActionBar from '~/components/Shared/ActionBar';
+import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ClusterContainer from '~/components/Shared/ClusterContainer';
 import EnvVar from '~/components/Shared/EnvVar';
 import * as AccordionStyle from '~/styles/accordionLine';
-import {ActionWrapper} from '../style';
 import * as Style from './style';
 
 type CusterCardProps = {

@@ -52,6 +52,22 @@ export class ProjectController {
     project.github_webhook = `/webhooks/github/${project.name}`;
     project.github_webhook_secret = `nxtwh_${crypto.randomBytes(6).toString('hex')}`;
     const projectDB = await this.projectRepository.create(project);
+    try {
+      await this.githubService.getProjectBranch({
+        projectName: project.name,
+        username: project.github_username,
+        password: project.github_password,
+      });
+    } catch (e) {
+      const err = new HttpErrors.UnprocessableEntity('github username or password incorrect unable to sync branches.');
+      err.details = {
+        messages: {},
+      };
+      err.details.messages.github_username = ['unable to sync branch with these credential'];
+      err.details.messages.github_password = ['unable to sync branch with these credential'];
+      await this.projectRepository.deleteById(projectDB.id);
+      throw err;
+    }
     await this.githubService.syncProjectBranch(projectDB);
     return projectDB;
   }

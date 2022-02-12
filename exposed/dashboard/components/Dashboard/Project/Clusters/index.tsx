@@ -8,7 +8,7 @@ import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import ActionBar from '~/components/Shared/ActionBar';
+import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import Modal from '~/components/Shared/Modal';
 import ModalConfirm from '~/components/Shared/ModalConfirm';
 import Reform from '~/components/Shared/ReForm';
@@ -16,7 +16,6 @@ import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import {ModalTitle} from '~/styles/text';
 import type {Dispatch} from '~/utils/redux';
-import {ActionWrapper} from '../style';
 import ClusterCard from './ClusterCard';
 import * as Style from './style';
 
@@ -150,7 +149,8 @@ class Clusters extends
           acc[errorKey] = messages[errorKey] as string;
           return acc;
         }, {}),
-      })
+      });
+      throw e;
     }
   }
 
@@ -225,7 +225,6 @@ class Clusters extends
         this.closeModalEditEnvVar();
       }, 200);
     } catch (e: any) {
-      console.dir(e);
       let envVarFormErrors: Record<string, string> = {};
       if (e.response.status === 422) {
         const {
@@ -240,11 +239,11 @@ class Clusters extends
       if (e.response.status === 409) {
         envVarFormErrors[e.response.data.error.name] = e.response.data.error.message;
       }
-      console.log('set state !', data, envVarFormErrors);
       this.setState({
         envVarToEdit: dataCpy,
         envVarFormErrors,
       });
+      throw e;
     }
   }
 

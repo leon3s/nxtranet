@@ -38,6 +38,7 @@ class Production extends
   state: ProductionState = {
     clusterProdData: this.props.clusterProduction || {
       domain: '',
+      host: '127.0.0.1',
       numberOfInstances: 1,
     }
   };
@@ -50,7 +51,7 @@ class Production extends
     } else {
       await this.props.createClusterProduction(projectName, clusterProduction);
     }
-    const clusterName = clusterProduction.clusterNamespace.split('.').pop();
+    const clusterName = clusterProduction?.clusterNamespace?.split('.').pop();
     this.props.router.push(`/dashboard/projects/${projectName}/clusters/${clusterName}`);
   }
 
@@ -68,6 +69,7 @@ class Production extends
             schema={[
               {title: 'Domain', key: 'domain', type: 'String'},
               {title: 'Number of instances', key: 'numberOfInstances', type: 'Number'},
+              {title: 'Host', key: 'host', type: 'String'},
               {
                 title: 'Target cluster',
                 key: 'clusterNamespace',

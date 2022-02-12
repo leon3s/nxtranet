@@ -17,6 +17,12 @@ export class ClusterProduction extends Entity {
   domain: string;
 
   @property({
+    type: 'string',
+    required: true,
+  })
+  host: string;
+
+  @property({
     type: 'number',
     required: true,
   })

@@ -4,17 +4,17 @@ import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import ActionBar from '~/components/Shared/ActionBar';
+import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import {Dispatch} from '~/utils/redux';
-import {ActionWrapper} from '../style';
 import ContainerCard from './ContainerCard';
 import * as Style from './style';
 
 const mapStateToProps = (
   state: State,
 ) => ({
+  project: state.project.target,
   containers: state.project.target_containers,
 });
 
@@ -54,6 +54,7 @@ class Containers extends
 
   componentDidUpdate(prevProps: ContainersProps) {
     if (prevProps.containerName && !this.props.containerName) {
+      console.log('container name removed');
       this.offContainerStatus();
     } else if (!prevProps.containerName && this.props.containerName) {
       this.onContainerStatus();
@@ -100,10 +101,15 @@ class Containers extends
     const {
       containers,
       projectName,
+      project,
       containerName,
     } = this.props;
     const {
     } = this.state;
+    console.log('container name ', {
+      containerName,
+    })
+    if (!project) return null;
     return (
       <React.Fragment>
         <Style.Container>
@@ -120,10 +126,11 @@ class Containers extends
             {containers.map((container) => (
               <ContainerCard
                 data={container}
-                key={container.id}
+                project={project}
+                key={`${container.id}-${projectName}`}
                 projectName={projectName}
                 onClick={this.onClickCard}
-                isVisible={containerName === container.name}
+                isVisible={containerName && (container.name === containerName) || false}
               />
             ))}
           </Style.ContainersContainer>

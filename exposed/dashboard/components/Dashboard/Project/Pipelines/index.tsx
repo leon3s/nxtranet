@@ -4,13 +4,12 @@ import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import ActionBar from '~/components/Shared/ActionBar';
+import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import Modal from '~/components/Shared/Modal';
 import Reform from '~/components/Shared/ReForm';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import type {Dispatch} from '~/utils/redux';
-import {ActionWrapper} from '../style';
 import PipelineCard from './PipelineCard';
 import * as Style from './style';
 

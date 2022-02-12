@@ -34,16 +34,25 @@ export class GithubService {
     });
   }
 
+  getProjectBranch = async (opts: {username: string, password: string, projectName: string}) => {
+    const {username, password, projectName} = opts;
+    const {data: branches} = await this.request.get<{name: string, commit: {sha: string}}[]>(
+      `/repos/${username}/${projectName}/branches`, {
+      auth: {
+        username,
+        password,
+      },
+    });
+    return branches;
+  }
+
   syncProjectBranch = async (
     project: Project,
   ): Promise<void> => {
-    const auth = {
+    const branches = await this.getProjectBranch({
+      projectName: project.name,
       username: project.github_username,
       password: project.github_password,
-    }
-    const {data: branches} = await this.request.get<{name: string, commit: {sha: string}}[]>(
-      `/repos/${auth.username}/${project.github_project}/branches`, {
-      auth,
     });
     await Promise.all(branches.map(async ({name, commit}) => {
       const item = await this.githubBranchRepository.findOne({

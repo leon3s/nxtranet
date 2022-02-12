@@ -1,42 +1,57 @@
 // External libs
+// Types
+import type {ModelProject} from '@nxtranet/headers';
+import {NextRouter, withRouter} from 'next/router';
 import React from 'react';
-import Link from 'next/link';
-
+import {AiOutlinePlus} from 'react-icons/ai';
+import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
+import FooterDefault from '~/components/Shared/FooterDefault';
 // Local components
 import Modal from '~/components/Shared/Modal';
 import Reform from '~/components/Shared/ReForm';
-import FooterDefault from '~/components/Shared/FooterDefault';
-
-// Types
-import type {ModelProject} from '@nxtranet/headers';
-
-// Local Style
-import * as StyleLink from '~/styles/link';
-import * as ProjectStyle from '~/styles/project';
-import { ContainerWrapper } from '~/styles/global';
-import * as HeaderSearchStyle from '~/styles/headerSearch';
-
+import {ContainerWrapper} from '~/styles/global';
+import ProjectCard from './ProjectCard';
 import * as Style from './style';
 
-type              ProjectsProps = {
-  data:           ModelProject[];
-  onSubmitForm:   (data: ModelProject) => void | Promise<void>;
+type ProjectsProps = {
+  data: ModelProject[];
+  router: NextRouter;
+  onSubmitForm: (data: ModelProject) => void | Promise<void>;
 }
 
-type              ProjectsState = {
+type ProjectsState = {
   isModalCreateOpen: boolean;
+  createProjectFormErrors: Record<string, string>;
 }
 
-export default class Projects
+class Projects
   extends React.PureComponent<ProjectsProps, ProjectsState> {
 
   state: ProjectsState = {
     isModalCreateOpen: false,
+    createProjectFormErrors: {},
   }
 
   onSubmit = async (data: ModelProject) => {
-    await this.props.onSubmitForm(data);
-    this.closeModalCreate();
+    try {
+      await this.props.onSubmitForm(data);
+      this.closeModalCreate();
+
+    } catch (e: any) {
+      console.dir(e);
+      if (e.response.status !== 422) return;
+      const {
+        messages,
+      } = e.response.data.error.details;
+      const errorKeys = Object.keys(messages);
+      this.setState({
+        createProjectFormErrors: errorKeys.reduce((acc: Record<string, string>, errorKey: string) => {
+          acc[errorKey] = messages[errorKey] as string;
+          return acc;
+        }, {}),
+      });
+      throw e;
+    }
   }
 
   onOpenModalCreate = () => {
@@ -51,11 +66,16 @@ export default class Projects
     })
   }
 
+  onClickProject = (data: ModelProject) => {
+    this.props.router.push(`/dashboard/projects/${data.name}`);
+  }
+
   render() {
     const {
       data,
     } = this.props;
     const {
+      createProjectFormErrors,
       isModalCreateOpen,
     } = this.state;
     return (
@@ -71,6 +91,7 @@ export default class Projects
                 {title: 'Github Username', key: 'github_username', type: 'String'},
                 {title: 'Github Password', key: 'github_password', type: 'String'},
               ]}
+              errors={createProjectFormErrors}
               onSubmit={this.onSubmit}
               onCancel={this.closeModalCreate}
               isButtonCancelEnabled={true}
@@ -80,32 +101,25 @@ export default class Projects
         </Modal>
         <ContainerWrapper>
           <Style.Container>
-            <HeaderSearchStyle.Header>
-              <HeaderSearchStyle.SearchBar
-                placeholder="Search.."
-              />
-              <HeaderSearchStyle.CreateButton onClick={this.onOpenModalCreate}>
-                Create
-              </HeaderSearchStyle.CreateButton>
-            </HeaderSearchStyle.Header>
-            <Style.ProjectsWrap>
+            <ActionWrapper>
+              <ActionBar actions={[
+                {
+                  title: 'Create',
+                  icon: () => <AiOutlinePlus size={12} />,
+                  fn: this.onOpenModalCreate,
+                }
+              ]} />
+            </ActionWrapper>
+            <Style.ProjectsContainer>
               {data.map((project) => (
-                <ProjectStyle.Line
+                <ProjectCard
                   key={project.id}
-                >
-                  <ProjectStyle.Title>
-                    {project.name}
-                  </ProjectStyle.Title>
-                  <Link
-                    href={`/dashboard/projects/${project.name}`}
-                  >
-                    <StyleLink.A>
-                      Show
-                    </StyleLink.A>
-                  </Link>
-                </ProjectStyle.Line>
+                  data={project}
+                  isVisible={false}
+                  onClick={this.onClickProject}
+                />
               ))}
-            </Style.ProjectsWrap>
+            </Style.ProjectsContainer>
           </Style.Container>
           <FooterDefault />
         </ContainerWrapper>
@@ -114,3 +128,5 @@ export default class Projects
   }
 
 }
+
+export default withRouter(Projects);

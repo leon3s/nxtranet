@@ -1,4 +1,4 @@
-import type {ModelContainer} from '@nxtranet/headers';
+import type {ModelContainer, ModelProject} from '@nxtranet/headers';
 import Link from 'next/link';
 import React from 'react';
 import Accordion from '~/components/Shared/Accordion';
@@ -12,6 +12,7 @@ import * as Style from './style';
 type ContainerCardProps = {
   projectName: string;
   data: ModelContainer;
+  project: ModelProject;
   isVisible?: boolean;
   onClick: (data: ModelContainer) => void;
 }
@@ -19,15 +20,17 @@ type ContainerCardProps = {
 export default function ContainerCard(props: ContainerCardProps) {
   const {
     data,
+    project,
     isVisible,
     projectName,
   } = props;
   function onClick() {
     props.onClick(data);
   }
-  console.log({
-    data,
+  console.log('container card props', {
+    props,
   })
+  const domain = project?.clusterProduction?.domain || process.env.NXTRANET_DOMAIN;
   return (
     <AccordionStyle.AccordionContainer>
       <Accordion
@@ -36,7 +39,7 @@ export default function ContainerCard(props: ContainerCardProps) {
         title={
           <Style.AccordionHeader>
             <AccordionStyle.AccordionTitle>
-              {data.cluster.name} - {data.name}
+              {data.name} ({data?.cluster?.name})
             </AccordionStyle.AccordionTitle>
             <PipelineBadge
               status={data?.pipelineStatus?.value || 'STARTING'}
@@ -47,30 +50,37 @@ export default function ContainerCard(props: ContainerCardProps) {
         content={
           <AccordionStyle.AccordionContent>
             <Style.AccordionContent>
+
               <Style.ContainerLine>
                 <Style.ContainerTitle>
-                  namespace
+                  name
                 </Style.ContainerTitle>
-                <Style.ContainerValueLink
-                  target="_blank"
-                  href={`http://${data.namespace}.nextra.net`}
+                <Link
+                  passHref
+                  href={`http://${data.name}.${domain}`}
                 >
-                  {data.namespace}
-                </Style.ContainerValueLink>
+                  <Style.ContainerValueLink
+                    target="_blank"
+                  >
+                    {data.name}
+                  </Style.ContainerValueLink>
+                </Link>
               </Style.ContainerLine>
+
               <Style.ContainerLine>
                 <Style.ContainerTitle>
                   cluster
                 </Style.ContainerTitle>
                 <Link
                   passHref
-                  href={`/dashboard/projects/${projectName}/clusters/${data.cluster.name}`}
+                  href={`/dashboard/projects/${projectName}/clusters/${data?.cluster?.name}`}
                 >
                   <Style.ContainerValueLink>
                     {data.clusterNamespace}
                   </Style.ContainerValueLink>
                 </Link>
               </Style.ContainerLine>
+
               <Style.ContainerLine>
                 <Style.ContainerTitle>
                   Port
@@ -79,6 +89,7 @@ export default function ContainerCard(props: ContainerCardProps) {
                   {data.appPort}
                 </Style.ContainerValue>
               </Style.ContainerLine>
+
               <Style.ContainerOutputWrapper
                 className="scroll-bar"
               >

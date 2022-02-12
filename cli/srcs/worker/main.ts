@@ -9,6 +9,8 @@ import {ensureUser} from '../lib/system';
 
 const pidPath = path.join(runDir, 'nxtranet.pid');
 
+let exitAsked = false;
+
 const services: {
   pid: number;
   user: string;
@@ -91,13 +93,17 @@ prepare().then(() => {
 });
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT');
-  await killServices('SIGINT');
-  process.exit(0);
+  if (!exitAsked) {
+    exitAsked = true;
+    await killServices('SIGINT');
+    process.exit(0);
+  }
 });
 
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM');
-  await killServices('SIGTERM');
-  process.exit(0);
+  if (!exitAsked) {
+    exitAsked = true;
+    await killServices('SIGTERM');
+    process.exit(0);
+  }
 });

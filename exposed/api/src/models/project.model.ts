@@ -38,21 +38,25 @@ export class Project extends Entity {
 
   @property({
     type: 'string',
+    required: true,
   })
   name: string;
 
   @property({
-    type: 'string'
+    type: 'string',
+    required: true,
   })
   github_project: string;
 
   @property({
-    type: 'string'
+    type: 'string',
+    required: true,
   })
   github_username: string;
 
   @property({
-    type: 'string'
+    type: 'string',
+    required: true,
   })
   github_password: string;
 
@@ -65,11 +69,6 @@ export class Project extends Entity {
     type: 'string'
   })
   github_webhook_secret: string;
-
-  @property({
-    type: 'string',
-  })
-  domain_name: string;
 
   @hasMany(() => Cluster, {
     keyFrom: 'name',

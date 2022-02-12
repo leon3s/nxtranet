@@ -7,6 +7,7 @@ import {client} from '../../../../internal/nginx';
 export type NginxProdConfig = {
   domain: string;
   ports: number[];
+  host: string;
   projectName: string;
   clusterName: string;
 }
@@ -94,6 +95,7 @@ upstream ${upstream} {
     const {
       ports,
       domain,
+      host,
       projectName,
       clusterName,
     } = config;
@@ -101,7 +103,7 @@ upstream ${upstream} {
     const render = mustache.render(d, {
       ports,
       domain,
-      host: process.env.NXTRANET_HOST,
+      host,
       upstream: this.formatUpstreamName(projectName),
       cache_name: this.formatCacheName(projectName),
     });

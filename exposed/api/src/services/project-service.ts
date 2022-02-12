@@ -182,6 +182,7 @@ export default
     const nginxConfig = {
       ports,
       domain: production.domain,
+      host: production.host,
       clusterName: cluster.name,
       projectName: cluster.projectName,
     };

@@ -35,7 +35,15 @@ export default function BarChar(props: BarCharProps) {
           data={props.data.sort((a: any, b: any) => b.count - a.count)}
           margin={{top: 0, right: 0, left: 0, bottom: 0}}
         >
-          <XAxis dataKey="_id" />
+          <XAxis
+            dataKey="_id"
+            tickSize={8}
+            tick={{
+              fontSize: 8
+            }}
+          >
+
+          </XAxis>
           <Bar dataKey="count" fill={props.color} />
           <Tooltip />
         </BarChart>

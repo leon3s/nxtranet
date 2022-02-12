@@ -1,5 +1,4 @@
 import Styled from 'styled-components';
-
 import * as GlobalStyle from '~/styles/global';
 
 export const Container = Styled(GlobalStyle.Container)`
@@ -9,11 +8,13 @@ export const Container = Styled(GlobalStyle.Container)`
   min-height: 100%;
   height: fit-content;
   flex-direction column;
-  margin-top: 28px;
 `;
 
-export const ProjectsWrap = Styled.div`
-  margin-top: 28px;
+export const ProjectsContainer = Styled.div`
+  margin-top: 8px;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
 `;
 
 export const ModalContent = Styled.div`

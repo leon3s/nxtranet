@@ -12,7 +12,6 @@ export type ModelProject = {
   github_password: string;
   github_webhook: string;
   github_webhook_secret: string;
-  domain_name: string;
   pipelines: ModelPipeline[];
   clusters: ModelCluster[];
   gitBranches: ModelGitbranche[];

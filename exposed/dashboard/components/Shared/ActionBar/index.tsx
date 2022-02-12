@@ -1,5 +1,5 @@
 import React from 'react';
-
+import Styled from 'styled-components';
 import * as Style from './style';
 
 type ActionBarAction = {
@@ -11,6 +11,12 @@ type ActionBarAction = {
 type ActionBarProps = {
   actions: ActionBarAction[]
 }
+
+export const ActionWrapper = Styled.div`
+${props => `
+  padding: ${props.theme.padding.light}px;
+  padding-bottom: 0px;
+`}`;
 
 export default (props: ActionBarProps) => (
   <Style.Container>

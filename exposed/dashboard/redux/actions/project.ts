@@ -35,7 +35,13 @@ export const getByName = createAction<[
   PROJECT_DEFINES.GET_BY_NAME,
   (name: string) =>
     ({ }, { }, api) => {
-      return api.get<ModelProject>(`/projects/${name}`);
+      return api.get<ModelProject>(`/projects/${name}`, {
+        params: {
+          filter: {
+            include: ['clusterProduction'],
+          }
+        }
+      });
     });
 
 export const getClusters = createAction<[

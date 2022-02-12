@@ -86,7 +86,6 @@ function isActive(tab: string | null, href: string): boolean {
 }
 
 export default function Project(props: ProjectProps) {
-  console.log('projects props ! ', props);
   const tab = (props.tab && tabMapping[props.tab](props)) || tabMapping.clusters(props);
   return (
     <ContainerWrapper>
