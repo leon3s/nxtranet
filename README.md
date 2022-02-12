@@ -34,6 +34,29 @@ sudo mv ../config/sudoers/nxtsrv /etc/sudoers.d
 sudo chown root:root /etc/sudoers.d/nxtsrv
 ```
 
+## Configuration
+- there is an example of configuration you can find in /etc/nxtranet/nxtranet.conf
+```
+nxtranet {
+  host 127.0.0.1; # On which host the domain name will be bind in nginx to access it.
+  domain nxtra.net; # The domain name you want
+}
+
+docker {
+  host 172.17.0.1; # On which host docker will bind containers
+}
+```
+- Once you edited the file considere running
+```sh
+sudo nxtranet configure # Update generated file with the new configuration
+```
+- Note if you had a running instance of nxtranet considere restarting it.
+
+## Stop
+```sh
+sudo nxtranet stop # Will stop nxtranet and all his services
+```
+
 ## Start
 ```sh
 sudo nxtranet run dev # Will run nxtranet in development mode

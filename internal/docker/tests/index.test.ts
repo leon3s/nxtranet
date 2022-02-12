@@ -1,4 +1,4 @@
-import type {ModelContainer} from '@nxtranet/headers';
+import type {ModelCluster, ModelContainer} from '@nxtranet/headers';
 import axios from 'axios';
 import {client, service} from '../srcs';
 import clusterPayload from './cluster.payload';
@@ -36,8 +36,12 @@ describe('Test service docker', () => {
   });
 
   it('It Should deploy a container with a project inside', async function () {
+    const cluster: ModelCluster = clusterPayload as any;
+    if (!cluster.project.github_password) {
+      console.warn('env variable GITHUB_PASSWORD is empty deploy may fail.');
+    }
     container = await client.clustersDeploy({
-      cluster: clusterPayload,
+      cluster,
       branch: 'development',
     });
     await isContainerAlive();

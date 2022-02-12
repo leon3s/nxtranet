@@ -22,7 +22,7 @@ export async function execaWsl(cmd: string, args: string[], options?: WlsOptions
 /** Verify if the script is run as root */
 export async function ensureRoot() {
   if (process.getuid() !== 0) {
-    console.log("Install commande have to be run as root");
+    process.stdout.write('must be run as root.\n');
     process.exit(0);
   }
 }

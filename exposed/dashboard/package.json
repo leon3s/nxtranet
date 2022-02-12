@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node ./server.js",
     "build": "next build",
+    "test": "exit 0",
     "start": "node ./server.js"
   },
   "dependencies": {

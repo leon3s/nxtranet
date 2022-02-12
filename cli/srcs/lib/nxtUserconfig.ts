@@ -60,6 +60,15 @@ function parseConfig(sConfig: string): NxtUserConfig {
   }
 }
 
+export function userConfigToEnv(userConfig: NxtUserConfig) {
+  return [
+    `NODE_ENV=${process.env.NODE_ENV || 'development'}`,
+    `NXTRANET_HOST=${userConfig.nxtranet.host}`,
+    `NXTRANET_DOMAIN=${userConfig.nxtranet.domain}`,
+    `NXTRANET_DOCKER_HOST=${userConfig.docker.host}`,
+  ];
+}
+
 export default function getUserConfig(): NxtUserConfig {
   const sConfig = fs.readFileSync(nxtranetUserConfFile, 'utf-8');
   return parseConfig(sConfig);

@@ -2,9 +2,9 @@ import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 import {Server} from 'socket.io';
-import type {NxtUserConfig, ServiceDef} from '../headers/nxtranetdev.h';
+import type {ServiceDef} from '../headers/nxtranetdev.h';
 import {getBuildConfig, runDir} from '../lib/nxtconfig';
-import getUserConfig from '../lib/nxtUserconfig';
+import getUserConfig, {userConfigToEnv} from '../lib/nxtUserconfig';
 import {ensureUser} from '../lib/system';
 
 const pidPath = path.join(runDir, 'nxtranet.pid');
@@ -13,15 +13,6 @@ const services: {
   pid: number;
   user: string;
 }[] = [];
-
-function generateEnv(userConfig: NxtUserConfig) {
-  return [
-    `NODE_ENV=${process.env.NODE_ENV}`,
-    `NXTRANET_HOST=${userConfig.nxtranet.host}`,
-    `NXTRANET_DOMAIN=${userConfig.nxtranet.domain}`,
-    `NXTRANET_DOCKER_HOST=${userConfig.docker.host}`,
-  ];
-}
 
 async function buildService(serviceDef: ServiceDef, envs: string[]) {
   await execa('sudo', [
@@ -86,7 +77,7 @@ async function prepare() {
   await ensureUser('nxtcore');
   const nxtconfig = await getBuildConfig();
   const userConfig = getUserConfig();
-  const envs = generateEnv(userConfig);
+  const envs = userConfigToEnv(userConfig);
   startServices(nxtconfig.services, envs);
 }
 

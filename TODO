@@ -6,7 +6,6 @@ Request monitoring de nginx
 
 production choose hosts
 
-ajouter server_names_hash_bucket_size 128; dans la config par default;
-
 delete project, update project
 
+Warn if project doesn't have pipeline

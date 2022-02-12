@@ -1,51 +1,30 @@
+/**
+ * Script to install and build packages and services
+ */
 import execa from 'execa';
 import fs from 'fs';
-import mustache from 'mustache';
 import path from 'path';
 import type {
   NxtGlobalConfig,
-  NxtUserConfig,
   PackageDef,
   ServiceDef
 } from '../headers/nxtranetdev.h';
+import {generateConfigFiles} from '../lib/config';
 import {
-  coreUser, dnsmasqDefault,
+  coreUser,
   getBuildConfig,
   installDir,
   logsDir,
-  nginxDefault,
-  nxtranetNginx,
   nxtranetUserconf,
   nxtranetUserConfDefault,
   nxtranetUserconfDir,
-  runDir, sysGroup
+  runDir,
+  sysGroup
 } from '../lib/nxtconfig';
-import getUserConfig from '../lib/nxtUserconfig';
-import {chownForCoreUser} from '../lib/system';
-
-function generateNginxNxtranet(nxtUserconf: NxtUserConfig) {
-  const template = fs.readFileSync(nxtranetNginx, 'utf-8');
-  const render = mustache.render(template, nxtUserconf);
-  fs.writeFileSync('/etc/nginx/sites-available/nxtranet', render);
-}
-
-function generateDnsmasqConf(nxtUserconf: NxtUserConfig) {
-  const template = fs.readFileSync(dnsmasqDefault, 'utf-8');
-  const render = mustache.render(template, nxtUserconf);
-  fs.writeFileSync('/etc/dnsmasq.conf', render);
-}
-
-async function configureDnsmasq(nxtUserconf: NxtUserConfig) {
-  generateDnsmasqConf(nxtUserconf);
-}
-
-async function configureNginx(nxtUserconf: NxtUserConfig) {
-  await execa('cp', [nginxDefault, '/etc/nginx/nginx.conf']);
-  generateNginxNxtranet(nxtUserconf);
-  if (!fs.existsSync(path.join('/etc/nginx/sites-enabled', 'nxtranet'))) {
-    await execa('ln', ['-s', '/etc/nginx/sites-available/nxtranet', '/etc/nginx/sites-enabled']);
-  }
-}
+import {
+  chownForCoreUser,
+  ensureRoot
+} from '../lib/system';
 
 function setServiceFilePerms(service: ServiceDef) {
   return Promise.all((service?.filePermissions || []).map((filePath) =>
@@ -128,6 +107,7 @@ async function installNodeDeps(service: ServiceDef) {
 
 async function installPackages(packages: PackageDef[]) {
   for (const pkg of packages) {
+    process.stdout.write(`Installing package : ${pkg.name}\n`);
     await execa('sudo', [
       '-u',
       coreUser,
@@ -191,7 +171,7 @@ async function installService(service: ServiceDef) {
 
 async function installServices(services: ServiceDef[]) {
   for (const s of services) {
-    console.log('Installing service : ', s.name);
+    process.stdout.write(`installing service : ${s.name}\n`);
     await installService(s);
   }
 }
@@ -234,13 +214,19 @@ async function initCoreUserAndGroup() {
 }
 
 async function configureSystem() {
+  process.stdout.write('Configuring system');
   await initCoreUserAndGroup();
+  process.stdout.write('.')
   await initNxtranetUserconfig();
+  process.stdout.write('.')
   await initNxtranetRunDir();
+  process.stdout.write('.')
   await initLogsDir();
+  process.stdout.write('.\n');
 }
 
-async function configureNxtServices() {
+async function installNxtranet() {
+  process.stdout.write('Installing nxtranet\n');
   const nxtconfig = await getBuildConfig();
   await chownPackagesDirectories(nxtconfig);
   await installPackages(nxtconfig.packages);
@@ -248,18 +234,11 @@ async function configureNxtServices() {
   await setServicesFilePerms(nxtconfig.services);
 }
 
-async function generateConfigFiles() {
-  const nxtUserconf = getUserConfig();
-  await configureNginx(nxtUserconf);
-  await configureDnsmasq(nxtUserconf);
-}
-
 export default async function install() {
-  if (process.getuid() !== 0) {
-    process.stdout.write("Install commande have to be run as root.\n");
-    process.exit(0);
-  }
+  ensureRoot();
   await configureSystem();
-  await configureNxtServices();
+  await installNxtranet();
+  process.stdout.write('Generating configuration files.\n');
   await generateConfigFiles();
+  process.stdout.write('Installation done.\n');
 }
