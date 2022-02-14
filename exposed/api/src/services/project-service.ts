@@ -1,7 +1,7 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SystemServiceBindings} from '../keys';
-import {Cluster, Container} from '../models';
+import {Cluster, Container, Project} from '../models';
 import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
@@ -222,5 +222,8 @@ export default
         lastCommit,
       });
     }));
+  }
+
+  removeProject = async (project: Project) => {
   }
 }

@@ -2,9 +2,9 @@
   "name": "@nxtranet/cli",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/main.js",
+  "main": "./dist/index.js",
   "bin": {
-    "nxtranet": "./dist/main.js"
+    "nxtranet": "./dist/index.js"
   },
   "scripts": {
     "start": "node .",

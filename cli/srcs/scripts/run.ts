@@ -1,11 +1,10 @@
 import execa from 'execa';
 import path from 'path';
 import {
-  getBuildConfig,
   runDir
 } from '../lib/nxtconfig';
 import {
-  ensureRoot, ensureRunDir, execaWsl
+  ensureRoot, ensureRunDir
 } from '../lib/system';
 
 export const dev = async () => {
@@ -16,23 +15,9 @@ export const dev = async () => {
     '-u',
     'nxtcore',
     'node',
-    path.join(__dirname, '../worker/main.js')], {
+    path.join(__dirname, '../deamon/index.js')], {
     stdio: ['ignore', process.stdout, process.stderr],
   });
-}
-
-/** This aim to fix hot reload when dashboard is started inside wsl */
-export async function winDev() {
-  const nxtConf = await getBuildConfig();
-  await Promise.all(nxtConf.services.map((service) =>
-    execaWsl('npm', [
-      'start'
-    ], {
-      windowTitle: service.pkg.name,
-      username: service.user,
-      cwd: service.path,
-    })
-  ));
 }
 
 export const prod = async () => {
@@ -43,7 +28,7 @@ export const prod = async () => {
     '-u',
     'nxtcore',
     'node',
-    path.join(__dirname, '../worker/main.js')], {
+    path.join(__dirname, '../deamon/index.js')], {
     detached: true,
     stdio: 'ignore',
   });

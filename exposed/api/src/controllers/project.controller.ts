@@ -12,14 +12,17 @@ import {
   getModelSchemaRef, HttpErrors, param, patch, post, requestBody
 } from '@loopback/rest';
 import crypto from 'crypto';
-import {GithubServiceBindings, WebSockerServiceBindings} from '../keys';
+import {GithubServiceBindings, ProjectServiceBindings, WebSockerServiceBindings} from '../keys';
 import {Project} from '../models';
 import {ProjectRepository} from '../repositories';
 import {GithubService} from '../services/github-service';
+import ProjectService from '../services/project-service';
 import {WebsocketService} from '../websocket';
 
 export class ProjectController {
   constructor(
+    @inject(ProjectServiceBindings.PROJECT_SERVICE)
+    protected projectService: ProjectService,
     @inject(GithubServiceBindings.GITHUB_SERVICE)
     protected githubService: GithubService,
     @inject(WebSockerServiceBindings.WEBSOCKET_SERVICE)
@@ -193,7 +196,8 @@ export class ProjectController {
       },
     });
     if (!projectDB) throw new HttpErrors.NotFound('Project not found');
-    await this.projectRepository.delete(projectDB);
+    await this.projectService.removeProject(projectDB);
+    // await this.projectRepository.delete(projectDB);
     return "Ok";
   }
 }

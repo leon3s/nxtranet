@@ -1,23 +1,8 @@
-import {execSync} from 'child_process';
 import execa from 'execa';
 import fs from 'fs';
 import {
   coreUser, sysGroup
 } from './nxtconfig';
-
-
-type WlsOptions = {
-  username?: string;
-  windowTitle?: string;
-} & execa.Options;
-
-/** Windows only */
-export async function execaWsl(cmd: string, args: string[], options?: WlsOptions) {
-  return execSync(`wt.exe -w 0 nt ${options?.windowTitle ? `--title ${options?.windowTitle} ` : ''}powershell.exe -NoExit -Command "& {"wsl -u ${options?.username} ${cmd} ${args.join(' ')}}"`, {
-    cwd: options?.cwd,
-    env: options?.env,
-  });
-}
 
 /** Verify if the script is run as root */
 export async function ensureRoot() {

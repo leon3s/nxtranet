@@ -82,7 +82,7 @@ export async function getPackageDef(dir: string): Promise<PackageDef[]> {
     const ppath = path.join(dir, dirname);
     const pkg: Pkgjson = JSON.parse(fs.readFileSync(path.join(ppath, 'package.json')).toString());
     return {
-      name: pkg.name,
+      name: pkg.name.split('/').pop() || '',
       path: ppath,
       pkg,
     }

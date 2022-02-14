@@ -1,7 +1,7 @@
 import {spawn} from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import {logsDir} from '../lib/nxtconfig';
+import {logsDir} from './nxtconfig';
 
 const [{ }, { }, name, sPath] = process.argv;
 

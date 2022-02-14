@@ -5,6 +5,7 @@ import {Server} from 'socket.io';
 import type {ServiceDef} from '../headers/nxtranetdev.h';
 import {getBuildConfig, runDir} from '../lib/nxtconfig';
 import getUserConfig, {userConfigToEnv} from '../lib/nxtUserconfig';
+import * as serviceHelper from '../lib/service';
 import {ensureUser} from '../lib/system';
 
 const pidPath = path.join(runDir, 'nxtranet.pid');
@@ -16,36 +17,6 @@ const services: {
   user: string;
 }[] = [];
 
-async function buildService(serviceDef: ServiceDef, envs: string[]) {
-  await execa('sudo', [
-    ...envs,
-    '-u',
-    serviceDef.user,
-    'npm',
-    'run',
-    'build',
-  ], {
-    stdio: ['ignore', 'ignore', process.stderr],
-    cwd: serviceDef.path,
-  });
-}
-
-async function startService(serviceDef: ServiceDef, envs: string[]) {
-  const runnerPath = path.join(__dirname, './runner');
-  const child = await execa('sudo', [
-    ...envs,
-    '-u',
-    serviceDef.user,
-    'node',
-    runnerPath,
-    serviceDef.name,
-    `${path.join(serviceDef.path, serviceDef.pkg.main)}`,
-  ], {
-    cwd: serviceDef.path,
-  });
-  return +child.stdout;
-}
-
 async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
   for (const serviceDef of serviceDefs) {
     if (!serviceDef.pkg.main) {
@@ -53,9 +24,9 @@ async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
       return;
     }
     if (process.env.NODE_ENV !== 'development' || !serviceDef.skipDevBuild) {
-      await buildService(serviceDef, envs);
+      await serviceHelper.build(serviceDef, envs);
     }
-    const pid = await startService(serviceDef, envs);
+    const pid = await serviceHelper.start(serviceDef, envs);
     console.log('Service :\t', serviceDef.name, '\t\tstarted with pid :\t\t', pid);
     services.push({
       pid,
