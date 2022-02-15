@@ -57,9 +57,6 @@ export class WebhooksController {
         scope: {
           include: ['gitBranch', {
             relation: 'production',
-            scope: {
-              include: ['ports'],
-            },
           }],
         },
       }],

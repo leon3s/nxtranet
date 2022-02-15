@@ -179,13 +179,13 @@ const fnPtrs: FN_PTRS = {
       target_pipelines: state.target_pipelines.map((pipeline) => {
         if (pipeline.namespace === action.payload.pipelineNamespace) {
           return {
-            ...pipeline,
-            commands: pipeline.commands.map((cmd) => {
+            ...(pipeline || {}),
+            commands: (pipeline?.commands?.map((cmd) => {
               if (cmd.id === action.payload.id) {
                 return action.payload;
               }
               return cmd;
-            }),
+            })) || [],
           }
         }
         return pipeline;

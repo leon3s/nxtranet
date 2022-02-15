@@ -37,15 +37,15 @@ RUN rm -r /tmp/node-v16.13.0-linux-x64
 
 # Install nxtranet
 WORKDIR /home/nxtranet
-RUN git clone https://github.com/leon3s/nxtranet
+RUN git clone https://github.com/leon3s/nxtranet nxtranet
 WORKDIR /home/nxtranet/nxtranet/cli
-RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
-RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
-RUN sudo cp ../config/dnsmasq/dnsmasq.docker.conf /etc/dnsmasq.conf
 RUN npm install
 RUN npm run build
 RUN sudo npm install -g .
 RUN sudo nxtranet install
+RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
+RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
+RUN sudo cp ../config/dnsmasq/dnsmasq.docker.conf /etc/dnsmasq.conf
 
 EXPOSE 80/tcp
 EXPOSE 53/udp
