@@ -27,6 +27,7 @@
     "arg": "^5.0.1",
     "execa": "^5.1.1",
     "mustache": "^4.2.0",
-    "socket.io": "^4.4.1"
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.4.1"
   }
 }

@@ -4,7 +4,14 @@ import * as packageHelper from '../lib/package';
 import * as serviceHelper from '../lib/service';
 import {ensureRoot} from '../lib/system';
 
-export async function buildService(projectName?: string) {
+type buildFunction = (name: string) => Promise<void>;
+
+enum BuildTypes {
+  SERVICE = 'service',
+  PACKAGE = 'package',
+}
+
+async function buildService(projectName?: string) {
   ensureRoot();
   const nxtconfig = await getBuildConfig();
   const nxtUserconfig = await getUserConfig();
@@ -20,7 +27,7 @@ export async function buildService(projectName?: string) {
   }
 }
 
-export async function buildPackage(packageName?: string) {
+async function buildPackage(packageName?: string) {
   ensureRoot();
   const nxtconfig = await getBuildConfig();
   const nxtUserconfig = await getUserConfig();
@@ -33,3 +40,25 @@ export async function buildPackage(packageName?: string) {
     await packageHelper.build(pkg, envs);
   }
 }
+
+const types: Record<string, buildFunction> = {
+  service: buildService,
+  package: buildPackage,
+}
+
+async function main() {
+  const [{ }, { }, type, name] = process.argv;
+  const fn = types[type];
+  if (!fn) {
+    console.error(`Build script argument ${type} invalid.`);
+    process.exit(1);
+  }
+  await fn(name);
+}
+
+main().then(() => {
+  process.exit(0);
+}).catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});

@@ -7,7 +7,7 @@ import {
   ensureRoot, ensureRunDir
 } from '../lib/system';
 
-export const dev = async () => {
+const dev = async () => {
   ensureRoot();
   ensureRunDir(runDir);
   await execa('sudo', [
@@ -20,7 +20,7 @@ export const dev = async () => {
   });
 }
 
-export const prod = async () => {
+const prod = async () => {
   ensureRoot();
   ensureRunDir(runDir);
   const res = execa('sudo', [
@@ -30,7 +30,23 @@ export const prod = async () => {
     'node',
     path.join(__dirname, '../deamon/index.js')], {
     detached: true,
-    stdio: 'ignore',
+    stdio: ['ignore', process.stdout, process.stderr],
   });
   res.unref();
 }
+
+async function main() {
+  const [{ }, { }, mod] = process.argv;
+  if (mod === 'dev') {
+    await dev();
+    process.exit(0);
+  }
+  await prod();
+}
+
+main().then(() => {
+  process.exit(0);
+}).catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});

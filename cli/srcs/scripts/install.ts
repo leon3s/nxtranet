@@ -234,7 +234,7 @@ async function installNxtranet() {
   await setServicesFilePerms(nxtconfig.services);
 }
 
-export default async function install() {
+async function install() {
   ensureRoot();
   await configureSystem();
   await installNxtranet();
@@ -242,3 +242,14 @@ export default async function install() {
   await generateConfigFiles();
   process.stdout.write('Installation done.\n');
 }
+
+async function main() {
+  await install();
+}
+
+main().then(() => {
+  process.exit(0);
+}).catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});
