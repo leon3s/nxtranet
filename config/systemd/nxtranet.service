@@ -1,0 +1,30 @@
+[Unit]
+Description=nxtranet deamon
+Documentation=https://github.com/leon3s/nxtranet
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=nxtcore
+Group=gp_nxtranet
+EnvironmentFile=-/etc/nxtranet
+ExecStart=/usr/bin/nxtranet run --attach
+PIDFile=/var/run/nxtranet/nxtranet.pid
+# file size
+LimitFSIZE=infinity
+# cpu time
+LimitCPU=infinity
+# virtual memory size
+LimitAS=infinity
+# open files
+LimitNOFILE=64000
+# processes/threads
+LimitNPROC=64000
+# locked memory
+LimitMEMLOCK=infinity
+# total threads (user+kernel)
+TasksMax=infinity
+TasksAccounting=false
+
+[Install]
+WantedBy=multi-user.target

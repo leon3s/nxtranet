@@ -20,9 +20,10 @@ const dev = async () => {
   });
 }
 
-const prod = async () => {
+const prod = async (isAttached?: boolean) => {
   ensureRoot();
   ensureRunDir(runDir);
+  const stdio: ['ignore'] | 'ignore' = isAttached ? ['ignore'] : 'ignore';
   const res = execa('sudo', [
     'NODE_ENV=production',
     '-u',
@@ -30,9 +31,10 @@ const prod = async () => {
     'node',
     path.join(__dirname, '../deamon/index.js')], {
     detached: true,
-    stdio: ['ignore', process.stdout, process.stderr],
+    stdio,
   });
-  res.unref();
+  if (!isAttached)
+    res.unref();
 }
 
 async function main() {
@@ -41,7 +43,8 @@ async function main() {
     await dev();
     process.exit(0);
   }
-  await prod();
+  const isAttached = mod === '--attach';
+  await prod(isAttached);
 }
 
 main().then(() => {
