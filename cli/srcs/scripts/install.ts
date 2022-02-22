@@ -125,7 +125,6 @@ async function installPackages(packages: PackageDef[]) {
     ], {
       cwd: pkg.path,
     });
-
   }
 }
 

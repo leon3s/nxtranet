@@ -15,6 +15,11 @@ async function printLog(serviceName: string) {
 
 async function main() {
   const [{ }, { }, serviceName] = process.argv;
+  if (!serviceName) {
+    const err = new Error('Service not defined');
+    err.message = `Service name is required\nUsage: nxtranet log {serviceName}`;
+    throw err;
+  }
   await printLog(serviceName);
 }
 
