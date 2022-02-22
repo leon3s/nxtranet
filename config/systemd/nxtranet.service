@@ -9,7 +9,7 @@ User=nxtcore
 Group=gp_nxtranet
 EnvironmentFile=-/etc/nxtranet
 ExecStart=/usr/bin/nxtranet run --attach
-PIDFile=/var/run/nxtranet/nxtranet.pid
+PIDFile=/var/run/nxtranet/nxtranet.service.pid
 # file size
 LimitFSIZE=infinity
 # cpu time

@@ -23,18 +23,26 @@ const dev = async () => {
 const prod = async (isAttached?: boolean) => {
   ensureRoot();
   ensureRunDir(runDir);
-  const stdio: ['ignore'] | 'ignore' = isAttached ? ['ignore'] : 'ignore';
+  if (isAttached) {
+    const res = await execa('sudo', [
+      'NODE_ENV=production',
+      '-u',
+      'nxtcore',
+      'node',
+      path.join(__dirname, '../deamon/index.js')], {
+      stdio: ['ignore'],
+    });
+    process.exit(0);
+  }
   const res = execa('sudo', [
     'NODE_ENV=production',
     '-u',
     'nxtcore',
     'node',
     path.join(__dirname, '../deamon/index.js')], {
-    detached: true,
-    stdio,
+    stdio: ['ignore'],
   });
-  if (!isAttached)
-    res.unref();
+  res.unref();
 }
 
 async function main() {
