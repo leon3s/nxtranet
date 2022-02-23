@@ -35,7 +35,7 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     try {
       await store.dispatch(projectActions.get());
     } catch (err: any) {
-      errorCode = err.response.status;
+      errorCode = err?.response?.status || 500;
     }
     return {
       props: {
@@ -46,12 +46,9 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
 )
 
 function ProjectsPage(props: ProjectsPageProps) {
+  const {errorCode} = props;
   async function createProject(data: ModelProject) {
     await props.createProject(data);
-  }
-
-  if (props.errorCode) {
-    return <Error statusCode={props.errorCode} />
   }
 
   return (
@@ -60,10 +57,12 @@ function ProjectsPage(props: ProjectsPageProps) {
         <title>Projects - Dashboard - Nextranet</title>
       </Head>
       <DashboardHeader />
-      <Projects
-        data={props.projects}
-        onSubmitForm={createProject}
-      />
+      {errorCode ?
+        <Error statusCode={errorCode} />
+        : <Projects
+          data={props.projects}
+          onSubmitForm={createProject}
+        />}
     </React.Fragment>
   )
 }
