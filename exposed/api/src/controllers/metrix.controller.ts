@@ -61,10 +61,12 @@ export class MetrixController {
     },
   })
   async nginxDomains() {
+    const clusterProds = await this.clusterProductionRepository.find();
+    const domains = clusterProds.map(({domain}) => domain);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const res = await nginxAccessLogCollection
       .aggregate()
-      .match({host: {$not: /.*nxtra.net/}})
+      .match({host: {$in: domains}})
       .group({
         _id: "$host",
         count: {$sum: 1}
