@@ -1,12 +1,13 @@
 import {repository} from '@loopback/repository';
 import {client} from '../../../../internal/dnsmasq/dist';
 import type {ClusterProduction, Container} from '../models';
-import {ClusterProductionRepository, ClusterRepository} from '../repositories';
+import {ClusterProductionRepository, ClusterRepository, ProjectRepository} from '../repositories';
 
 export class DnsmasqService {
   _client: typeof client = client;
 
   constructor(
+    @repository(ProjectRepository) protected projectRepository: ProjectRepository,
     @repository(ClusterProductionRepository)
     protected clusterProductionRepository: ClusterProductionRepository,
     @repository(ClusterRepository) protected clusterRepository: ClusterRepository,
@@ -29,14 +30,23 @@ export class DnsmasqService {
   }
 
   configSync = async () => {
-    const clusters = await this.clusterRepository.find({
-      include: ['production', 'containers'],
+    const projects = await this.projectRepository.find({
+      include: ['clusterProduction', {
+        relation: 'clusters',
+        scope: {
+          include: ['containers'],
+        }
+      }]
     });
-    const data = clusters.reduce((acc, cluster) => {
-      if (cluster.production) {
-        acc += `address=/${cluster.production.domain}/${cluster.production.host}\n`;
+    const data = projects.reduce((acc, project) => {
+      const {clusterProduction, clusters} = project;
+      if (clusterProduction) {
+        acc += `address=/${clusterProduction.domain}/${clusterProduction.host}\n`;
       }
-      acc += this.generateForContainers(cluster.containers || [], cluster.production);
+      acc += clusters.reduce((acc, cluster) => {
+        acc += this.generateForContainers(cluster.containers || [], clusterProduction);
+        return acc;
+      }, '');
       return acc;
     }, '')
     return this._client.configSync({
