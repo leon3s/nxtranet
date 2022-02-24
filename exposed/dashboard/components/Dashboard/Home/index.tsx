@@ -99,7 +99,7 @@ class Home extends
           </Style.CharWrapper>
           <Style.CharWrapper>
             <MetrixBarChart
-              title="Most responses status"
+              title="Global response status"
               data={metrixNginxStatus}
               color="#ff4d2f"
             />

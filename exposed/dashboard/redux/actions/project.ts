@@ -318,3 +318,21 @@ export const patchProject = createAction<[
       return api.patch(`/projects/${projectName}`, projectData);
     }
 )
+
+export const metrixDomainPath = createAction<[
+  string
+], State, AxiosResponse<any>>(
+  PROJECT_DEFINES.METRIX_DOMAIN_NAME_PATH,
+  (name) =>
+    ({ }, { }, api) => {
+      return api.get(`/metrix/nginx/domains/${name}/path`);
+    })
+
+export const metrixDomainStatus = createAction<[
+  string
+], State, AxiosResponse<any>>(
+  PROJECT_DEFINES.METRIX_DOMAIN_NAME_PATH,
+  (name) =>
+    ({ }, { }, api) => {
+      return api.get(`/metrix/nginx/domains/${name}/status`);
+    })

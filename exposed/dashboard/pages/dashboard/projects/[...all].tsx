@@ -46,6 +46,11 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     if (tab === 'production') {
       await store.dispatch(projectActions.getClusterProduction(name));
     }
+    if (tab === 'metrix') {
+      const domain = store.getState().project?.target?.clusterProduction?.domain;
+      if (domain)
+        await store.dispatch(projectActions.metrixDomainPath(domain));
+    }
     return {
       props: {
         tab: tab || null,

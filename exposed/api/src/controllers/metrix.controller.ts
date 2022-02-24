@@ -193,10 +193,10 @@ export class MetrixController {
         count: {$sum: 1}
       })
       .get();
-    return res.sort((a: any, b: any) => a.count - b.count);
+    return res.sort((a: any, b: any) => b.count - a.count);
   }
 
-  @get('/metrix/nginx/domains/{name}', {
+  @get('/metrix/nginx/domains/{name}/status', {
     responses: {
       '200': {
         description: 'Nginx average-response-time',
@@ -211,13 +211,20 @@ export class MetrixController {
       },
     },
   })
-  async domainName(
+  async domainNameStatus(
     @param.path.string('name') name: string,
   ) {
-    return await this.nginxAccessLogRepository.find({
-      where: {
+    const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
+    const res = await nginxAccessLogCollection
+      .aggregate()
+      .match({
         host: name,
-      }
-    });
+      })
+      .group({
+        _id: "$status",
+        count: {$sum: 1}
+      })
+      .get();
+    return res;
   }
 }

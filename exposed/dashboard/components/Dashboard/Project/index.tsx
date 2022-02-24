@@ -7,6 +7,7 @@ import * as NavStyle from '~/styles/nav';
 import * as ProjectStyle from '~/styles/project';
 import Clusters from './Clusters';
 import Containers from './Containers';
+import Metrix from './Metrix';
 import Pipelines from './Pipelines';
 import Production from './Production';
 import Settings from './Settings';
@@ -38,6 +39,10 @@ const navItems = [
   {
     title: 'Production',
     href: '/production',
+  },
+  {
+    title: 'Metrix',
+    href: '/metrix',
   }
 ];
 
@@ -72,6 +77,11 @@ const tabMapping: TabMapping = {
       projectName={props.data.name}
     />
   ),
+  metrix: (props) => (
+    <Metrix
+      projectName={props.data.name}
+    />
+  )
 }
 
 function generateUrl(name: string, href: string) {

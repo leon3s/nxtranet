@@ -10,6 +10,12 @@ ${props => `
   text-align: center;
 `}`;
 
+export const Title = Styled.p`
+  font-size: 16px;
+${props => `
+  color: ${props.theme.text.primary};
+`}`;
+
 export const Text = Styled.p`
   font-size: 12px;
 ${props => `
