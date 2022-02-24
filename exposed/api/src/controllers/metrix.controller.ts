@@ -93,12 +93,14 @@ export class MetrixController {
   async nginxStatus() {
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const res = await nginxAccessLogCollection
-      .aggregate([{
-        $group: {
-          _id: "$status",
-          count: {$sum: 1}
-        }
-      }]).get();
+      .aggregate()
+      .match({
+        status: {$exists: true},
+      })
+      .group({
+        _id: "$status",
+        count: {$sum: 1}
+      }).get();
     return res;
   }
 
