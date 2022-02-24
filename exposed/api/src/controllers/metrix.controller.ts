@@ -1,5 +1,5 @@
 import {repository} from '@loopback/repository';
-import {get} from '@loopback/rest';
+import {get, param} from '@loopback/rest';
 import {ClusterProductionRepository, ContainerRepository, NginxAccessLogRepository} from '../repositories';
 
 export class MetrixController {
@@ -162,5 +162,62 @@ export class MetrixController {
   async dockerContainersCount() {
     const {count} = await this.containerRepository.count();
     return count;
+  }
+
+  @get('/metrix/nginx/domains/{name}/path', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 1.5,
+            }
+          }
+        },
+      },
+    },
+  })
+  async domainNamePath(
+    @param.path.string('name') name: string,
+  ) {
+    const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
+    const res = await nginxAccessLogCollection
+      .aggregate()
+      .match({
+        host: name,
+      })
+      .group({
+        _id: "$path",
+        count: {$sum: 1}
+      })
+      .get();
+    return res;
+  }
+
+  @get('/metrix/nginx/domains/{name}', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 1.5,
+            }
+          }
+        },
+      },
+    },
+  })
+  async domainName(
+    @param.path.string('name') name: string,
+  ) {
+    return await this.nginxAccessLogRepository.find({
+      where: {
+        host: name,
+      }
+    });
   }
 }
