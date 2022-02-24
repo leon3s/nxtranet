@@ -193,7 +193,7 @@ export class MetrixController {
         count: {$sum: 1}
       })
       .get();
-    return res;
+    return res.sort((a: any, b: any) => a.count - b.count);
   }
 
   @get('/metrix/nginx/domains/{name}', {
