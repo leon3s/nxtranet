@@ -8,13 +8,16 @@ import {
   param, post,
   requestBody
 } from '@loopback/rest';
-import {ProjectServiceBindings} from '../keys';
+import {DnsmasqServiceBindings, ProjectServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterRepository, GitBranchRepository} from '../repositories';
+import {DnsmasqService} from '../services/dnsmasq-service';
 import ProjectService from '../services/project-service';
 
 export class ClusterController {
   constructor(
+    @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE)
+    protected dnsmasqService: DnsmasqService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE)
     protected projectService: ProjectService,
     @repository(ClusterRepository)
@@ -78,6 +81,8 @@ export class ClusterController {
       isGeneratedDeploy: false,
       isProduction: false,
     });
+    await this.dnsmasqService.configSync();
+    await this.dnsmasqService.restartService();
     return containers;
   }
 }

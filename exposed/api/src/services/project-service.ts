@@ -150,14 +150,8 @@ export default
   deployProd = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
     const {lastCommit} = opts;
     const {
-      namespace,
       production,
     } = cluster;
-    const containersToDelete = await this.containerRepository.find({
-      where: {
-        clusterNamespace: namespace,
-      }
-    });
     const minInstances = Array(production.numberOfInstances).fill(1);
     const containers = await Promise.all<Container>(minInstances.map(() =>
       this.dockerHookClusterDeploy(cluster, {
@@ -167,9 +161,6 @@ export default
         branchName: cluster?.gitBranch?.name || '',
       })
     ));
-    await Promise.all(containersToDelete.map(async (container) => {
-      return this.removeContainer(container);
-    }));
     return containers;
   }
 
@@ -198,10 +189,21 @@ export default
 
   deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
     if (cluster.production) { // deploy for production means real ip binding to serve the project.
-      const containers = await this.deployProd(cluster, opts);
-      this.deployBGProd(cluster, containers).catch((err) => {
-        console.error('deployDB Prod error ', err);
+      const containersToDelete = await this.containerRepository.find({
+        where: {
+          clusterNamespace: cluster.namespace,
+        }
       });
+      const containers = await this.deployProd(cluster, opts);
+      this.deployBGProd(cluster, containers)
+        .then(() => {
+          return Promise.all(containersToDelete.map(async (container) => {
+            return this.removeContainer(container);
+          }));
+        })
+        .catch((err) => {
+          console.error('deployDB Prod error ', err);
+        });
       return containers;
     } else { // Deploy for any others cases //
       const container = await this.deployDev(cluster, opts);
