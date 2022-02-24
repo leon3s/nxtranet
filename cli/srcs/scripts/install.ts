@@ -3,9 +3,7 @@
  */
 import execa from 'execa';
 import fs from 'fs';
-import path from 'path';
 import type {
-  NxtGlobalConfig,
   PackageDef,
   ServiceDef
 } from '../headers/nxtranetdev.h';
@@ -22,7 +20,11 @@ import {
   sysGroup
 } from '../lib/nxtconfig';
 import {
+  chmodForGroup,
   chownForCoreUser,
+  chownForGroup,
+  chownPackagesDirectories,
+  chownService,
   ensureRoot
 } from '../lib/system';
 
@@ -93,10 +95,6 @@ async function addUserToSysGroup(username: string) {
   }
 }
 
-async function chownService(service: ServiceDef) {
-  return execa('chown', ['-R', service.user, service.path]);
-}
-
 async function installNodeDeps(service: ServiceDef) {
   const child = execa('sudo', ['-u', service.user, 'npm', 'install'], {
     cwd: service.path,
@@ -128,15 +126,6 @@ async function installPackages(packages: PackageDef[]) {
   }
 }
 
-async function chmodForGroup(filepath: string) {
-  await execa('sudo', [
-    'chmod',
-    '770',
-    '-R',
-    filepath,
-  ]);
-}
-
 async function initLogsDir() {
   await execa('sudo', [
     'mkdir',
@@ -145,15 +134,6 @@ async function initLogsDir() {
   ]);
   await chownForCoreUser(logsDir);
   await chmodForGroup(logsDir);
-}
-
-async function chownForGroup(pth: string) {
-  await execa('sudo', [
-    'chown',
-    '-R',
-    `:${sysGroup}`,
-    pth,
-  ]);
 }
 
 async function installService(service: ServiceDef) {
@@ -173,14 +153,6 @@ async function installServices(services: ServiceDef[]) {
     process.stdout.write(`installing service : ${s.name}\n`);
     await installService(s);
   }
-}
-
-async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
-  return Promise.all(nxtconfig.packagesDirectories.map(async (packageDirectory) => {
-    const ppath = path.join(nxtconfig.path, packageDirectory);
-    await chmodForGroup(ppath);
-    return chownForGroup(ppath);
-  }));
 }
 
 async function initNxtranetRunDir() {

@@ -1,5 +1,7 @@
 import execa from 'execa';
 import fs from 'fs';
+import path from 'path';
+import type {NxtGlobalConfig, ServiceDef} from '../headers/nxtranetdev.h';
 import {
   coreUser, sysGroup
 } from './nxtconfig';
@@ -38,6 +40,36 @@ export async function chownForCoreUser(pth: string) {
     `${coreUser}:${sysGroup}`,
     pth,
   ]);
+}
+
+export async function chownForGroup(pth: string) {
+  await execa('sudo', [
+    'chown',
+    '-R',
+    `:${sysGroup}`,
+    pth,
+  ]);
+}
+
+export async function chmodForGroup(filepath: string) {
+  await execa('sudo', [
+    'chmod',
+    '770',
+    '-R',
+    filepath,
+  ]);
+}
+
+export async function chownService(service: ServiceDef) {
+  return execa('chown', ['-R', service.user, service.path]);
+}
+
+export async function chownPackagesDirectories(nxtconfig: NxtGlobalConfig) {
+  return Promise.all(nxtconfig.packagesDirectories.map(async (packageDirectory) => {
+    const ppath = path.join(nxtconfig.path, packageDirectory);
+    await chmodForGroup(ppath);
+    return chownForGroup(ppath);
+  }));
 }
 
 export async function ensureRunDir(runDir: string) {
