@@ -189,7 +189,7 @@ export class MetrixController {
         host: name,
       })
       .group({
-        _id: "$path",
+        _id: "$uri",
         count: {$sum: 1}
       })
       .get();
