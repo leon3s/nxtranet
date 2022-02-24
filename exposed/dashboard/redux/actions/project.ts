@@ -331,7 +331,7 @@ export const metrixDomainPath = createAction<[
 export const metrixDomainStatus = createAction<[
   string
 ], State, AxiosResponse<any>>(
-  PROJECT_DEFINES.METRIX_DOMAIN_NAME_PATH,
+  PROJECT_DEFINES.METRIX_DOMAIN_NAME_STATUS,
   (name) =>
     ({ }, { }, api) => {
       return api.get(`/metrix/nginx/domains/${name}/status`);

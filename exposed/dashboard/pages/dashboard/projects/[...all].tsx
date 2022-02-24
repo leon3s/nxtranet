@@ -48,8 +48,10 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     }
     if (tab === 'metrix') {
       const domain = store.getState().project?.target?.clusterProduction?.domain;
-      if (domain)
+      if (domain) {
         await store.dispatch(projectActions.metrixDomainPath(domain));
+        await store.dispatch(projectActions.metrixDomainStatus(domain));
+      }
     }
     return {
       props: {
