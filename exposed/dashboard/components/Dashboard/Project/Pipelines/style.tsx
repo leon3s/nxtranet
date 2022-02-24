@@ -17,7 +17,8 @@ export const PipelineCardHeader = Styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding-left: 8px;
+  justify-content: space-between;
+  padding-right: 8px;
 `;
 
 export const CommandContainer = Styled.div`

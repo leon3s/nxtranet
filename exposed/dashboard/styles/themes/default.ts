@@ -7,6 +7,7 @@ export const themeDefault = {
   boxShadowDefault: '0 2px 4px rgb(0 0 0 / 10%)',
   boxShadowSmooth: 'inset 0 -1px 0 0 rgba(0, 0, 0, 0.1)',
   boxShadowSmoothRight: '1px 0px 0px 0px rgba(0, 0, 0, 0.1)',
+  orange: 'rgba(255, 78, 43, 0.8)',
   boxShadowAdvenced: '0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 2px 1px -1px rgb(0 0 0 / 12%), 0px 1px 3px 0px rgb(0 0 0 / 20%)',
   padding: {
     default: 16,

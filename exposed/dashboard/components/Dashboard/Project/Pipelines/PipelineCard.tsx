@@ -74,10 +74,10 @@ export default function PipelineCard(props: PipelineCardProps) {
         isVisible={isVisible}
         title={
           <Style.PipelineCardHeader>
-            <PipelineBadge color={data.color} />
             <AccordionStyle.AccordionTitle>
               {data.name}
             </AccordionStyle.AccordionTitle>
+            <PipelineBadge color={data.color} />
           </Style.PipelineCardHeader>
         }
         content={

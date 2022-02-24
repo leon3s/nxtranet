@@ -3,21 +3,12 @@
  * Path: c:\Users\leone\Documents\code\docktron\org
  * Created Date: Monday, October 25th 2021, 12:52:26 am
  * Author: leone
- * 
+ *
  * Copyright (c) 2021 docktron
  */
 
 import Styled from 'styled-components';
-
 import * as GlobalStyles from '~/styles/global';
-
-export const ContainerWrapper = Styled.div`
-  width: 100%;
-  min-height: 100px;
-  background-color: white;
-${props => `
-  box-shadow: ${props.theme.boxShadowSmooth};
-`}`;
 
 export const ContainerD = Styled(GlobalStyles.Container)`
   padding: 2rem 0 4rem;
