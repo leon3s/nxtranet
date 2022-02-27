@@ -30,16 +30,14 @@ export class MetrixController {
   async nginxAverageResponseTime() {
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const [{request_time}] = await nginxAccessLogCollection
-      .aggregate({
-        $group: {
-          _id: '',
-          request_time: {$sum: '$request_time'}
-        }
-      }, {
-        $project: {
-          _id: 0,
-          request_time: '$request_time'
-        }
+      .aggregate()
+      .group({
+        _id: '',
+        request_time: {$sum: '$request_time'}
+      })
+      .project({
+        _id: 0,
+        request_time: '$request_time'
       }).get();
     const {count: total} = await this.nginxAccessLogRepository.count();
     return (request_time / total).toFixed(3);
@@ -194,6 +192,67 @@ export class MetrixController {
       })
       .get();
     return res.sort((a: any, b: any) => b.count - a.count);
+  }
+
+  @get('/metrix/nginx/domains/{name}/art', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 1.5,
+            }
+          }
+        },
+      },
+    },
+  })
+  async domainNameArt(
+    @param.path.string('name') name: string,
+  ) {
+    const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
+    const [{request_time}] = await nginxAccessLogCollection
+      .aggregate()
+      .match({
+        host: name
+      })
+      .group({
+        _id: '',
+        request_time: {$sum: '$request_time'}
+      })
+      .project({
+        _id: 0,
+        request_time: '$request_time'
+      }).get();
+    const {count: total} = await this.nginxAccessLogRepository.count({
+      host: name
+    });
+    return (request_time / total).toFixed(3);
+  }
+  @get('/metrix/nginx/domains/{name}/req-count', {
+    responses: {
+      '200': {
+        description: 'Nginx average-response-time',
+        content: {
+          'text/plain': {
+            schema: {
+              type: "number",
+              example: 1.5,
+            }
+          }
+        },
+      },
+    },
+  })
+  async domainNameReqCount(
+    @param.path.string('name') name: string,
+  ) {
+    const {count: total} = await this.nginxAccessLogRepository.count({
+      host: name
+    });
+    return total;
   }
 
   @get('/metrix/nginx/domains/{name}/status', {

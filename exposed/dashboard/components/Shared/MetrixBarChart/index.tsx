@@ -14,6 +14,7 @@ type BarCharProps = {
 
 export default function BarChar(props: BarCharProps) {
   console.log('props', {props});
+
   return (
     <Style.Container>
       <Style.Title>
@@ -39,7 +40,9 @@ export default function BarChar(props: BarCharProps) {
           >
           </XAxis>
           <Bar dataKey="count" fill={props.color} />
-          <Tooltip />
+          <Tooltip
+          // cursor={}
+          />
         </BarChart>
       </ResponsiveContainer>
     </Style.Container>

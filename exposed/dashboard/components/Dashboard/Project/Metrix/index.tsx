@@ -4,10 +4,11 @@ import {NextRouter, withRouter} from 'next/router';
 import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
+import type BarChart from '~/components/Shared/MetrixBarChart';
+import NumberBlocks from '~/components/Shared/NumberBlocks';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import {Dispatch} from '~/utils/redux';
-import type BarChart from '../../../Shared/MetrixBarChart';
 import * as Style from './style';
 
 const MetrixBarChart = dynamic(
@@ -22,6 +23,8 @@ const actions = {
 const mapStateToProps = (state: State) => ({
   metrixDomainPath: state.project.target_metrix_domain_path,
   metrixDomainStatus: state.project.target_metrix_domain_status,
+  metrixDomainArt: state.project.target_metrix_domain_art,
+  metrixDomainReqCount: state.project.target_metrix_domain_req_count,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -52,11 +55,23 @@ class Metrix extends
     const {
       metrixDomainPath,
       metrixDomainStatus,
+      metrixDomainArt,
+      metrixDomainReqCount,
     } = this.props;
     const { } = this.state;
+    const blocks = [{
+      title: 'Requests Handled',
+      value: metrixDomainReqCount,
+    }, {
+      title: 'ART',
+      value: metrixDomainArt,
+    }];
     return (
       <React.Fragment>
         <Style.Container>
+        <NumberBlocks
+            data={blocks}
+          />
           <MetrixBarChart
             title="Global response status"
             color="#ff4d2f"
@@ -67,7 +82,7 @@ class Metrix extends
               Visited urls
             </Style.DomainPathContainerTitle>
             {metrixDomainPath.map((path: any) => (
-              <Style.DomainPathContainer>
+              <Style.DomainPathContainer key={path._id}>
                 <Style.DomainPathTitle>
                   {path._id}
                 </Style.DomainPathTitle>
