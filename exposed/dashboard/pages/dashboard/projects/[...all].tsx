@@ -51,6 +51,8 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
       if (domain) {
         await store.dispatch(projectActions.metrixDomainPath(domain));
         await store.dispatch(projectActions.metrixDomainStatus(domain));
+        await store.dispatch(projectActions.metrixDomainArt(domain));
+        await store.dispatch(projectActions.metrixDomainReqCount(domain));
       }
     }
     return {

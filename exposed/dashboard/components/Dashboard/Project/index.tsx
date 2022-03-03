@@ -144,6 +144,7 @@ export default function Project(props: ProjectProps) {
                 >
                   {navItems.map((navItem) => (
                     <Link
+                    key={navItem.href}
                       passHref
                       href={generateUrl(props.data.name, navItem.href)}
                     >

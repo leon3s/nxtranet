@@ -14,6 +14,8 @@ export type ProjectState = {
   target_clusterProduction: null | ModelClusterProduction;
   target_metrix_domain_path: [];
   target_metrix_domain_status: [];
+  target_metrix_domain_art: number;
+  target_metrix_domain_req_count: number;
 }
 
 type FN_PTRS = Record<
@@ -187,6 +189,18 @@ const fnPtrs: FN_PTRS = {
       target_metrix_domain_status: action.payload.data,
     }
   },
+  [PROJECT_DEFINES.METRIX_DOMAIN_NAME_ART.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_metrix_domain_art: action.payload.data,
+    }
+  },
+  [PROJECT_DEFINES.METRIX_DOMAIN_NAME_REQ_COUNT.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_metrix_domain_req_count: action.payload.data,
+    }
+  },
   [PROJECT_DEFINES.PATCH_MODEL_PIPELINE_CMD.FULFILLED]: (state, action) => {
     return {
       ...state,
@@ -217,6 +231,8 @@ const reducer = (state: ProjectState = {
   target_clusterProduction: null,
   target_metrix_domain_path: [],
   target_metrix_domain_status: [],
+  target_metrix_domain_art: 0,
+  target_metrix_domain_req_count: 0,
 }, action: AnyAction): ProjectState => {
   const fn = fnPtrs[action.type] || null;
   if (!fn) {

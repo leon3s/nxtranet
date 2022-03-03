@@ -3,10 +3,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import FooterDefault from '~/components/Shared/FooterDefault';
+import type BarChart from '~/components/Shared/MetrixBarChart';
+import NumberBlocks from '~/components/Shared/NumberBlocks';
 import type {State} from '~/redux/reducers';
 import {ContainerWrapper} from '~/styles/global';
 import type {Dispatch} from '~/utils/redux';
-import type BarChart from '../../Shared/MetrixBarChart';
 import * as Style from './style';
 
 const MetrixBarChart = dynamic(
@@ -76,20 +77,9 @@ class Home extends
     return (
       <ContainerWrapper>
         <Style.Container>
-          <Style.NumberBlocks>
-            {blocks.map((block, i) => (
-              <Style.NumberBlock
-                key={`${block.title}-${i}`}
-              >
-                <Style.NumberBlockTitle>
-                  {block.title}
-                </Style.NumberBlockTitle>
-                <Style.NumberBlockValue>
-                  {block.value}
-                </Style.NumberBlockValue>
-              </Style.NumberBlock>
-            ))}
-          </Style.NumberBlocks>
+          <NumberBlocks
+            data={blocks}
+          />
           <Style.CharWrapper>
             <MetrixBarChart
               title="Most visited domains"

@@ -336,3 +336,21 @@ export const metrixDomainStatus = createAction<[
     ({ }, { }, api) => {
       return api.get(`/metrix/nginx/domains/${name}/status`);
     })
+
+export const metrixDomainArt = createAction<[
+  string
+], State, AxiosResponse<any>>(
+  PROJECT_DEFINES.METRIX_DOMAIN_NAME_ART,
+  (name) =>
+    ({ }, { }, api) => {
+      return api.get(`/metrix/nginx/domains/${name}/art`);
+    })
+
+export const metrixDomainReqCount = createAction<[
+  string
+], State, AxiosResponse<any>>(
+  PROJECT_DEFINES.METRIX_DOMAIN_NAME_REQ_COUNT,
+  (name) =>
+    ({ }, { }, api) => {
+      return api.get(`/metrix/nginx/domains/${name}/req-count`);
+    })
