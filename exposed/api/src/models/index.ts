@@ -16,3 +16,4 @@ export * from './user-role.model';
 export * from './user.model';
 export * from './var-env.model';
 
+export * from './cluster-pipeline.model';
