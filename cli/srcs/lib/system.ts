@@ -54,7 +54,7 @@ export async function chownForGroup(pth: string) {
 export async function chmodForGroup(filepath: string) {
   await execa('sudo', [
     'chmod',
-    '770',
+    '775',
     '-R',
     filepath,
   ]);
