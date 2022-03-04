@@ -1,6 +1,7 @@
 import {repository} from '@loopback/repository';
 import {get, param} from '@loopback/rest';
-import {ClusterProductionRepository, ContainerRepository, NginxAccessLogRepository} from '../repositories';
+import {ModelClusterType} from '@nxtranet/headers';
+import {ClusterRepository, ContainerRepository, NginxAccessLogRepository} from '../repositories';
 
 export class MetrixController {
   constructor(
@@ -8,8 +9,8 @@ export class MetrixController {
     protected nginxAccessLogRepository: NginxAccessLogRepository,
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
-    @repository(ClusterProductionRepository)
-    protected clusterProductionRepository: ClusterProductionRepository,
+    @repository(ClusterRepository)
+    protected clusterRepository: ClusterRepository,
   ) { }
 
   @get('/metrix/nginx/average-response-time', {
@@ -28,9 +29,18 @@ export class MetrixController {
     },
   })
   async nginxAverageResponseTime() {
+    const clusters = await this.clusterRepository.find({
+      where: {
+        type: {
+          nin: [ModelClusterType.TESTING],
+        }
+      }
+    });
+    const hostnames = clusters.map(({hostname}) => hostname);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const [{request_time}] = await nginxAccessLogCollection
       .aggregate()
+      .match({host: {$in: hostnames}})
       .group({
         _id: '',
         request_time: {$sum: '$request_time'}
@@ -59,15 +69,24 @@ export class MetrixController {
     },
   })
   async nginxDomains() {
-    const clusterProds = await this.clusterProductionRepository.find();
-    const domains = clusterProds.map(({domain}) => domain);
+    const clusters = await this.clusterRepository.find({
+      where: {
+        type: {
+          nin: [ModelClusterType.TESTING],
+        }
+      }
+    });
+    const hostnames = clusters.map(({hostname}) => hostname);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const res = await nginxAccessLogCollection
       .aggregate()
-      .match({host: {$in: domains}})
+      .match({host: {$in: hostnames}})
       .group({
         _id: "$host",
         count: {$sum: 1}
+      })
+      .sort({
+        count: -1,
       })
       .get();
     return res;
@@ -89,16 +108,29 @@ export class MetrixController {
     },
   })
   async nginxStatus() {
+    const clusters = await this.clusterRepository.find({
+      where: {
+        type: {
+          nin: [ModelClusterType.TESTING],
+        }
+      }
+    });
+    const hostnames = clusters.map(({hostname}) => hostname);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     const res = await nginxAccessLogCollection
       .aggregate()
       .match({
         status: {$exists: true},
+        host: {$in: hostnames}
       })
       .group({
         _id: "$status",
         count: {$sum: 1}
-      }).get();
+      })
+      .sort({
+        count: -1,
+      })
+      .get();
     return res;
   }
 
@@ -118,7 +150,19 @@ export class MetrixController {
     },
   })
   async nginxReqCount() {
-    const {count} = await this.nginxAccessLogRepository.count();
+    const clusters = await this.clusterRepository.find({
+      where: {
+        type: {
+          nin: [ModelClusterType.TESTING],
+        }
+      }
+    });
+    const hostnames = clusters.map(({hostname}) => hostname);
+    const {count} = await this.nginxAccessLogRepository.count({
+      host: {
+        in: hostnames,
+      }
+    });
     return count;
   }
 
@@ -138,7 +182,11 @@ export class MetrixController {
     },
   })
   async clusterProductionCount() {
-    const {count} = await this.clusterProductionRepository.count();
+    const {count} = await this.clusterRepository.count({
+      type: {
+        nin: [ModelClusterType.TESTING, ModelClusterType.SINGLE],
+      }
+    });
     return count;
   }
 

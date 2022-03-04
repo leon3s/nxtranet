@@ -141,14 +141,14 @@ export default class Deployer {
   }
 
   private _extractClusterData = (cluster: ModelCluster): ClusterData => {
-    const {pipelines} = cluster.project;
+    const {pipelines} = cluster;
     const lastCommand = pipelines[pipelines.length - 1].commands.pop();
     const envVars = cluster.envVars?.reduce((acc, env) => {
       acc[env.key] = env.value;
       return acc;
     }, {}) || undefined;
     return {
-      pipelines: cluster.project.pipelines,
+      pipelines: pipelines,
       lastCommand,
       envVars,
     }

@@ -17,10 +17,12 @@ a {
   border-radius: 4px;
   transition: all 0.3s ease;
 }
+
 .scroll-bar:hover::-webkit-scrollbar-thumb {
   background: #CBCBCB;
   border-radius: 4px;
 }
+
 .scroll-bar::-webkit-scrollbar {
   opacity: 0;
   height: 6px;

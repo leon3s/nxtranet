@@ -1,5 +1,4 @@
 export * from './model.cluster';
-export * from './model.clusterProduction';
 export * from './model.container';
 export * from './model.containerOutput';
 export * from './model.envVar';

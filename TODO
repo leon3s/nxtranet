@@ -2,10 +2,7 @@ Copy env variable to the container and update container env independentaly
 
 Restart / Stop container
 
-Request monitoring de nginx
-
-production choose hosts
-
 delete project, update project
+delete cluster, update cluster
 
 Warn if project doesn't have pipeline

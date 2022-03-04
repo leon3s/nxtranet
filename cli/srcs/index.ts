@@ -14,7 +14,7 @@ const printHelp = () => {
 const execScript = async (scriptPath: string, args: string[]) => {
   await execa('node', [scriptPath, ...args], {
     cwd: __dirname,
-    stdio: ['ignore', process.stdout, process.stdin],
+    stdio: ['ignore', process.stdout, process.stderr],
   });
 }
 

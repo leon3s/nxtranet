@@ -3,11 +3,13 @@ import {
   repository
 } from '@loopback/repository';
 import {
+  get,
   getModelSchemaRef,
   HttpErrors,
   param, post,
   requestBody
 } from '@loopback/rest';
+import {ModelClusterType} from '@nxtranet/headers';
 import {DnsmasqServiceBindings, ProjectServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterRepository, GitBranchRepository} from '../repositories';
@@ -25,6 +27,23 @@ export class ClusterController {
     @repository(GitBranchRepository)
     protected gitBranchRepository: GitBranchRepository,
   ) { }
+
+  @get('/clusters/types', {
+    responses: {
+      '200': {
+        description: 'Types for a cluster',
+      }
+    }
+  })
+  async getClusterType() {
+    const modelClusterType = ModelClusterType as Record<string, string>;
+    return Object.keys(modelClusterType).map((key) => {
+      return {
+        key,
+        value: modelClusterType[key],
+      }
+    })
+  }
 
   @post('/clusters/{namespace}/deploy', {
     responses: {
@@ -61,6 +80,14 @@ export class ClusterController {
       include: [
         {
           relation: "gitBranch",
+        },
+        {
+          relation: "pipelines",
+          scope: {
+            include: [{
+              relation: "commands"
+            }]
+          }
         }
       ]
     });

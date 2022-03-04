@@ -1,14 +1,19 @@
-import type {ModelClusterProduction} from './model.clusterProduction';
 import type {ModelContainer} from './model.container';
 import type {ModelEnvVar} from './model.envVar';
 import type {ModelGitbranche} from './model.gitBranche';
+import {ModelPipeline} from './model.pipeline';
 import type {ModelProject} from './model.project';
+
+export enum ModelClusterType {
+  TESTING = 'TESTING',
+  SINGLE = 'SINGLE',
+  SCALING = 'SCALING',
+}
 
 export type ModelCluster = {
   id: string;
   creationDate: Date;
   namespace: string;
-  isProduction?: boolean;
   projectName: string;
   project?: ModelProject;
   containers: ModelContainer[];
@@ -16,5 +21,7 @@ export type ModelCluster = {
   envVars: ModelEnvVar[];
   gitBranchNamespace: string;
   gitBranch?: ModelGitbranche;
-  production: ModelClusterProduction;
+  host: string;
+  hostname: string;
+  pipelines: ModelPipeline[];
 };

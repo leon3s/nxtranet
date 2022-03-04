@@ -1,7 +1,13 @@
 import type {
-  ModelCluster, ModelClusterProduction, ModelContainer, ModelPipeline, ModelProject
+  ModelCluster,
+  ModelContainer,
+  ModelPipeline,
+  ModelProject
 } from '@nxtranet/headers';
 import type {AnyAction} from "redux";
+import {formCluster} from '~/forms/cluster';
+import {formContainerDeploy} from '~/forms/container';
+import {formEnvVar} from '~/forms/envVar';
 import {removeModel, updateModel} from '~/utils/reducer';
 import {PROJECT_DEFINES} from "../defines";
 
@@ -11,11 +17,13 @@ export type ProjectState = {
   target_clusters: ModelCluster[];
   target_pipelines: ModelPipeline[];
   target_containers: ModelContainer[];
-  target_clusterProduction: null | ModelClusterProduction;
   target_metrix_domain_path: [];
   target_metrix_domain_status: [];
   target_metrix_domain_art: number;
   target_metrix_domain_req_count: number;
+  form_cluster: typeof formCluster;
+  form_container_deploy: typeof formContainerDeploy,
+  form_env_var: typeof formEnvVar,
 }
 
 type FN_PTRS = Record<
@@ -171,12 +179,6 @@ const fnPtrs: FN_PTRS = {
       }),
     }
   },
-  [PROJECT_DEFINES.GET_CLUSTER_PRODUCTION.FULFILLED]: (state, action) => {
-    return {
-      ...state,
-      target_clusterProduction: action.payload.data,
-    }
-  },
   [PROJECT_DEFINES.METRIX_DOMAIN_NAME_PATH.FULFILLED]: (state, action) => {
     return {
       ...state,
@@ -228,11 +230,13 @@ const reducer = (state: ProjectState = {
   target_clusters: [],
   target_pipelines: [],
   target_containers: [],
-  target_clusterProduction: null,
   target_metrix_domain_path: [],
   target_metrix_domain_status: [],
   target_metrix_domain_art: 0,
   target_metrix_domain_req_count: 0,
+  form_env_var: formEnvVar,
+  form_cluster: formCluster,
+  form_container_deploy: formContainerDeploy,
 }, action: AnyAction): ProjectState => {
   const fn = fnPtrs[action.type] || null;
   if (!fn) {

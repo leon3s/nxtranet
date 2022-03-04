@@ -1,15 +1,13 @@
 import {repository} from '@loopback/repository';
 import {client} from '../../../../internal/dnsmasq/dist';
-import type {ClusterProduction, Container} from '../models';
-import {ClusterProductionRepository, ClusterRepository, ProjectRepository} from '../repositories';
+import type {Cluster, Container} from '../models';
+import {ClusterRepository, ProjectRepository} from '../repositories';
 
 export class DnsmasqService {
   _client: typeof client = client;
 
   constructor(
     @repository(ProjectRepository) protected projectRepository: ProjectRepository,
-    @repository(ClusterProductionRepository)
-    protected clusterProductionRepository: ClusterProductionRepository,
     @repository(ClusterRepository) protected clusterRepository: ClusterRepository,
   ) { }
 
@@ -21,17 +19,21 @@ export class DnsmasqService {
     client.disconnect();
   }
 
-  generateForContainers = (containers: Container[], clusterProd?: ClusterProduction): string => {
-    const mainDomain = clusterProd?.domain || process.env.NXTRANET_DOMAIN;
+  generateForContainers = (cluster: Cluster, containers: Container[]): string => {
+    const mainDomain = cluster.hostname;
     return containers.reduce((acc, container) => {
       acc += `address=/${container.name}.${mainDomain}/${process.env.NXTRANET_HOST}\n`;
       return acc;
     }, '');
   }
 
+  generateForCluster = (cluster: Cluster) => {
+    return `address=/${cluster.hostname}/${cluster.host}\n`;
+  }
+
   configSync = async () => {
     const projects = await this.projectRepository.find({
-      include: ['clusterProduction', {
+      include: [{
         relation: 'clusters',
         scope: {
           include: ['containers'],
@@ -39,12 +41,10 @@ export class DnsmasqService {
       }]
     });
     const data = projects.reduce((acc, project) => {
-      const {clusterProduction, clusters} = project;
-      if (clusterProduction) {
-        acc += `address=/${clusterProduction.domain}/${clusterProduction.host}\n`;
-      }
+      const {clusters} = project;
       acc += clusters.reduce((acc, cluster) => {
-        acc += this.generateForContainers(cluster.containers || [], clusterProduction);
+        acc += this.generateForCluster(cluster);
+        acc += this.generateForContainers(cluster, cluster.containers || []);
         return acc;
       }, '');
       return acc;

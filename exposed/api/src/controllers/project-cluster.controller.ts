@@ -74,6 +74,7 @@ export class ProjectClusterController {
     if (!project) throw new HttpErrors.NotFound('Project name not found');
     cluster.name = cluster.name.toLowerCase();
     cluster.projectName = name;
+    cluster.host = '127.0.0.1';
     cluster.namespace = `${name}.${cluster.name}`;
     return this.projectRepository.clusters(name).create(cluster);
   }

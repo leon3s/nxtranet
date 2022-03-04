@@ -1,6 +1,12 @@
-import type {ModelCluster, ModelContainer, ModelEnvVar} from '@nxtranet/headers';
+import type {
+  ModelCluster,
+  ModelContainer,
+  ModelEnvVar,
+  ModelPipeline
+} from '@nxtranet/headers';
 import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
+import api from '~/api';
 import Accordion from '~/components/Shared/Accordion';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ClusterContainer from '~/components/Shared/ClusterContainer';
@@ -40,6 +46,14 @@ export default function ClusterCard(props: CusterCardProps) {
     props.onClickCreateEnvVar(data.namespace);
   }
 
+  async function onAddClusterPipeline(item: ModelPipeline) {
+    await api.post(`/clusters/${data.id}/pipelines/${item.id}/link`);
+  }
+
+  async function onRemoveClusterPipeline(item: ModelPipeline) {
+    await api.delete(`/clusters/${data.id}/pipelines/${item.id}/link`);
+  }
+
   return (
     <AccordionStyle.AccordionContainer>
       <Accordion
@@ -54,12 +68,24 @@ export default function ClusterCard(props: CusterCardProps) {
           <AccordionStyle.AccordionContent>
             <Style.ClusterContent>
               <Style.Title>
-                Environement Variables
+                Pipelines
               </Style.Title>
               <ActionWrapper>
                 <ActionBar actions={[
                   {
                     title: 'Create',
+                    icon: () => <AiOutlinePlus size={12} />,
+                    fn: onClickCreateEnvVar,
+                  }
+                ]} />
+              </ActionWrapper>
+              <Style.Title>
+                Environement Variables
+              </Style.Title>
+              <ActionWrapper>
+                <ActionBar actions={[
+                  {
+                    title: 'New environement variable',
                     icon: () => <AiOutlinePlus size={12} />,
                     fn: onClickCreateEnvVar,
                   }
@@ -81,7 +107,7 @@ export default function ClusterCard(props: CusterCardProps) {
               <ActionWrapper>
                 <ActionBar actions={[
                   {
-                    title: 'Deploy',
+                    title: 'New container',
                     icon: () => <AiOutlinePlus size={12} />,
                     fn: onClicClusterDeploy,
                   }

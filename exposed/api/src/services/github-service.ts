@@ -23,7 +23,7 @@ export class GithubService {
       password: project.github_password,
     };
     const res = await this.request.get<{name: string, commit: {sha: string}}>(
-      `/repos/${auth.username}/${project.name}/branches/${branchName}`, {
+      `/repos/${auth.username}/${project.github_project}/branches/${branchName}`, {
       auth,
     });
     return this.githubBranchRepository.create({
@@ -50,7 +50,7 @@ export class GithubService {
     project: Project,
   ): Promise<void> => {
     const branches = await this.getProjectBranch({
-      projectName: project.name,
+      projectName: project.github_project,
       username: project.github_username,
       password: project.github_password,
     });

@@ -1,12 +1,3 @@
-/*
- * Filename: c:\Users\leone\Documents\code\nextranet\dashboard\components\Shared\Modal\style.tsx
- * Path: c:\Users\leone\Documents\code\docktron\org
- * Created Date: Tuesday, October 26th 2021, 8:51:23 pm
- * Author: leone
- * 
- * Copyright (c) 2021 docktron
- */
-
 import Styled from 'styled-components';
 
 type ContainerProps = {
@@ -21,7 +12,7 @@ export const Container = Styled.div<ContainerProps>`
   justify-content: center;
   min-width: 100%;
   height: 100%;
-  transition: all .4s ease;
+  transition: all .6s ease;
 ${props => `
   backdrop-filter: ${props.theme.header.backdrop};
   ${props.isVisible ? `
@@ -45,7 +36,6 @@ export const ContentWrapper = Styled.div`
 
 export const Content = Styled.div`
   align-self: center;
-  padding: 24px;
   display: flex;
   flex-direction: column;
   max-width: 342px;
@@ -59,3 +49,16 @@ ${props => `
   border-radius: 6px;
   border: 1px solid ${props.theme.borderColorDefault};
 `}`;
+
+export const TitleContainer = Styled.div`
+  display: flex;
+  padding: 24px;
+  height: 50px;
+  width: 100%;
+`;
+
+export const Children = Styled.div`
+  padding: 0px 24px 24px 24px;
+  overflow-y: scroll;
+  max-height: 100%;
+`;

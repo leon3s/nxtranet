@@ -24,15 +24,6 @@ export const ClustersContainer = Styled.div`
   flex-direction: column;
 `;
 
-export const ModalContent = Styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
 export const ClusterContent = Styled.div`
   display: flex;
   flex: 1;

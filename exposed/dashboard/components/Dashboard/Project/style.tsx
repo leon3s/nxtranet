@@ -2,7 +2,6 @@ import Styled from 'styled-components';
 import * as GlobalStyle from '~/styles/global';
 import * as NavStyle from '~/styles/nav';
 
-
 export const Container = Styled(GlobalStyle.Container)`
   width: 100%;
   display: flex;
@@ -38,6 +37,15 @@ export const MobileNavContainer = Styled.div<MobileNavContainerProps>`
     `}
 
   `}
+`;
+
+export const DesktopNavTitle = Styled(NavStyle.NavTabTitle)`
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
 `;
 
 export const MobileSettingAbs = Styled.div`

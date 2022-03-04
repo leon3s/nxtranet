@@ -137,9 +137,9 @@ export
 
   clusterDeploy = async (args: ClusterDeployArgs): Promise<Container> => {
     const {
-      namespace,
       branch,
       commitSHA,
+      namespace,
       isProduction,
       isGeneratedDeploy,
     } = args;
@@ -147,17 +147,11 @@ export
       where: {
         namespace,
       },
-      include: ['envVars', {
-        relation: 'project',
-        scope: {
-          include: [{
-            relation: 'pipelines',
-            scope: {
-              include: ['commands'],
-            }
-          }],
-        },
-      }],
+      include: [
+        {relation: 'envVars'},
+        {relation: 'project'},
+        {relation: 'pipelines', scope: {include: [{relation: 'commands'}]}}
+      ],
     });
     if (!cluster) throw new HttpErrors.NotFound('Cluster not found');
     const partialContainer = await this._client.clustersDeploy({

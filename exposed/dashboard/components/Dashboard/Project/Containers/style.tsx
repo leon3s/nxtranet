@@ -1,5 +1,5 @@
 import Styled from 'styled-components';
-import { A } from '~/styles/link';
+import {A} from '~/styles/link';
 
 export const Container = Styled.div`
   width: 100%;

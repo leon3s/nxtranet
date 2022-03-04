@@ -1,5 +1,5 @@
 // User related
-export * from './cluster-production.model';
+export * from './cluster-pipeline.model';
 export * from './cluster.model';
 export * from './container-output.model';
 export * from './container-state.model';
@@ -16,4 +16,3 @@ export * from './user-role.model';
 export * from './user.model';
 export * from './var-env.model';
 
-export * from './cluster-pipeline.model';

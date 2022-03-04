@@ -83,7 +83,7 @@ class Home extends
           <Style.CharWrapper>
             <MetrixBarChart
               title="Most visited domains"
-              color="#ff4d2f"
+              color="#ff4d2a"
               data={metrixNginxDomains}
             />
           </Style.CharWrapper>
@@ -91,7 +91,7 @@ class Home extends
             <MetrixBarChart
               title="Global response status"
               data={metrixNginxStatus}
-              color="#ff4d2f"
+              color="#ff4d2a"
             />
           </Style.CharWrapper>
         </Style.Container>

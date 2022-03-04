@@ -9,9 +9,6 @@ import {projectActions} from '~/redux/actions';
 import {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
 
-
-
-
 interface ProjectPageProps {
   project: ModelProject | null;
   tab: string | null;
@@ -29,7 +26,18 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
         },
       }
     }
-    await store.dispatch(projectActions.getByName(name));
+    try {
+      await store.dispatch(projectActions.getByName(name));
+    } catch (e: any) {
+      if (e.response.status === 404) {
+        return {
+          redirect: {
+            permanent: false,
+            destination: `/dashboard/projects`
+          }
+        }
+      }
+    }
     if (tab === 'clusters') {
       await store.dispatch(projectActions.getClusters(name, subTab1));
     }
@@ -42,9 +50,6 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
     }
     if (tab === 'pipelines') {
       await store.dispatch(projectActions.getPipelines(name));
-    }
-    if (tab === 'production') {
-      await store.dispatch(projectActions.getClusterProduction(name));
     }
     if (tab === 'metrix') {
       const domain = store.getState().project?.target?.clusterProduction?.domain;

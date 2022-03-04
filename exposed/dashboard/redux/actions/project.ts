@@ -1,5 +1,5 @@
 import type {
-  ModelCluster, ModelClusterProduction, ModelContainer,
+  ModelCluster, ModelContainer,
   ModelContainerOutput,
   ModelEnvVar,
   ModelPipeline,
@@ -38,7 +38,6 @@ export const getByName = createAction<[
       return api.get<ModelProject>(`/projects/${name}`, {
         params: {
           filter: {
-            include: ['clusterProduction'],
           }
         }
       });
@@ -57,6 +56,9 @@ export const getClusters = createAction<[
             include: [
               {
                 relation: "envVars",
+              },
+              {
+                relation: 'pipelines',
               },
               {
                 relation: "containers",
@@ -143,47 +145,6 @@ export const containerStatus = createAction<[
         });
       });
       return null;
-    }
-)
-
-export const createClusterProduction = createAction<[
-  string,
-  Partial<ModelClusterProduction>,
-], State, AxiosResponse<ModelClusterProduction>>(
-  PROJECT_DEFINES.CREATE_CLUSTER_PRODUCTION,
-  (projectName, clusterProduction) =>
-    ({ }, { }, api) =>
-      api.post<ModelClusterProduction>(`/projects/${projectName}/cluster-production`, clusterProduction)
-)
-
-export const getClusterProduction = createAction<[
-  string,
-], State, AxiosResponse<ModelClusterProduction>>(
-  PROJECT_DEFINES.GET_CLUSTER_PRODUCTION,
-  (projectName) =>
-    async ({ }, { }, api) => {
-      try {
-        const res = await api.get<ModelClusterProduction>(`/projects/${projectName}/cluster-production`)
-        return res;
-      } catch (err: any) {
-        if (err.response.status !== 404) {
-          throw err;
-        }
-        return {
-          data: null,
-        } as AxiosResponse<any>
-      }
-    }
-)
-
-export const patchClusterProduction = createAction<[
-  string,
-  Partial<ModelClusterProduction>
-], State, AxiosResponse<ModelClusterProduction>>(
-  PROJECT_DEFINES.PATCH_CLUSTER_PRODUCTION,
-  (projectName, clusterProd) =>
-    ({ }, { }, api) => {
-      return api.patch(`/projects/${projectName}/cluster-production`, clusterProd);
     }
 )
 

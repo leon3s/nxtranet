@@ -6,11 +6,16 @@ import {ThemeProvider} from 'styled-components';
 import {wrapper} from '~/redux/store';
 import {themeDefault} from '~/styles/themes';
 
-
-
 class MyApp extends App<AppInitialProps> {
-  public static getInitialProps = wrapper.getInitialAppProps((store) => async () => {
+  public static getInitialProps = wrapper.getInitialAppProps((store) => async (appCtx) => {
     try {
+      if (appCtx.ctx?.res?.statusCode === 404) {
+        appCtx.ctx.res.writeHead(302, {Location: '/'});
+        appCtx.ctx.res.end();
+        return {
+          pageProps: {},
+        };
+      }
       const state = store.getState();
       console.log(' ?? ?', state.me.errors.whoiam);
       if (!state.me.me && !state.me.errors.whoiam) {

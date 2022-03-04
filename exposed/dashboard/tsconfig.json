@@ -42,6 +42,9 @@
       "~/components/*": [
         "./components/*"
       ],
+      "~/forms/*": [
+        "./forms/*"
+      ],
       "~/api": [
         "./api",
       ]

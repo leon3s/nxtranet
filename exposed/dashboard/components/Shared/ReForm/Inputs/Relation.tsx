@@ -7,9 +7,6 @@ import type {Dispatch} from '~/utils/redux';
 import type InputProps from './props';
 import * as Style from './style';
 
-
-
-
 const actions = {};
 
 const mapStateToProps = () => ({});
@@ -31,19 +28,21 @@ class InputRelation extends
   }
 
   async componentDidMount() {
-    console.log(this.props);
     const {options} = this.props;
     if (!options) return;
     const res = await api.get<any[]>(options.path);
-
+    const value = options.isAnyEnabled ? "" : res.data[0][options.returnKey];
     this.setState({
       data: res.data,
+      value,
+    }, () => {
+      this.props.onChange(this.state.value);
     });
   }
 
   onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const d = this.state.data.find(({namespace}) =>
-      namespace === e.target.value
+    const d = this.state.data.find((d) =>
+      d[this.props.options.returnKey] === e.target.value
     );
     this.setState({
       value: e.target.value,
@@ -71,8 +70,8 @@ class InputRelation extends
           </Style.InputRelationOptions> : null}
           {data.map((d: any) => (
             <Style.InputRelationOptions
-              key={d.namespace}
-              value={d.namespace}
+              key={d[options.key]}
+              value={d[options.returnKey]}
             >
               {d[options.displayKey]}
             </Style.InputRelationOptions>

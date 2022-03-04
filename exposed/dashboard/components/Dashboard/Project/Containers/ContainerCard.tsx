@@ -6,9 +6,6 @@ import PipelineBadge from '~/components/Shared/PipelineBadge';
 import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
 
-
-
-
 type ContainerCardProps = {
   projectName: string;
   data: ModelContainer;
@@ -20,17 +17,15 @@ type ContainerCardProps = {
 export default function ContainerCard(props: ContainerCardProps) {
   const {
     data,
-    project,
     isVisible,
     projectName,
   } = props;
+
   function onClick() {
     props.onClick(data);
   }
-  console.log('container card props', {
-    props,
-  })
-  const domain = project?.clusterProduction?.domain || process.env.NXTRANET_DOMAIN;
+
+  const domain = data.cluster?.hostname;
   return (
     <AccordionStyle.AccordionContainer>
       <Accordion

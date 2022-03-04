@@ -1,8 +1,9 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
+import {ModelClusterType} from '../../../../packages/headers/dist';
 import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SystemServiceBindings} from '../keys';
 import {Cluster, Container, Project} from '../models';
-import {ClusterProductionRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
+import {ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
@@ -20,8 +21,6 @@ export default
   constructor(
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
-    @repository(ClusterProductionRepository)
-    protected clusterProductionRepository: ClusterProductionRepository,
     @repository(ClusterRepository)
     protected clusterRepository: ClusterRepository,
     @repository(ProjectRepository)
@@ -77,7 +76,7 @@ export default
   }
 
   removeContainer = async (container: Container) => {
-    await this.nginxService.clearSite(container.name);
+    await this.nginxService.clearSite(container.namespace);
     await this.dockerService.clusterContainerRemove(container);
   }
 
@@ -91,19 +90,12 @@ export default
       branch: branchName,
       namespace: cluster.namespace,
     });
-    const clusterProd = await this.clusterProductionRepository.findOne({
-      where: {
-        projectName: cluster.projectName,
-      }
-    });
-    const mainDomain = clusterProd?.domain || process.env.NXTRANET_DOMAIN;
-    await this.nginxService.writeDevConfig(container.name, {
-      domain: `${container.name}.${mainDomain}`,
+    await this.nginxService.writeDevConfig(container.namespace, {
+      domain: `${container.name}.${cluster.hostname}`,
       port: container.appPort,
       host: process.env.NXTRANET_HOST || '127.0.0.1',
     });
-    await this.deployNginxConf(container.name);
-    console.error('docker hook', container);
+    await this.deployNginxConf(container.namespace);
     return container;
   }
 
@@ -130,18 +122,14 @@ export default
         gitBranchName: branchName,
       },
     });
-    const clusterProd = await this.clusterProductionRepository.findOne({
-      where: {
-        projectName: cluster.projectName,
-      }
-    });
-    const mainDomain = clusterProd?.domain || process.env.NXTRANET_DOMAIN;
-    await this.nginxService.writeDevConfig(cluster.namespace, {
-      domain: `${cluster.name}.${mainDomain}`,
-      port: container.appPort,
-      host: process.env.NXTRANET_HOST || '127.0.0.1',
-    });
-    await this.deployNginxConf(cluster.namespace);
+    if (cluster.type !== ModelClusterType.TESTING) {
+      await this.nginxService.writeDevConfig(cluster.namespace, {
+        domain: cluster.hostname,
+        port: container.appPort,
+        host: cluster.host,
+      });
+      await this.deployNginxConf(cluster.namespace);
+    }
     await Promise.all(containersToDelete.map((container) => {
       return this.removeContainer(container);
     }));
@@ -149,10 +137,7 @@ export default
 
   deployProd = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
     const {lastCommit} = opts;
-    const {
-      production,
-    } = cluster;
-    const minInstances = Array(production.numberOfInstances).fill(1);
+    const minInstances = Array(2).fill(1);
     const containers = await Promise.all<Container>(minInstances.map(() =>
       this.dockerHookClusterDeploy(cluster, {
         lastCommit,
@@ -165,15 +150,15 @@ export default
   }
 
   deployBGProd = async (cluster: Cluster, containers: Container[]) => {
-    const {production, projectName, name} = cluster;
+    const {projectName, name} = cluster;
     const ports = await Promise.all((containers.map(async (container) => {
       await this.dockerService.whenContainerReady(container);
       return container.appPort;
     })));
     const nginxConfig = {
       ports,
-      domain: production.domain,
-      host: production.host,
+      host: cluster.host,
+      domain: cluster.hostname,
       clusterName: cluster.name,
       projectName: cluster.projectName,
     };
@@ -188,7 +173,7 @@ export default
   }
 
   deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
-    if (cluster.production) { // deploy for production means real ip binding to serve the project.
+    if (cluster.type === ModelClusterType.SCALING) { // deploy for production means real ip binding to serve the project.
       const containersToDelete = await this.containerRepository.find({
         where: {
           clusterNamespace: cluster.namespace,

@@ -1,12 +1,11 @@
 import Document, {
-  Html,
-  Head,
-  Main,
-  NextScript,
   DocumentContext,
+  Head,
+  Html,
+  Main,
+  NextScript
 } from 'next/document';
-
-import { ServerStyleSheet } from 'styled-components';
+import {ServerStyleSheet} from 'styled-components';
 
 const staticCss = `
 #__next {
@@ -48,7 +47,7 @@ export default class MyDocument extends Document {
             {initialProps.styles}
             {sheet.getStyleElement()}
             <link href="/styles/index.css" rel="stylesheet" />
-            <style dangerouslySetInnerHTML={{ __html: staticCss }} />
+            <style dangerouslySetInnerHTML={{__html: staticCss}} />
           </>
         ),
       }

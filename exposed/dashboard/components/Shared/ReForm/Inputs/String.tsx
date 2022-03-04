@@ -1,15 +1,5 @@
-/*
- * Filename: c:\Users\leone\Documents\code\nextranet\dashboard\components\Shared\ReForm\Inputs\String.tsx
- * Path: c:\Users\leone\Documents\code\docktron\org
- * Created Date: Wednesday, October 27th 2021, 5:15:36 pm
- * Author: leone
- * 
- * Copyright (c) 2021 docktron
- */
-
-import * as Style from './style';
-
 import type InputProps from './props';
+import * as Style from './style';
 
 export default function InputString(props: InputProps) {
   function onSubmit(e: React.KeyboardEvent<HTMLInputElement>) {

@@ -57,7 +57,7 @@ export class ProjectController {
     const projectDB = await this.projectRepository.create(project);
     try {
       await this.githubService.getProjectBranch({
-        projectName: project.name,
+        projectName: project.github_project,
         username: project.github_username,
         password: project.github_password,
       });

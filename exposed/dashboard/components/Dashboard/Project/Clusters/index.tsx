@@ -1,6 +1,7 @@
 import type {
   ModelCluster,
-  ModelContainer, ModelEnvVar
+  ModelContainer,
+  ModelEnvVar
 } from '@nxtranet/headers';
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
@@ -9,12 +10,16 @@ import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
-import Modal from '~/components/Shared/Modal';
 import ModalConfirm from '~/components/Shared/ModalConfirm';
-import Reform from '~/components/Shared/ReForm';
+import ModalForm from '~/components/Shared/ModalForm';
+import {bindPathOptions} from '~/forms/utils';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
-import {ModalTitle} from '~/styles/text';
+import {
+  IconCluster,
+  IconContainer,
+  IconEnvVar
+} from '~/styles/icons';
 import type {Dispatch} from '~/utils/redux';
 import ClusterCard from './ClusterCard';
 import * as Style from './style';
@@ -30,6 +35,9 @@ const actions = {
 
 const mapStateToProps = (state: State) => ({
   clusters: state.project.target_clusters,
+  formEnvVar: state.project.form_env_var,
+  formCluster: state.project.form_cluster,
+  formContainerDeploy: state.project.form_container_deploy,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -276,6 +284,9 @@ class Clusters extends
       clusters,
       clusterName,
       projectName,
+      formCluster,
+      formEnvVar,
+      formContainerDeploy,
     } = this.props;
     const {
       envVarToEdit,
@@ -310,112 +321,49 @@ class Clusters extends
             description={`Are you sure to delete \`${envVarToDelete.key}\``}
           />
           : null}
-        {envVarToEdit ?
-          <Modal
-            isVisible={isModalEditEnvVarOpen}
-          >
-            <Style.ModalContent>
-              <ModalTitle>
-                {envVarToEdit.id ? 'Edit' : 'Create'} environement variable
-              </ModalTitle>
-              <Reform
-                schema={[
-                  {
-                    title: 'Key',
-                    key: 'key',
-                    type: 'String',
-                    isDescriptionEnabled: true,
-                    description: 'Key of you environement variable',
-                  },
-                  {
-                    title: 'Value',
-                    key: 'value',
-                    type: 'String',
-                    isDescriptionEnabled: true,
-                    description: 'Value for you environement variable',
-                  },
-                ]}
-                errors={envVarFormErrors}
-                data={envVarToEdit}
-                isButtonCancelEnabled={true}
-                onCancel={this.closeModalEditEnvVar}
-                submitTitle={envVarToEdit.id ? "Update" : "Create"}
-                onSubmit={envVarToEdit.id ? this.updateEnvVar : this.createEnvVar}
-              />
-            </Style.ModalContent>
-          </Modal>
-          : null}
-        <Modal
+        <ModalForm
+          isVisible={isModalEditEnvVarOpen}
+          title="New environement variable"
+          icon={(<IconEnvVar size={40} />)}
+          formProps={{
+            schema: formEnvVar,
+            errors: envVarFormErrors,
+            data: envVarToEdit,
+            isButtonCancelEnabled: true,
+            onCancel: this.closeModalEditEnvVar,
+            submitTitle: envVarToEdit?.id ? "Update" : "Create",
+            onSubmit: envVarToEdit?.id ? this.updateEnvVar : this.createEnvVar,
+          }}
+        />
+        <ModalForm
           isVisible={isModalDeployOpen}
-        >
-          <Style.ModalContent>
-            <Reform
-              schema={[
-                {
-                  title: 'Branch',
-                  key: 'branch',
-                  type: 'Relation',
-                  description: `
-                    Select branch to deploy inside this cluster
-                  `,
-                  isDescriptionEnabled: true,
-                  options: {
-                    path: `/projects/${projectName}/git-branches`,
-                    displayKey: 'name',
-                    returnKey: 'name',
-                    isAnyEnabled: true,
-                  }
-                }
-              ]}
-              onSubmit={this.deploySubmitForm}
-              onCancel={this.closeModalDeploy}
-              isButtonCancelEnabled={true}
-              submitTitle="Deploy"
-            />
-          </Style.ModalContent>
-        </Modal>
-        <Modal
+          title="New container"
+          icon={<IconContainer size={40} />}
+          formProps={{
+            onSubmit: this.deploySubmitForm,
+            onCancel: this.closeModalDeploy,
+            isButtonCancelEnabled: true,
+            submitTitle: "Deploy",
+            schema: bindPathOptions(formContainerDeploy, {
+              projectName,
+            }),
+          }}
+        />
+        <ModalForm
+          title="New cluster"
+          icon={<IconCluster size={40} />}
           isVisible={isModalCreateClusterOpen}
-        >
-          <Style.ModalContent>
-            <ModalTitle>
-              Create new cluster
-            </ModalTitle>
-            <Reform
-              schema={[
-                {
-                  title: 'Name',
-                  key: 'name',
-                  type: 'String',
-                  description: 'Name of your cluster \`development\` for example.',
-                  isDescriptionEnabled: true,
-                },
-                {
-                  title: 'Target branch',
-                  key: 'gitBranchNamespace',
-                  type: 'Relation',
-                  description: `
-                    Select a target branch for your cluster.
-                    If any cluster will deploy on pull request,
-                    unless it will deploy when target branch receive a commit.
-                  `,
-                  isDescriptionEnabled: true,
-                  options: {
-                    path: `/projects/${projectName}/git-branches`,
-                    displayKey: 'name',
-                    returnKey: 'namespace',
-                    isAnyEnabled: true,
-                  }
-                }
-              ]}
-              errors={clusterFormErrors}
-              onSubmit={this.onCreateCluster}
-              onCancel={this.closeModalCreateCluster}
-              isButtonCancelEnabled={true}
-              submitTitle="Create"
-            />
-          </Style.ModalContent>
-        </Modal>
+          formProps={{
+            errors: clusterFormErrors,
+            isButtonCancelEnabled: true,
+            submitTitle: 'Create',
+            onCancel: this.closeModalCreateCluster,
+            onSubmit: this.onCreateCluster,
+            schema: bindPathOptions(formCluster, {
+              projectName
+            }),
+          }}
+        />
         <Style.Container>
           <ActionWrapper>
             <ActionBar actions={[

@@ -1,4 +1,3 @@
-import {ModelClusterProduction} from '.';
 import type {ModelCluster} from './model.cluster';
 import type {ModelGitbranche} from './model.gitBranche';
 import type {ModelPipeline} from "./model.pipeline";
@@ -15,5 +14,4 @@ export type ModelProject = {
   pipelines: ModelPipeline[];
   clusters: ModelCluster[];
   gitBranches: ModelGitbranche[];
-  clusterProduction: ModelClusterProduction;
 }

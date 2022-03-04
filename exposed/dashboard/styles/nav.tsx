@@ -8,6 +8,8 @@ export const Nav = Styled.div`
   display: flex;
   flex-direction: row;
   padding: 8px;
+  max-width: 100%;
+  overflow-x: scroll;
 ${props => `
   box-shadow: ${props.theme.boxShadowSmooth};
 `}`;

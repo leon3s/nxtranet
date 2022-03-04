@@ -1,18 +1,7 @@
-/*
- * Filename: c:\Users\leone\Documents\code\nextranet\projects\dashboard\components\Shared\ReForm\index.tsx
- * Path: c:\Users\leone\Documents\code\docktron\org
- * Created Date: Wednesday, October 27th 2021, 5:10:49 pm
- * Author: leone
- *
- * Copyright (c) 2021 docktron
- */
-
 import React, {FormEvent} from 'react';
 import ButtonLoading from '../ButtonLoading';
 import * as Inputs from './Inputs';
 import * as Style from './style';
-
-
 
 const defaultValue: Record<string, any> = {
   Number: '',
@@ -21,6 +10,7 @@ const defaultValue: Record<string, any> = {
   Color: '#000000',
   ArrayString: [],
   Relation: '',
+  RelationMultiple: [],
 };
 
 export type ReformSchema = {
@@ -29,7 +19,7 @@ export type ReformSchema = {
   isLabelEnabled?: boolean;
   description?: string;
   isDescriptionEnabled?: boolean;
-  type: "Number" | "String" | "Icon" | "Color" | "ArrayString" | "Relation"
+  type: "Number" | "String" | "Icon" | "Color" | "ArrayString" | "Relation" | "RelationMultiple"
   options?: any;
 };
 
@@ -43,6 +33,7 @@ export type ReformProps = {
   errors?: Record<string, string>;
   onSubmit?: (d: any) => void | Promise<void>;
   isButtonLoadingResolving?: boolean;
+  hideButtons?: boolean;
 };
 
 type ReformState = {
@@ -164,6 +155,7 @@ export default class Reform
       schema,
       submitTitle,
       errors,
+      hideButtons,
       isButtonCancelEnabled,
       isButtonLoadingResolving,
     } = this.props;
@@ -174,7 +166,7 @@ export default class Reform
       <Style.Container>
         <Style.Form onSubmit={this.onSubmit}>
           {schema.map((schem) => Input(schem, this.onChange, data, errors))}
-          <Style.ButtonContainer>
+          {!hideButtons ? <Style.ButtonContainer>
             {isButtonCancelEnabled ?
               <Style.ButtonCancel onClick={this.onClickCancel} >
                 Cancel
@@ -185,7 +177,7 @@ export default class Reform
               title={submitTitle || "Submit"}
               isResolving={isButtonLoadingResolving}
             />
-          </Style.ButtonContainer>
+          </Style.ButtonContainer> : null}
         </Style.Form>
       </Style.Container>
     )
