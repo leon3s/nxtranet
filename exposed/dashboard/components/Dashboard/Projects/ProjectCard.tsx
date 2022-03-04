@@ -1,7 +1,9 @@
 import type {ModelProject} from '@nxtranet/headers';
-import React, { useState } from 'react';
-import {FcFolder, FcOpenedFolder} from 'react-icons/fc';
+import Link from 'next/link';
+import React, {useState} from 'react';
+import {IconProject, IconProjectOpen} from '~/styles/icons';
 import * as Style from './style';
+
 
 type ProjectCardProps = {
   isVisible: boolean;
@@ -10,7 +12,7 @@ type ProjectCardProps = {
 };
 
 export default function ProjectCard(props: ProjectCardProps) {
-  const [ isHover, setIsHover] = useState(false);
+  const [isHover, setIsHover] = useState(false);
   const {
     data,
   } = props;
@@ -27,21 +29,44 @@ export default function ProjectCard(props: ProjectCardProps) {
     setIsHover(false);
   }
 
+  function stopPropagation(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.stopPropagation();
+  }
+
   return (
-    <Style.ProjectCardContainer
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+    <Link
+      passHref
+      href={`/dashboard/projects/${data.name}`}
     >
-      {isHover ?
-          <FcOpenedFolder size={100} />
-        : <FcFolder size={100} />
-      }
-      <Style.ProjectCardTitleContainer>
-        <Style.ProjectCardTitle>
-          {props.data.name}
-        </Style.ProjectCardTitle>
-      </Style.ProjectCardTitleContainer>
-    </Style.ProjectCardContainer>
+      <Style.ProjectCardContainer
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <Style.ProjectCardIcon>
+          {isHover ?
+            <IconProjectOpen size={50} />
+            : <IconProject size={50} />
+          }
+        </Style.ProjectCardIcon>
+        <Style.ProjectCardDescription>
+          <Style.ProjectCardTitleContainer>
+            <Style.ProjectCardTitle>
+              {data.name}
+            </Style.ProjectCardTitle>
+            <Link
+              passHref
+              href={`https://github.com/${data.github_username}/${data.github_project}`}
+            >
+              <Style.ProjectCardSubLink
+                onClick={stopPropagation}
+                target="_blank"
+              >
+                {data.github_username}/{data.github_project}
+              </Style.ProjectCardSubLink>
+            </Link>
+          </Style.ProjectCardTitleContainer>
+        </Style.ProjectCardDescription>
+      </Style.ProjectCardContainer>
+    </Link>
   )
 }

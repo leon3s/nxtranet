@@ -12,17 +12,15 @@ export const Container = Styled.div<ContainerProps>`
   justify-content: center;
   min-width: 100%;
   height: 100%;
-  transition: all .6s ease;
+  transition: all .4s;
 ${props => `
   backdrop-filter: ${props.theme.header.backdrop};
   ${props.isVisible ? `
-  z-index: 99999;
-  top: 0px;
-  transform: scale(1);
+    z-index: 99999;
+    bottom: 0px;
   ` : `
-  z-index: -99999;
-  top: -2000px;
-  transform: scale(0);
+    z-index: -99999;
+    bottom: -2000px;
   `}
 `}`;
 
@@ -38,27 +36,28 @@ export const Content = Styled.div`
   align-self: center;
   display: flex;
   flex-direction: column;
-  max-width: 342px;
+  max-width: 400px;
   min-height: 142px;
   height: fit-content;
   width: 100%;
   position: relative;
 ${props => `
-  background-image: ${props.theme.backgroundGradient};
+  background: ${props.theme.primaryBackground};
   box-shadow: ${props.theme.boxShadowSmooth};
-  border-radius: 6px;
+  border-radius: 2px;
   border: 1px solid ${props.theme.borderColorDefault};
 `}`;
 
 export const TitleContainer = Styled.div`
   display: flex;
-  padding: 24px;
-  height: 50px;
+  flex: 1;
   width: 100%;
+  height: fit-content;
 `;
 
 export const Children = Styled.div`
-  padding: 0px 24px 24px 24px;
+  padding: 8px 24px 24px 24px;
   overflow-y: scroll;
   max-height: 100%;
+  height: fit-content;
 `;

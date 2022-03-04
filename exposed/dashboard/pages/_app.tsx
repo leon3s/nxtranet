@@ -33,7 +33,7 @@ class MyApp extends App<AppInitialProps> {
       <ThemeProvider theme={themeDefault}>
         <React.Fragment>
           <Head>
-            <title>Docktron</title>
+            <title>nxtranet</title>
             <link rel="shortcut icon" href="/images/icon.ico" type="image/x-icon" />
             <meta name="viewport" content="width=device-width, user-scalable=no" />
           </Head>

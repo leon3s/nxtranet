@@ -49,11 +49,12 @@ function DashboardPage(props: DasboardProps) {
   return (
     <React.Fragment>
       <Head>
-        <title>Dashboard - Docktron</title>
+        <title>Dashboard - nxtranet</title>
       </Head>
       <DashboardHeader />
       {
-        statusCode ? <Error statusCode={statusCode} /> :
+        statusCode ?
+          <Error statusCode={statusCode} /> :
           <Dashboard />
       }
     </React.Fragment>

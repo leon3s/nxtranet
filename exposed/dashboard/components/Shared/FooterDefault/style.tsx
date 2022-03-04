@@ -1,9 +1,16 @@
 import Styled from 'styled-components';
 import * as GlobalStyles from '~/styles/global';
 
+export const Container = Styled.div`
+  ${props => `
+    background-color: ${props.theme.primaryBackground};
+    border-top: 1px solid ${props.theme.borderColorDefault};
+  `}
+`;
+
 export const ContainerD = Styled(GlobalStyles.Container)`
-  padding: 2rem 0 4rem;
   width: 100%;
+  padding: 2rem 0 4rem;
 `;
 
 export const LinksContainer = Styled.div`

@@ -1,7 +1,7 @@
 export const themeDefault = {
   primaryBackground: 'white',
-  backgroundGradient: 'linear-gradient(rgba(242, 242, 242, 1), rgba(230, 230, 230, 1))',
-  backgroundGradientInverted: 'linear-gradient(rgba(230, 230, 230, 1), rgba(242, 242, 242, 1))',
+  backgroundGradient: 'linear-gradient(rgba(224, 255, 255, 0.6), rgba(255, 255, 255, 1), rgba(224, 255, 255, 0.6))',
+  backgroundGradientInverted: 'linear-gradient(rgba(242, 242, 242, 1), rgba(222, 222, 222, 1))',
   borderColorDefault: 'rgba(0, 0, 0, 0.2)',
   borderColorPrimary: 'rgba(253, 77, 43, 0.6)',
   boxShadowDefault: '0 2px 4px rgb(0 0 0 / 10%)',

@@ -5,10 +5,13 @@ import {bindActionCreators} from 'redux';
 import FooterDefault from '~/components/Shared/FooterDefault';
 import type BarChart from '~/components/Shared/MetrixBarChart';
 import NumberBlocks from '~/components/Shared/NumberBlocks';
+import PageTitle from '~/components/Shared/PageTitle';
 import type {State} from '~/redux/reducers';
 import {ContainerWrapper} from '~/styles/global';
 import type {Dispatch} from '~/utils/redux';
+import PageWrapper from '../PageWrapper';
 import * as Style from './style';
+
 
 const MetrixBarChart = dynamic(
   async (): Promise<typeof BarChart> => import("../../Shared/MetrixBarChart").then((mod) => mod.default),
@@ -76,25 +79,30 @@ class Home extends
     console.log(metrixNginxStatus);
     return (
       <ContainerWrapper>
-        <Style.Container>
-          <NumberBlocks
-            data={blocks}
-          />
-          <Style.CharWrapper>
-            <MetrixBarChart
-              title="Most visited domains"
-              color="#ff4d2a"
-              data={metrixNginxDomains}
+        <PageWrapper>
+          <Style.Container>
+            <PageTitle
+              title="Overview"
             />
-          </Style.CharWrapper>
-          <Style.CharWrapper>
-            <MetrixBarChart
-              title="Global response status"
-              data={metrixNginxStatus}
-              color="#ff4d2a"
+            <NumberBlocks
+              data={blocks}
             />
-          </Style.CharWrapper>
-        </Style.Container>
+            <Style.CharWrapper>
+              <MetrixBarChart
+                title="Most visited domains"
+                color="#ff4d2a"
+                data={metrixNginxDomains}
+              />
+            </Style.CharWrapper>
+            <Style.CharWrapper>
+              <MetrixBarChart
+                title="Global response status"
+                data={metrixNginxStatus}
+                color="#ff4d2a"
+              />
+            </Style.CharWrapper>
+          </Style.Container>
+        </PageWrapper>
         <FooterDefault />
       </ContainerWrapper>
     )

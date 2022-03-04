@@ -51,7 +51,7 @@ export
     return `upstream_${name}`;
   }
 
-  formatFilename(projectName: string, clusterName: string) {
+  formatName(projectName: string, clusterName: string) {
     return `${projectName}_${clusterName}`;
   }
 
@@ -75,14 +75,14 @@ upstream ${upstream} {
     const oldUpstreamName = this.formatUpstreamName(oldConfig?.projectName || config.projectName);
     const newCacheName = this.formatCacheName(config.projectName);
     const newUpstreamName = this.formatUpstreamName(config.projectName)
-    let file = await this.readSiteAvailable(this.formatFilename(projectName, clusterName));
+    let file = await this.readSiteAvailable(this.formatName(projectName, clusterName));
     const cacheReg = new RegExp(oldCacheName, 'gi');
     file = file.replace(cacheReg, newCacheName);
     const upstreamReg = new RegExp(oldUpstreamName, 'gi');
     file = file.replace(upstreamReg, newUpstreamName);
     const newUpstreamBlock = this.generateUpstream(newUpstreamName, ports);
     file = file.replace(/upstream .*{[^\\n]+}/gm, newUpstreamBlock);
-    await this.writeSiteAvailable(this.formatFilename(projectName, clusterName), file);
+    await this.writeSiteAvailable(this.formatName(projectName, clusterName), file);
   }
 
   writeDevConfig = async (filename: string, config: NginxDevConfig) => {
@@ -100,14 +100,15 @@ upstream ${upstream} {
       clusterName,
     } = config;
     const d = fs.readFileSync(templateProdPath, 'utf-8');
+    const name = this.formatName(projectName, clusterName);
     const render = mustache.render(d, {
       ports,
       domain,
       host,
-      upstream: this.formatUpstreamName(projectName),
-      cache_name: this.formatCacheName(projectName),
+      upstream: this.formatUpstreamName(name),
+      cache_name: this.formatCacheName(name),
     });
-    await this.writeSiteAvailable(this.formatFilename(projectName, clusterName), render);
+    await this.writeSiteAvailable(this.formatName(projectName, clusterName), render);
   }
 
   getSitesAvailable = (): Promise<NginxSiteAvailable[]> => {

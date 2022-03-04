@@ -34,6 +34,6 @@ export class ClusterContainerController {
       }
     });
     if (!container) throw new HttpErrors.NotAcceptable('Container not found');
-    await this.projectService.removeContainer(container);
+    await this.projectService.deleteContainer(container);
   }
 }

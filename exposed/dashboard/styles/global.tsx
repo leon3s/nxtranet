@@ -5,13 +5,13 @@ export const ContainerWrapper = Styled.div`
   flex: 1;
   width: 100%;
   flex-direction: column;
-${props => `
-  background-image: ${props.theme.backgroundGradient};
-`}`;
+  background: transparent;
+`;
 
 export const Container = Styled.div`
   max-width: 1024px;
   margin-right: auto;
+  background: transparent;
   margin-left: auto;
   @media (max-width: 1024px) {
     max-width: 800px;

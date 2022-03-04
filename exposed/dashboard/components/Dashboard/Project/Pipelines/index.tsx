@@ -5,10 +5,10 @@ import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
-import Modal from '~/components/Shared/Modal';
-import Reform from '~/components/Shared/ReForm';
+import ModalForm from '~/components/Shared/ModalForm';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
+import {IconPipeline} from '~/styles/icons';
 import type {Dispatch} from '~/utils/redux';
 import PipelineCard from './PipelineCard';
 import * as Style from './style';
@@ -83,11 +83,12 @@ class Pipelines extends
     return (
       <React.Fragment>
         <Style.Container>
-          <Modal
+          <ModalForm
             isVisible={isModalCreatePipelineOpen}
-          >
-            <Reform
-              schema={[
+            title="New pipeline"
+            icon={(<IconPipeline size={40} />)}
+            formProps={{
+              schema: [
                 {
                   title: 'Color',
                   key: 'color',
@@ -102,14 +103,16 @@ class Pipelines extends
                   isDescriptionEnabled: true,
                   description: 'Name of your pipepine',
                 },
-              ]}
-              submitTitle="Create"
-              onCancel={this.closeModalCreatePipeline}
-              isButtonCancelEnabled={true}
-              onSubmit={this.onCreatePipeLine}
-            />
-          </Modal>
-          <ActionWrapper>
+              ],
+              isButtonCancelEnabled: true,
+              onCancel: this.closeModalCreatePipeline,
+              submitTitle: "Create",
+              onSubmit: this.onCreatePipeLine,
+            }}
+          />
+          <ActionWrapper
+            isVisible
+          >
             <ActionBar actions={[
               {
                 title: 'Create',

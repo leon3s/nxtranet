@@ -24,6 +24,10 @@ export type ProjectState = {
   form_cluster: typeof formCluster;
   form_container_deploy: typeof formContainerDeploy,
   form_env_var: typeof formEnvVar,
+  modelProject: {
+    isModalDeleteOpen: boolean;
+    data?: ModelProject | null;
+  }
 }
 
 type FN_PTRS = Record<
@@ -203,6 +207,37 @@ const fnPtrs: FN_PTRS = {
       target_metrix_domain_req_count: action.payload.data,
     }
   },
+  [PROJECT_DEFINES.CLUSTER_PIPELINE_CREATE_LINK.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.map((cluster) => {
+        if (cluster.id === action.payload.clusterId) {
+          return {
+            ...cluster,
+            pipelines: [
+              ...(cluster.pipelines || []),
+              action.payload.pipeline,
+            ],
+          }
+        }
+        return cluster;
+      })
+    };
+  },
+  [PROJECT_DEFINES.CLUSTER_PIPELINE_DELETE_LINK.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.map((cluster) => {
+        if (cluster.id === action.payload.clusterId) {
+          return {
+            ...cluster,
+            pipelines: cluster.pipelines.filter(({id}) => id !== action.payload.pipelineId),
+          };
+        }
+        return cluster;
+      })
+    };
+  },
   [PROJECT_DEFINES.PATCH_MODEL_PIPELINE_CMD.FULFILLED]: (state, action) => {
     return {
       ...state,
@@ -221,6 +256,32 @@ const fnPtrs: FN_PTRS = {
         return pipeline;
       })
     }
+  },
+  [PROJECT_DEFINES.CLUSTER_DELETE.FULFILLED]: (state, action) => {
+    return {
+      ...state,
+      target_clusters: state.target_clusters.filter((cluster) => {
+        return cluster.namespace !== action.payload.clusterNamespace;
+      }),
+    }
+  },
+  [PROJECT_DEFINES.PROJECT_OPEN_DELETE_MODAL.DEFAULT]: (state, action) => {
+    return {
+      ...state,
+      modelProject: {
+        isModalDeleteOpen: true,
+        data: action.payload,
+      }
+    }
+  },
+  [PROJECT_DEFINES.PROJECT_CLOSE_DELETE_MODAL.DEFAULT]: (state) => {
+    return {
+      ...state,
+      modelProject: {
+        isModalDeleteOpen: false,
+        data: null,
+      }
+    }
   }
 }
 
@@ -237,6 +298,10 @@ const reducer = (state: ProjectState = {
   form_env_var: formEnvVar,
   form_cluster: formCluster,
   form_container_deploy: formContainerDeploy,
+  modelProject: {
+    isModalDeleteOpen: false,
+    data: null,
+  }
 }, action: AnyAction): ProjectState => {
   const fn = fnPtrs[action.type] || null;
   if (!fn) {

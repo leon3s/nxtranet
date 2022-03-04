@@ -1,3 +1,4 @@
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -16,14 +17,23 @@ import {
   post,
   requestBody
 } from '@loopback/rest';
+import {NginxServiceBindings, ProjectServiceBindings} from '../keys';
 import {
-  Cluster, Project
+  Cluster,
+  Project
 } from '../models';
 import {ProjectRepository} from '../repositories';
+import {NginxService} from '../services/nginx-service';
+import ProjectService from '../services/project-service';
 
 export class ProjectClusterController {
   constructor(
-    @repository(ProjectRepository) protected projectRepository: ProjectRepository,
+    @inject(NginxServiceBindings.NGINX_SERVICE)
+    protected nginxService: NginxService,
+    @inject(ProjectServiceBindings.PROJECT_SERVICE)
+    protected projectService: ProjectService,
+    @repository(ProjectRepository)
+    protected projectRepository: ProjectRepository,
   ) { }
 
   @get('/projects/{name}/clusters', {
@@ -116,20 +126,23 @@ export class ProjectClusterController {
     responses: {
       '200': {
         description: 'Project.Cluster DELETE success count',
-        content: {'application/json': {schema: CountSchema}},
       },
     },
   })
   async delete(
     @param.path.string('name') name: string,
     @param.query.object('where', getWhereSchemaFor(Cluster)) where?: Where<Cluster>,
-  ): Promise<Count> {
+  ): Promise<void> {
     const project = await this.projectRepository.findOne({
       where: {
         name,
       }
     });
     if (!project) throw new HttpErrors.NotFound('Project name not found');
-    return this.projectRepository.clusters(name).delete(where);
+    const clusters = await this.projectRepository.clusters(name).find({where});
+    await Promise.all(clusters.map((cluster) => {
+      return this.projectService.deleteCluster(cluster);
+    }));
+    await this.nginxService.reloadService();
   }
 }

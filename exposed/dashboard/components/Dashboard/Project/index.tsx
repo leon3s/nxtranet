@@ -3,15 +3,18 @@ import Link from 'next/link';
 import {useRouter} from 'next/router';
 import React from 'react';
 import FooterDefault from '~/components/Shared/FooterDefault';
+import PageTitle from '~/components/Shared/PageTitle';
 import {ContainerWrapper} from '~/styles/global';
 import {
   IconCluster,
   IconContainer,
+  IconDelete,
   IconMetrix,
   IconPipeline,
   IconSetting
 } from '~/styles/icons';
 import * as NavStyle from '~/styles/nav';
+import PageWrapper from '../PageWrapper';
 import Clusters from './Clusters';
 import Containers from './Containers';
 import Metrix from './Metrix';
@@ -24,6 +27,7 @@ type ProjectProps = {
   data: ModelProject;
   tab: string | null;
   subTab1: string | null;
+  onOpenDeleteModal: (data: ModelProject) => void;
 }
 
 const navItems = [
@@ -142,67 +146,88 @@ export default function Project(props: ProjectProps) {
   const tabs = generateTabs('/dashboard/projects', router.query.all as string[]);
   const tab = (props.tab && tabMapping[props.tab](props)) || tabMapping.clusters(props);
   console.log(router);
+  function onOpenModalDeleteProject() {
+    props.onOpenDeleteModal(props.data);
+  }
+
   return (
     <ContainerWrapper>
-      <Style.Container>
-        <Style.ProjectWrap>
-          <Style.NavFeedContainer>
-            <Style.NavFeedWrapper>
-              <Link
-                passHref
-                href="/dashboard/projects"
-              >
-                <Style.NavFeedItem>
-                  Projects
-                </Style.NavFeedItem>
-              </Link>
-              <Style.NavFeedSeparator>
-                {">"}
-              </Style.NavFeedSeparator>
-            </Style.NavFeedWrapper>
-            {tabs.map((tab, i) => (
-              <Style.NavFeedWrapper
-                key={tab.name}
-              >
-                <Link
-                  passHref
-                  href={tab.link}
-                >
-                  <Style.NavFeedItem>
-                    {tab.name}
-                  </Style.NavFeedItem>
-                </Link>
-                {i < tabs.length - 1 ?
+      <PageWrapper>
+        <Style.Container>
+          <Style.ProjectWrap>
+            {/* <Style.NavFeedContainer>
+                <Style.NavFeedWrapper>
+                  <Link
+                    passHref
+                    href="/dashboard/projects"
+                  >
+                    <Style.NavFeedItem>
+                      Projects
+                    </Style.NavFeedItem>
+                  </Link>
                   <Style.NavFeedSeparator>
                     {">"}
-                  </Style.NavFeedSeparator> : null}
-              </Style.NavFeedWrapper>
-            ))}
-          </Style.NavFeedContainer>
-          <NavStyle.Nav
-            className='scroll-bar'
-          >
-            {navItems.map((navItem) => (
-              <NavStyle.NavTab
-                key={navItem.href}
-              >
-                <Link
-                  passHref
-                  href={generateUrl(props.data.name, navItem.href)}
-                >
-                  <Style.DesktopNavTitle
-                    active={isActive(props.tab, navItem.href)}
+                  </Style.NavFeedSeparator>
+                </Style.NavFeedWrapper>
+                {tabs.map((tab, i) => (
+                  <Style.NavFeedWrapper
+                    key={tab.name}
                   >
-                    {navItem.icon()}&nbsp;
-                    {navItem.title}
-                  </Style.DesktopNavTitle>
-                </Link>
-              </NavStyle.NavTab>
-            ))}
-          </NavStyle.Nav>
-          {tab}
-        </Style.ProjectWrap>
-      </Style.Container>
+                    <Link
+                      passHref
+                      href={tab.link}
+                    >
+                      <Style.NavFeedItem>
+                        {tab.name}
+                      </Style.NavFeedItem>
+                    </Link>
+                    {i < tabs.length - 1 ?
+                      <Style.NavFeedSeparator>
+                        {">"}
+                      </Style.NavFeedSeparator> : null}
+                  </Style.NavFeedWrapper>
+                ))}
+              </Style.NavFeedContainer> */}
+            <PageTitle
+              title={props.data.name}
+              actions={[
+                {
+                  title: 'Settings',
+                  icon: () => <IconSetting size={12} />,
+                  fn: () => { },
+                },
+                {
+                  title: 'Delete',
+                  icon: () => <IconDelete size={12} />,
+                  fn: onOpenModalDeleteProject,
+                }
+              ]}
+            />
+            <NavStyle.Nav
+              className='scroll-bar'
+            >
+              {navItems.map((navItem) => (
+                <NavStyle.NavTab
+                  key={navItem.href}
+                >
+                  <Link
+                    passHref
+                    href={generateUrl(props.data.name, navItem.href)}
+                  >
+                    <Style.DesktopNavTitle
+                      active={isActive(props.tab, navItem.href)}
+                    >
+                      {navItem.icon()}&nbsp;
+                      {navItem.title}
+                    </Style.DesktopNavTitle>
+                  </Link>
+                </NavStyle.NavTab>
+              ))}
+            </NavStyle.Nav>
+            {tab}
+          </Style.ProjectWrap>
+        </Style.Container>
+      </PageWrapper>
       <FooterDefault />
     </ContainerWrapper >
   )

@@ -1,9 +1,13 @@
-import {AiOutlineCluster} from 'react-icons/ai';
+import {
+  AiFillFolder, AiFillFolderOpen, AiOutlineCluster,
+  AiOutlinePlus
+} from 'react-icons/ai';
 import {GiMatterStates} from 'react-icons/gi';
-import {HiVariable} from 'react-icons/hi';
+import {HiOutlineViewGrid, HiVariable} from 'react-icons/hi';
 import {IoMdCube} from 'react-icons/io';
-import {MdOutlineQueryStats} from 'react-icons/md';
+import {MdOutlineQueryStats, MdOutlineRemove} from 'react-icons/md';
 import {RiSettings2Line} from 'react-icons/ri';
+
 
 export const IconCluster = AiOutlineCluster;
 
@@ -16,3 +20,13 @@ export const IconSetting = RiSettings2Line;
 export const IconMetrix = MdOutlineQueryStats;
 
 export const IconEnvVar = HiVariable;
+
+export const IconPlus = AiOutlinePlus;
+
+export const IconOverview = HiOutlineViewGrid;
+
+export const IconDelete = MdOutlineRemove;
+
+export const IconProject = AiFillFolder;
+
+export const IconProjectOpen = AiFillFolderOpen;

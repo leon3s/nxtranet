@@ -5,40 +5,42 @@ import * as Style from './style';
 export default class FooterDefault extends React.PureComponent {
   render() {
     return (
-      <Style.ContainerD>
-        <Style.LinksContainer>
-          <Style.LinkContainer>
-            <Style.LinksTitle>
-              General resources
-            </Style.LinksTitle>
-            <Link
-              href="/"
-              passHref
-            >
-              <Style.FooterLink>
-                Home
+      <Style.Container>
+        <Style.ContainerD>
+          <Style.LinksContainer>
+            <Style.LinkContainer>
+              <Style.LinksTitle>
+                General resources
+              </Style.LinksTitle>
+              <Link
+                href="/"
+                passHref
+              >
+                <Style.FooterLink>
+                  Home
+                </Style.FooterLink>
+              </Link>
+              <Link
+                href="/releases"
+                passHref
+              >
+                <Style.FooterLink>
+                  Releases
+                </Style.FooterLink>
+              </Link>
+              <Style.FooterLink
+                target="_blank"
+                href="https://github.com/leon3s/nxtranet"
+              >
+                Github
               </Style.FooterLink>
-            </Link>
-            <Link
-              href="/releases"
-              passHref
-            >
-              <Style.FooterLink>
-                Releases
-              </Style.FooterLink>
-            </Link>
-            <Style.FooterLink
-              target="_blank"
-              href="https://github.com/leon3s/nxtranet"
-            >
-              Github
-            </Style.FooterLink>
-          </Style.LinkContainer>
-        </Style.LinksContainer>
-        <Style.DCopy>
-          Copyright © 2021 Nxthat, Inc. All rights reserved.
-        </Style.DCopy>
-      </Style.ContainerD>
+            </Style.LinkContainer>
+          </Style.LinksContainer>
+          <Style.DCopy>
+            Copyright © 2022 nxthat, Inc. All rights reserved.
+          </Style.DCopy>
+        </Style.ContainerD>
+      </Style.Container>
     );
   }
 }

@@ -2,8 +2,6 @@ import Styled from 'styled-components';
 import Image from '~/components/Shared/Image';
 import * as GlobalStyle from '~/styles/global';
 
-
-
 export const FixedContainer = Styled.div`
   top: 0;
   width: 100%;
@@ -29,12 +27,15 @@ export const UserAvatar = Styled(Image)`
 `;
 
 export const SubMenu = Styled.div`
+${props => `
+  border-bottom: 1px solid ${props.theme.borderColorDefault};
+  background-color: ${props.theme.primaryBackground};
+`}
 `;
 
 export const SubMenuNav = Styled.div`
   height: 48px;
   width: 100%;
-  padding: 2px 0px;
   position: relative;
   overflow: hidden;
 `;
@@ -45,6 +46,7 @@ interface StickyProps {
 
 export const Sticky = Styled.div<StickyProps>`
   width:100%;
+
 ${props => `
   ${props.sticky ? `
     top: 0px;
@@ -56,11 +58,11 @@ ${props => `
 `;
 
 export const MenuContainer = Styled.div`
-  position:relative;
+  position: relative;
   width:100%;
   padding: 0px 8px;
   ${props => `
-  box-shadow: ${props.theme.boxShadowSmooth};
+  border-bottom: 1px solid ${props.theme.borderColorDefault};
   background-color: ${props.theme.primaryBackground};
 `}`;
 
@@ -75,6 +77,7 @@ export const MenuContent = Styled(GlobalStyle.Container)`
   flex-grow: 1;
   width: 100%;
   align-items: center;
+
 `;
 
 export const LogoAnim = Styled.img`

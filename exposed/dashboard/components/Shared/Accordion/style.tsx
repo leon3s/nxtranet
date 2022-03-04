@@ -1,7 +1,7 @@
 import Styled from 'styled-components';
 
 interface IContentContainerProps {
-  isVisible:boolean;
+  isVisible: boolean;
 }
 
 export const Container = Styled.div`
@@ -20,10 +20,10 @@ export const TitleContainer = Styled.div`
 export const ContentContainer = Styled.div<IContentContainerProps>`
   width: 100%;
   overflow: hidden;
-  transition: all .4s ease-in-out;
+  transition: all .8s ease-in-out;
   ${props => props.isVisible ? `
-    max-height: 5000px;
+    max-height: 100vh;
   ` : `
-    max-height: 0px;
+    max-height: 0;
   `}
 `;

@@ -7,10 +7,8 @@ import type {
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
 import React from 'react';
-import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import api from '~/api';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ModalConfirm from '~/components/Shared/ModalConfirm';
 import ModalForm from '~/components/Shared/ModalForm';
@@ -22,7 +20,8 @@ import {
   IconCluster,
   IconContainer,
   IconEnvVar,
-  IconPipeline
+  IconPipeline,
+  IconPlus
 } from '~/styles/icons';
 import type {Dispatch} from '~/utils/redux';
 import ClusterCard from './ClusterCard';
@@ -35,6 +34,9 @@ const actions = {
   createEnvVar: projectActions.createEnvVar,
   deleteEnvVar: projectActions.deleteEnvVar,
   patchEnvVar: projectActions.patchEnvVar,
+  clusterPipelineCreateLink: projectActions.clusterPipelineCreateLink,
+  clusterPipelineDeleteLink: projectActions.clusterPipelineDeleteLink,
+  deleteProjectCluster: projectActions.deleteProjectCluster,
 }
 
 const mapStateToProps = (state: State) => ({
@@ -69,6 +71,9 @@ type ClustersState = {
   targetClusterNamespace: string | null;
   targetCluster?: ModelCluster | null;
   isModalPipelineRelationOpen: boolean;
+  targetPipeline?: ModelPipeline | null;
+  isModalDeletePipelineLinkOpen: boolean;
+  isModalOpenModalDeleteClusterOpen: boolean;
 }
 
 class Clusters extends
@@ -79,6 +84,7 @@ class Clusters extends
     isModalCreateClusterOpen: false,
     isModalDeleteEnvVarOpen: false,
     isModalDeleteContainerOpen: false,
+    isModalDeletePipelineLinkOpen: false,
     isModalEditEnvVarOpen: false,
     containerToDelete: null,
     envVarToDelete: null,
@@ -87,7 +93,9 @@ class Clusters extends
     clusterFormErrors: {},
     targetClusterNamespace: null,
     isModalPipelineRelationOpen: false,
+    isModalOpenModalDeleteClusterOpen: false,
     targetCluster: null,
+    targetPipeline: null,
   };
 
   deploySubmitForm = async (data: {branch: string}) => {
@@ -264,7 +272,6 @@ class Clusters extends
   }
 
   updateEnvVar = async (envVar: ModelEnvVar) => {
-    console.log(envVar);
     await this.props.patchEnvVar(envVar);
     this.closeModalEditEnvVar();
   }
@@ -301,15 +308,63 @@ class Clusters extends
     })
   }
 
-  onAddPipelineRelation = async (item: ModelPipeline) => {
+  onCreatePipelineLink = async (item: ModelPipeline) => {
     const {targetCluster} = this.state;
     if (!targetCluster) return;
-    await api.post(`/clusters/${targetCluster.id}/pipelines/${item.id}/link`);
+    await this.props.clusterPipelineCreateLink({
+      clusterId: targetCluster.id,
+      pipelineId: item.id,
+    })
     this.onClickClosePipelineRelation();
   }
 
+  onConfirmDeletePipelineLink = async () => {
+    const {targetCluster, targetPipeline} = this.state;
+    if (!targetCluster || !targetPipeline) return;
+    await this.props.clusterPipelineDeleteLink({
+      clusterId: targetCluster.id,
+      pipelineId: targetPipeline.id,
+    });
+    this.closeModalDeletePipelineLink();
+  }
+
+  closeModalDeletePipelineLink = () => {
+    this.setState({
+      isModalDeletePipelineLinkOpen: false,
+      targetCluster: null,
+      targetPipeline: null,
+    })
+  }
+
   onClickPipelineLink = async (cluster: ModelCluster, item: ModelPipeline) => {
-    await api.delete(`/clusters/${cluster.id}/pipelines/${item.id}/link`);
+    this.setState({
+      isModalDeletePipelineLinkOpen: true,
+      targetCluster: cluster,
+      targetPipeline: item,
+    });
+  }
+
+  onClickOpenModalClusterDelete = (cluster: ModelCluster) => {
+    this.setState({
+      isModalOpenModalDeleteClusterOpen: true,
+      targetCluster: cluster,
+    })
+  }
+
+  closeModalClusterDelete = () => {
+    this.setState({
+      isModalOpenModalDeleteClusterOpen: false,
+      targetCluster: null,
+    })
+  }
+
+  onConfirmDeleteCluster = async () => {
+    const {projectName} = this.props;
+    const {targetCluster} = this.state;
+    if (!targetCluster) return;
+    await this.props.deleteProjectCluster(projectName, targetCluster?.namespace);
+    this.closeModalClusterDelete();
+    this.props.router.replace(`/dashboard/projects/${projectName}/clusters`);
   }
 
   render() {
@@ -334,15 +389,18 @@ class Clusters extends
       isModalCreateClusterOpen,
       isModalDeleteContainerOpen,
       isModalPipelineRelationOpen,
+      isModalDeletePipelineLinkOpen,
+      isModalOpenModalDeleteClusterOpen,
+      targetPipeline,
     } = this.state;
     return (
       <React.Fragment>
         <ModalRelationMultiple
-          title="Link pipeline"
+          title="New pipeline link"
           icon={<IconPipeline size={40} />}
           isVisible={isModalPipelineRelationOpen}
           onClickCancel={this.onClickClosePipelineRelation}
-          onClickItem={this.onAddPipelineRelation}
+          onClickItem={this.onCreatePipelineLink}
           value={targetCluster?.pipelines || []}
           options={{
             path: `/projects/${projectName}/pipelines`,
@@ -351,13 +409,31 @@ class Clusters extends
             displayKey: 'name',
           }}
         />
+        {targetCluster ?
+          <ModalConfirm
+            title="Warning"
+            isVisible={isModalOpenModalDeleteClusterOpen}
+            onCancel={this.closeModalClusterDelete}
+            onConfirm={this.onConfirmDeleteCluster}
+            description={`Are you sure to delete cluster \`${targetCluster.name}\``}
+          />
+          : null}
+        {targetPipeline ?
+          <ModalConfirm
+            title="Warning"
+            isVisible={isModalDeletePipelineLinkOpen}
+            onCancel={this.closeModalDeletePipelineLink}
+            onConfirm={this.onConfirmDeletePipelineLink}
+            description={`Are you sure to delete pipeline \`${targetPipeline.name}\` link`}
+          />
+          : null}
         {containerToDelete ?
           <ModalConfirm
             title="Warning"
             isVisible={isModalDeleteContainerOpen}
             onCancel={this.closeModalContainerDelete}
             onConfirm={this.onConfirmDeleteContainer}
-            description={`Are you sure to delete \`${containerToDelete.name}\``}
+            description={`Are you sure to delete container \`${containerToDelete.name}\``}
           />
           : null}
         {envVarToDelete ?
@@ -366,7 +442,7 @@ class Clusters extends
             isVisible={isModalDeleteEnvVarOpen}
             onCancel={this.closeModalDeleteEnvVar}
             onConfirm={this.onConfirmDeleteEnvVar}
-            description={`Are you sure to delete \`${envVarToDelete.key}\``}
+            description={`Are you sure to delete environement variable \`${envVarToDelete.key}\``}
           />
           : null}
         <ModalForm
@@ -413,11 +489,13 @@ class Clusters extends
           }}
         />
         <Style.Container>
-          <ActionWrapper>
+          <ActionWrapper
+            isVisible={!clusterName}
+          >
             <ActionBar actions={[
               {
                 title: 'Create',
-                icon: () => <AiOutlinePlus size={12} />,
+                icon: () => <IconPlus size={12} />,
                 fn: this.onOpenModalCreateCluster,
               }
             ]} />
@@ -428,6 +506,7 @@ class Clusters extends
                 data={cluster}
                 key={cluster.id}
                 onClick={this.onClickCard}
+                onClickOpenModalDelete={this.onClickOpenModalClusterDelete}
                 isVisible={clusterName === cluster.name}
                 onClickPipelineLink={this.onClickPipelineLink}
                 onClickEditEnvVar={this.onClickEditEnvVar}

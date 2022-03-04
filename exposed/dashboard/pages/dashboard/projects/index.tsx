@@ -7,6 +7,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import DashboardHeader from '~/components/Dashboard/Header';
 import Projects from '~/components/Dashboard/Projects';
+import ModalConfirm from '~/components/Shared/ModalConfirm';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
@@ -18,6 +19,7 @@ const actions = {
 
 const mapStateToProps = (state: State) => ({
   projects: state.project.data,
+  modelProject: state.project.modelProject,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -46,23 +48,36 @@ export const getServerSideProps = wrapper.getServerSideProps(store =>
 )
 
 function ProjectsPage(props: ProjectsPageProps) {
-  const {errorCode} = props;
-  async function createProject(data: ModelProject) {
-    await props.createProject(data);
+  const {
+    errorCode,
+    modelProject,
+    createProject,
+  } = props;
+  async function onCreateProject(data: ModelProject) {
+    await createProject(data);
   }
 
   return (
     <React.Fragment>
       <Head>
-        <title>Projects - Dashboard - Nextranet</title>
+        <title>Projects - Dashboard - nxtranet</title>
       </Head>
       <DashboardHeader />
-      {errorCode ?
-        <Error statusCode={errorCode} />
-        : <Projects
-          data={props.projects}
-          onSubmitForm={createProject}
-        />}
+      <ModalConfirm
+        title="Warning"
+        isVisible={modelProject.isModalDeleteOpen}
+        onCancel={() => { }}
+        onConfirm={() => { }}
+        description={`Are you sure to delete cluster \`${modelProject.data?.name}\``}
+      />
+      {
+        errorCode ?
+          <Error statusCode={errorCode} /> :
+          <Projects
+            data={props.projects}
+            onSubmitForm={onCreateProject}
+          />
+      }
     </React.Fragment>
   )
 }

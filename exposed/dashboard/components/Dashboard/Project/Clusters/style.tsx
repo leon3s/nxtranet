@@ -2,7 +2,6 @@ import Styled from 'styled-components';
 
 export const Container = Styled.div`
   width: 100%;
-  min-height: 100%;
   display: flex;
   flex-direction: column;
 `;
@@ -30,7 +29,7 @@ export const ClusterContent = Styled.div`
   flex-direction: column;
 `;
 
-export const EnvVars = Styled.div`
+export const FlexLine = Styled.div`
   display: inline-flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -48,5 +47,12 @@ export const ClusterContainers = Styled.div`
   display: flex;
 `;
 
-export const PipelineContainer = Styled.div`
+export const ClusterCardTitleContainer = Styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+export const ClusterCardTitleActions = Styled.div`
+  display: flex;
 `;

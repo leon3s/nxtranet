@@ -12,12 +12,15 @@ export const NumberBlock = Styled.div`
   height: auto;
   padding: 20px;
   display: flex;
+
   flex-direction: column;
   justify-content: center;
   margin: 10px 6px;
+  border-radius: 2px;
   border: 1px solid transparent;
   ${props => `
-    box-shadow: ${props.theme.boxShadowDefault};
+    background-color: ${props.theme.primaryBackground};
+    box-shadow: ${props.theme.boxShadowAdvenced};
     :hover {
       border: 1px solid ${props.theme.borderColorDefault};
     }

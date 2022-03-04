@@ -1,4 +1,10 @@
 {
+  "rules": {
+    "semicolon": [
+      true,
+      "always"
+    ],
+  },
   "compilerOptions": {
     "baseUrl": ".",
     "target": "esnext",

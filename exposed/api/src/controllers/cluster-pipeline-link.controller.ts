@@ -4,32 +4,33 @@ import {
 import {
   del, getModelSchemaRef, HttpErrors, param, post
 } from '@loopback/rest';
-import {
-  ClusterPipeline
-} from '../models';
-import {ClusterPipelineRepository} from '../repositories';
+import {Pipeline} from '../models';
+import {ClusterPipelineRepository, PipelineRepository} from '../repositories';
 
 export class ClusterPipelineLinkController {
   constructor(
+    @repository(PipelineRepository)
+    protected pipelineRepository: PipelineRepository,
     @repository(ClusterPipelineRepository) protected clusterPipelineRepository: ClusterPipelineRepository,
   ) { }
 
   @post('/clusters/{clusterId}/pipelines/{pipelineId}/link', {
     responses: {
       '200': {
-        description: 'create a Pipeline model instance',
-        content: {'application/json': {schema: getModelSchemaRef(ClusterPipeline)}},
+        description: 'create a Pipeline Link model instance',
+        content: {'application/json': {schema: getModelSchemaRef(Pipeline)}},
       },
     },
   })
   async create(
     @param.path.string('clusterId') clusterId: string,
     @param.path.string('pipelineId') pipelineId: string
-  ): Promise<ClusterPipeline> {
-    return this.clusterPipelineRepository.create({
+  ): Promise<Pipeline> {
+    await this.clusterPipelineRepository.create({
       clusterId,
       pipelineId,
     });
+    return this.pipelineRepository.findById(pipelineId);
   }
 
   @del('/clusters/{clusterId}/pipelines/{pipelineId}/link', {

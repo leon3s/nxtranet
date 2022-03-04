@@ -38,6 +38,7 @@ export class MetrixController {
     });
     const hostnames = clusters.map(({hostname}) => hostname);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
+    if (!hostnames.length) return 0;
     const [{request_time}] = await nginxAccessLogCollection
       .aggregate()
       .match({host: {$in: hostnames}})

@@ -1,8 +1,11 @@
 import type {NginxSiteAvailable} from '@nxtranet/headers';
 import React from 'react';
 import api from '~/api';
+import FooterDefault from '~/components/Shared/FooterDefault';
 import ModalActionFetcher from '~/components/Shared/ModalActionFetcher';
+import PageTitle from '~/components/Shared/PageTitle';
 import {ContainerWrapper} from '~/styles/global';
+import PageWrapper from '../PageWrapper';
 import NginxCard from './NginxCard';
 import * as Style from './style';
 
@@ -73,21 +76,27 @@ export default class Nginx extends React.PureComponent<NginxProps, NginxState> {
           ]}
         />
         <ContainerWrapper>
-          <Style.Container>
-            <Style.NginxCards>
-              {this.props.data.map((siteAvaible) => (
-                <Style.NginxCardContainer
-                  key={siteAvaible.name}
-                >
-                  <NginxCard
-                    data={siteAvaible}
-                    onClick={() => { }}
-                    onUpdateNginxSiteAvailable={this.openUpdateNginxModal}
-                  />
-                </Style.NginxCardContainer>
-              ))}
-            </Style.NginxCards>
-          </Style.Container>
+          <PageWrapper>
+            <Style.Container>
+              <PageTitle
+                title="Nginx"
+              />
+              <Style.NginxCards>
+                {this.props.data.map((siteAvaible) => (
+                  <Style.NginxCardContainer
+                    key={siteAvaible.name}
+                  >
+                    <NginxCard
+                      data={siteAvaible}
+                      onClick={() => { }}
+                      onUpdateNginxSiteAvailable={this.openUpdateNginxModal}
+                    />
+                  </Style.NginxCardContainer>
+                ))}
+              </Style.NginxCards>
+            </Style.Container>
+          </PageWrapper>
+          <FooterDefault />
         </ContainerWrapper>
       </React.Fragment>
     )

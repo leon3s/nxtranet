@@ -1,5 +1,5 @@
 import Styled from 'styled-components';
-import { Text } from "~/styles/text";
+import {Text} from "~/styles/text";
 
 export const Overlay = Styled.div`
   position: absolute;
@@ -31,7 +31,7 @@ export const Container = Styled.div`
     }
   }
 ${props => `
-  box-shadow: ${props.theme.boxShadowDefault};
+  box-shadow: ${props.theme.boxShadowAdvenced};
   background: ${props.theme.header.backgroundColor};
 `}`;
 

@@ -3,8 +3,9 @@ import {Text, Title} from '~/styles/text';
 
 export const Container = Styled.div`
 border: 1px solid transparent;
+border-radius: 2px;
 ${props => `
-  box-shadow: ${props.theme.boxShadowDefault};
+  box-shadow: ${props.theme.boxShadowAdvenced};
   :hover {
     border: 1px solid ${props.theme.borderColorDefault};
   }

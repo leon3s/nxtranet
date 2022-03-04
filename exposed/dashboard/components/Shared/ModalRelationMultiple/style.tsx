@@ -8,14 +8,18 @@ export const Container = Styled.div`
 `;
 
 export const ModalTitle = Styled(Title)`
-  margin-left: 4px;
   font-weight: bold;
 `;
 
 export const ModalTitleContainer = Styled.div`
+  padding: 8px 24px;
   display: flex;
   flex-direction: row;
   align-items: center;
+  width: 100%;
+  ${props => `
+    border-bottom: 1px solid ${props.theme.borderColorDefault};
+  `}
 `;
 
 export const Line = Styled.div`

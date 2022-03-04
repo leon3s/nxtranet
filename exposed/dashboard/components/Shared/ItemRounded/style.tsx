@@ -31,7 +31,7 @@ export const Item = Styled.div`
     }
   }
   ${props => `
-    box-shadow: ${props.theme.boxShadowDefault};
+    box-shadow: ${props.theme.boxShadowAdvenced};
     background: ${props.theme.header.backgroundColor};
 `}`;
 

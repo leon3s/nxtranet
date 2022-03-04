@@ -3,13 +3,12 @@
 import type {ModelProject} from '@nxtranet/headers';
 import {NextRouter, withRouter} from 'next/router';
 import React from 'react';
-import {AiOutlinePlus} from 'react-icons/ai';
-import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import FooterDefault from '~/components/Shared/FooterDefault';
-// Local components
-import Modal from '~/components/Shared/Modal';
-import Reform from '~/components/Shared/ReForm';
+import ModalForm from '~/components/Shared/ModalForm';
+import PageTitle from '~/components/Shared/PageTitle';
 import {ContainerWrapper} from '~/styles/global';
+import {IconPlus, IconProject} from '~/styles/icons';
+import PageWrapper from '../PageWrapper';
 import ProjectCard from './ProjectCard';
 import * as Style from './style';
 
@@ -80,53 +79,76 @@ class Projects
     } = this.state;
     return (
       <React.Fragment>
-        <Modal
+        <ModalForm
           isVisible={isModalCreateOpen}
-        >
-          <Style.ModalContent>
-            <Reform
-              schema={[
-                {title: 'Name', key: 'name', type: 'String'},
-                {title: 'Github Project', key: 'github_project', type: 'String'},
-                {title: 'Github Username', key: 'github_username', type: 'String'},
-                {title: 'Github Password', key: 'github_password', type: 'String'},
-              ]}
-              errors={createProjectFormErrors}
-              onSubmit={this.onSubmit}
-              onCancel={this.closeModalCreate}
-              isButtonCancelEnabled={true}
-              submitTitle="Create"
-            />
-          </Style.ModalContent>
-        </Modal>
+          title="New project"
+          icon={(<IconProject size={40} />)}
+          formProps={{
+            schema: [{
+              title: 'Name',
+              key: 'name',
+              type: 'String',
+              isDescriptionEnabled: true,
+              description: 'Display name of your project',
+            },
+            {
+              title: 'Github Project',
+              key: 'github_project',
+              type: 'String',
+              isDescriptionEnabled: true,
+              description: 'Github project name you want to be abble to deploy'
+            },
+            {
+              title: 'Github Username',
+              key: 'github_username',
+              type: 'String',
+              isDescriptionEnabled: true,
+              description: 'Github username or organization name that host the repository',
+            },
+            {
+              title: 'Github Password',
+              key: 'github_password',
+              type: 'String',
+              isDescriptionEnabled: true,
+              description: 'A generated access token with read right on the repository',
+            }],
+            errors: createProjectFormErrors,
+            isButtonCancelEnabled: true,
+            onCancel: this.closeModalCreate,
+            submitTitle: "Create",
+            onSubmit: this.onSubmit,
+          }}
+        />
         <ContainerWrapper>
-          <Style.Container>
-            <ActionWrapper>
-              <ActionBar actions={[
-                {
-                  title: 'Create',
-                  icon: () => <AiOutlinePlus size={12} />,
-                  fn: this.onOpenModalCreate,
-                }
-              ]} />
-            </ActionWrapper>
-            <Style.ProjectsContainer>
-              {data.map((project) => (
-                <ProjectCard
-                  key={project.id}
-                  data={project}
-                  isVisible={false}
-                  onClick={this.onClickProject}
-                />
-              ))}
-            </Style.ProjectsContainer>
-          </Style.Container>
+          <PageWrapper>
+            <Style.Container>
+              <PageTitle
+                title="Projects"
+                actions={[
+                  {
+                    title: 'New project',
+                    icon: () => <IconPlus size={12} />,
+                    fn: this.onOpenModalCreate,
+                  }
+                ]}
+              />
+              <Style.ProjectsContainer>
+                {data.map((project) => (
+                  <ProjectCard
+                    key={project.id}
+                    data={project}
+                    isVisible={false}
+                    onClick={this.onClickProject}
+                  />
+                ))}
+              </Style.ProjectsContainer>
+            </Style.Container>
+          </PageWrapper>
           <FooterDefault />
         </ContainerWrapper>
       </React.Fragment>
     )
   }
-
 }
 
 export default withRouter(Projects);

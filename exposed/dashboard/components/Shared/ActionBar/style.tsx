@@ -1,6 +1,5 @@
 import Styled from 'styled-components';
-
-import { ButtonDefault } from '~/styles/buttons';
+import {ButtonDefault} from '~/styles/buttons';
 
 export const Container = Styled.div`
   height: 20px;
@@ -11,8 +10,10 @@ export const Container = Styled.div`
 
 export const Buttons = Styled.div`
   width: fit-content;
-  display: flex;
-  flex-direction: row;
+  display: inline-flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 4px;
 `;
 
 export const Button = Styled(ButtonDefault)`

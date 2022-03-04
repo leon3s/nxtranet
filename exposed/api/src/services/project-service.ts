@@ -1,9 +1,10 @@
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {ModelClusterType} from '../../../../packages/headers/dist';
-import {DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SystemServiceBindings} from '../keys';
-import {Cluster, Container, Project} from '../models';
-import {ClusterRepository, ContainerRepository, NginxAccessLogRepository, ProjectRepository} from '../repositories';
+import {DnsmasqServiceBindings, DockerServiceBindings, GithubServiceBindings, NginxServiceBindings, SystemServiceBindings} from '../keys';
+import {Cluster, Container, Pipeline, Project} from '../models';
+import {ClusterPipelineRepository, ClusterRepository, ContainerRepository, NginxAccessLogRepository, PipelineRepository, ProjectRepository} from '../repositories';
+import {DnsmasqService} from './dnsmasq-service';
 import {DockerService} from './docker-service';
 import {GithubService} from './github-service';
 import {NginxService} from './nginx-service';
@@ -19,6 +20,10 @@ type DeployPayload = {
 export default
   class ProjectService {
   constructor(
+    @repository(ClusterPipelineRepository)
+    protected clusterPipelineRepository: ClusterPipelineRepository,
+    @repository(PipelineRepository)
+    protected pipelineRepository: PipelineRepository,
     @repository(ContainerRepository)
     protected containerRepository: ContainerRepository,
     @repository(ClusterRepository)
@@ -35,6 +40,8 @@ export default
     protected nginxService: NginxService,
     @inject(GithubServiceBindings.GITHUB_SERVICE)
     protected githubService: GithubService,
+    @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE)
+    protected dnsmasqService: DnsmasqService,
   ) { }
 
   /** Called when application boot */
@@ -72,12 +79,11 @@ export default
     if (!isDeployed) {
       await this.nginxService.deploySiteAvailable(filename);
     }
-    await this.nginxService.reloadService();
   }
 
-  removeContainer = async (container: Container) => {
+  deleteContainer = async (container: Container) => {
+    await this.dockerService.deleteContainer(container);
     await this.nginxService.clearSite(container.namespace);
-    await this.dockerService.clusterContainerRemove(container);
   }
 
   dockerHookClusterDeploy = async (cluster: Cluster, opts: DeployPayload) => {
@@ -130,8 +136,11 @@ export default
       });
       await this.deployNginxConf(cluster.namespace);
     }
+    await this.dnsmasqService.configSync();
+    await this.dnsmasqService.restartService();
+    await this.nginxService.reloadService();
     await Promise.all(containersToDelete.map((container) => {
-      return this.removeContainer(container);
+      return this.deleteContainer(container);
     }));
   }
 
@@ -162,7 +171,7 @@ export default
       clusterName: cluster.name,
       projectName: cluster.projectName,
     };
-    const nginxFilename = this.nginxService.formatFilename(projectName, name);
+    const nginxFilename = this.nginxService.formatName(projectName, name);
     const nginxFileExists = await this.nginxService.siteAvailableExists(nginxFilename);
     if (nginxFileExists) {
       await this.nginxService.updateProdConfig(nginxConfig);
@@ -170,6 +179,9 @@ export default
       await this.nginxService.createProdConfig(nginxConfig);
     }
     await this.deployNginxConf(nginxFilename);
+    await this.dnsmasqService.configSync();
+    await this.dnsmasqService.restartService();
+    await this.nginxService.reloadService();
   }
 
   deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
@@ -183,7 +195,7 @@ export default
       this.deployBGProd(cluster, containers)
         .then(() => {
           return Promise.all(containersToDelete.map(async (container) => {
-            return this.removeContainer(container);
+            return this.deleteContainer(container);
           }));
         })
         .catch((err) => {
@@ -211,6 +223,43 @@ export default
     }));
   }
 
-  removeProject = async (project: Project) => {
+  deleteProject = async (project: Project) => {
+    const pipelines = await this.projectRepository.pipelines(project.name).find();
+    await Promise.all(pipelines.map((pipeline) => {
+      return this.deletePipeline(pipeline);
+    }));
+    const clusters = await this.projectRepository.clusters(project.name).find();
+    await Promise.all(clusters.map((cluster) => {
+      return this.deleteCluster(cluster);
+    }));
+    await this.projectRepository.gitBranches(project.name).delete();
+    await this.projectRepository.delete(project);
+  }
+
+  deletePipeline = async (pipeline: Pipeline) => {
+    await this.pipelineRepository.commands(pipeline.namespace).delete();
+    await this.pipelineRepository.delete(pipeline);
+  }
+
+  deleteCluster = async (cluster: Cluster) => {
+    await this.clusterRepository.envVars(cluster.namespace).delete();
+    await this.clusterPipelineRepository.deleteAll({
+      clusterId: cluster.id,
+    });
+    const containers = await this.clusterRepository.containers(cluster.namespace).find();
+    await Promise.all((containers.map((container) => {
+      return this.deleteContainer(container);
+    })));
+    const name = this.nginxService.formatName(cluster.projectName, cluster.name);
+    await this.nginxService.clearSite(name);
+    await this.clusterRepository.delete(cluster);
+  }
+
+  patchProject = async () => {
+
+  }
+
+  patchProjectCluster = async () => {
+
   }
 }

@@ -5,7 +5,6 @@ import type {
   ModelPipeline
 } from '@nxtranet/headers';
 import React from 'react';
-import {AiOutlinePlus} from 'react-icons/ai';
 import Accordion from '~/components/Shared/Accordion';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ClusterContainer from '~/components/Shared/ClusterContainer';
@@ -13,6 +12,7 @@ import EnvVar from '~/components/Shared/EnvVar';
 import InfoRow from '~/components/Shared/InfoRow';
 import ItemRounded from '~/components/Shared/ItemRounded';
 import * as AccordionStyle from '~/styles/accordionLine';
+import {IconCluster, IconDelete, IconPlus, IconSetting} from '~/styles/icons';
 import * as Style from './style';
 
 type CusterCardProps = {
@@ -28,6 +28,7 @@ type CusterCardProps = {
   onClickClusterDeploy: () => void;
   onClickOpenPipelineLinkModal: (data: ModelCluster) => void;
   onClickPipelineLink: (data: ModelCluster, item: ModelPipeline) => void;
+  onClickOpenModalDelete: (data: ModelCluster) => void;
 }
 
 export default function ClusterCard(props: CusterCardProps) {
@@ -80,15 +81,47 @@ export default function ClusterCard(props: CusterCardProps) {
     },
   ]
 
+  function onClickOpenModalEdit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function onClickOpenModalDelete(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    props.onClickOpenModalDelete(data);
+  }
+
   return (
     <AccordionStyle.AccordionContainer>
       <Accordion
         onClick={onClick}
         isVisible={isVisible}
         title={
-          <AccordionStyle.AccordionTitle>
-            {data.name}
-          </AccordionStyle.AccordionTitle>
+          <Style.ClusterCardTitleContainer>
+            <AccordionStyle.AccordionTitle>
+              <IconCluster size={20} />
+              {data.name}
+            </AccordionStyle.AccordionTitle>
+            <Style.ClusterCardTitleActions>
+              <ActionWrapper
+                isVisible={isVisible}
+              >
+                <ActionBar actions={[
+                  {
+                    title: 'Edit',
+                    icon: () => <IconSetting size={12} />,
+                    fn: onClickOpenModalEdit,
+                  },
+                  {
+                    title: 'Delete',
+                    icon: () => <IconDelete size={12} />,
+                    fn: onClickOpenModalDelete,
+                  }
+                ]} />
+              </ActionWrapper>
+            </Style.ClusterCardTitleActions>
+          </Style.ClusterCardTitleContainer>
         }
         content={
           <AccordionStyle.AccordionContent>
@@ -100,18 +133,20 @@ export default function ClusterCard(props: CusterCardProps) {
                 />
               ))}
               <Style.Title>
-                Pipelines
+                Pipeline links
               </Style.Title>
-              <ActionWrapper>
+              <ActionWrapper
+                isVisible={isVisible}
+              >
                 <ActionBar actions={[
                   {
-                    title: 'Create',
-                    icon: () => <AiOutlinePlus size={12} />,
+                    title: 'New pipeline',
+                    icon: () => <IconPlus size={12} />,
                     fn: onClickOpenPipelineLinkModal,
                   }
                 ]} />
               </ActionWrapper>
-              <Style.EnvVars>
+              <Style.FlexLine>
                 {data?.pipelines?.map((pipeline) => (
                   <ItemRounded
                     key={pipeline.id}
@@ -120,20 +155,22 @@ export default function ClusterCard(props: CusterCardProps) {
                     {pipeline.name}
                   </ItemRounded>
                 ))}
-              </Style.EnvVars>
+              </Style.FlexLine>
               <Style.Title>
                 Environement Variables
               </Style.Title>
-              <ActionWrapper>
+              <ActionWrapper
+                isVisible={isVisible}
+              >
                 <ActionBar actions={[
                   {
                     title: 'New environement variable',
-                    icon: () => <AiOutlinePlus size={12} />,
+                    icon: () => <IconPlus size={12} />,
                     fn: onClickCreateEnvVar,
                   }
                 ]} />
               </ActionWrapper>
-              <Style.EnvVars>
+              <Style.FlexLine>
                 {data?.envVars?.map((envVar) => (
                   <EnvVar
                     data={envVar}
@@ -142,15 +179,17 @@ export default function ClusterCard(props: CusterCardProps) {
                     onClickDelete={onClickDeleteEnvVar}
                   />
                 ))}
-              </Style.EnvVars>
+              </Style.FlexLine>
               <Style.Title>
                 Containers
               </Style.Title>
-              <ActionWrapper>
+              <ActionWrapper
+                isVisible={isVisible}
+              >
                 <ActionBar actions={[
                   {
                     title: 'New container',
-                    icon: () => <AiOutlinePlus size={12} />,
+                    icon: () => <IconPlus size={12} />,
                     fn: onClickClusterDeploy,
                   }
                 ]} />

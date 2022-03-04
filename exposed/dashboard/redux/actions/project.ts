@@ -318,3 +318,72 @@ export const metrixDomainReqCount = createAction<[
     ({ }, { }, api) => {
       return api.get(`/metrix/nginx/domains/${name}/req-count`);
     })
+
+export const clusterPipelineCreateLink = createAction<[
+  any,
+], State, Promise<any>>(
+  PROJECT_DEFINES.CLUSTER_PIPELINE_CREATE_LINK,
+  (link) =>
+    async ({ }, { }, api) => {
+      const {data: pipeline} = await api.post(`/clusters/${link.clusterId}/pipelines/${link.pipelineId}/link`);
+      return {
+        clusterId: link.clusterId,
+        pipeline,
+      };
+    })
+
+export const clusterPipelineDeleteLink = createAction<[
+  any,
+], State, Promise<{id: string}>>(
+  PROJECT_DEFINES.CLUSTER_PIPELINE_DELETE_LINK,
+  (link) =>
+    async ({ }, { }, api) => {
+      await api.delete(`/clusters/${link.clusterId}/pipelines/${link.pipelineId}/link`);
+      return link;
+    })
+
+export const deleteProjectCluster = createAction<[
+  string,
+  string,
+], State, Promise<{projectName: string, clusterNamespace: string}>>(
+  PROJECT_DEFINES.CLUSTER_DELETE,
+  (projectName, clusterNamespace) =>
+    async ({ }, { }, api) => {
+      await api.delete(`/projects/${projectName}/clusters`, {
+        params: {
+          where: {
+            namespace: clusterNamespace,
+          }
+        }
+      });
+      return {
+        projectName,
+        clusterNamespace,
+      }
+    }
+)
+
+export const openDeleteModal = createAction<[
+  ModelProject
+], State, ModelProject>(
+  PROJECT_DEFINES.PROJECT_OPEN_DELETE_MODAL,
+  (project) =>
+    ({ }, { }, { }) => project
+)
+
+export const closeDeleteModal = createAction<[
+], State, void>(
+  PROJECT_DEFINES.PROJECT_CLOSE_DELETE_MODAL,
+  () => () => { },
+)
+
+export const deleteProject = createAction<[
+  string
+], State, void>(
+  PROJECT_DEFINES.DELETE,
+  (namespace) =>
+    async (dispatch, { }, api) => {
+      await api.delete(`/projects/${namespace}`);
+      dispatch(closeDeleteModal());
+    }
+)

@@ -13,8 +13,10 @@ export const Container = Styled(GlobalStyle.Container)`
 `;
 
 export const ProjectWrap = Styled.div`
-  height: 100%;
   padding-top: 8px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 `;
 
 export const NavFeedContainer = Styled.div`

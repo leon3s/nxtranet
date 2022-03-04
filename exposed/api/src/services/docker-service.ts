@@ -74,7 +74,7 @@ export
     }));
   }
 
-  clusterContainerRemove = async (container: Container) => {
+  deleteContainer = async (container: Container) => {
     await this._client.containersRemove(container);
     await this.containerRepository.state(container.namespace).delete();
     await this.containerRepository.outputs(container.namespace).delete();

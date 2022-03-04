@@ -2,20 +2,36 @@ import React from 'react';
 import Styled from 'styled-components';
 import * as Style from './style';
 
-type ActionBarAction = {
+export type ActionBarAction = {
   title: string;
   icon: () => React.ReactChild;
-  fn: () => void;
+  fn: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-type ActionBarProps = {
+export type ActionBarProps = {
   actions: ActionBarAction[]
 }
 
-export const ActionWrapper = Styled.div`
+export type ActionWrapperProps = {
+  isVisible?: boolean;
+}
+
+export const ActionWrapper = Styled.div<ActionWrapperProps>`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 ${props => `
-  padding: ${props.theme.padding.light}px;
-  padding-bottom: 0px;
+  margin: 0px ${props.theme.padding.light}px;
+  ${props.isVisible ? `
+    transition: min-height .4s, padding .4s, opacity 1.4s ease-in-out;
+    min-height: ${props.theme.padding.light * 2 + 20}px;
+    opacity: 1;
+  ` : `
+    transition: min-height 1.4s, padding 1.4s, opacity .4s ease-in-out;
+    opacity: 0;
+    min-height: 0px;
+    max-height: 0px;
+  `}
 `}`;
 
 export default (props: ActionBarProps) => (
@@ -32,5 +48,4 @@ export default (props: ActionBarProps) => (
       ))}
     </Style.Buttons>
   </Style.Container>
-
 )

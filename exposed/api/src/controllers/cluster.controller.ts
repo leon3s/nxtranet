@@ -10,14 +10,17 @@ import {
   requestBody
 } from '@loopback/rest';
 import {ModelClusterType} from '@nxtranet/headers';
-import {DnsmasqServiceBindings, ProjectServiceBindings} from '../keys';
+import {DnsmasqServiceBindings, NginxServiceBindings, ProjectServiceBindings} from '../keys';
 import {Cluster, Container} from '../models';
 import {ClusterRepository, GitBranchRepository} from '../repositories';
 import {DnsmasqService} from '../services/dnsmasq-service';
+import {NginxService} from '../services/nginx-service';
 import ProjectService from '../services/project-service';
 
 export class ClusterController {
   constructor(
+    @inject(NginxServiceBindings.NGINX_SERVICE)
+    protected nginxService: NginxService,
     @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE)
     protected dnsmasqService: DnsmasqService,
     @inject(ProjectServiceBindings.PROJECT_SERVICE)
@@ -108,8 +111,6 @@ export class ClusterController {
       isGeneratedDeploy: false,
       isProduction: false,
     });
-    await this.dnsmasqService.configSync();
-    await this.dnsmasqService.restartService();
     return containers;
   }
 }
