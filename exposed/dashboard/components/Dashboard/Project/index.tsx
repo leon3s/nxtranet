@@ -1,13 +1,17 @@
 import type {ModelProject} from '@nxtranet/headers';
 import Link from 'next/link';
+import {useRouter} from 'next/router';
 import React from 'react';
 import FooterDefault from '~/components/Shared/FooterDefault';
 import {ContainerWrapper} from '~/styles/global';
 import {
-  IconCluster, IconContainer, IconMetrix, IconPipeline, IconSetting
+  IconCluster,
+  IconContainer,
+  IconMetrix,
+  IconPipeline,
+  IconSetting
 } from '~/styles/icons';
 import * as NavStyle from '~/styles/nav';
-import * as ProjectStyle from '~/styles/project';
 import Clusters from './Clusters';
 import Containers from './Containers';
 import Metrix from './Metrix';
@@ -109,15 +113,72 @@ function isActive(tab: string | null, href: string): boolean {
   return `/${tab}` === href;
 }
 
+type TabLink = {
+  name: string;
+  link: string;
+}
+
+function generateTabs(initialLink: string, tabs: string[]) {
+  const newTabs: TabLink[] = [];
+  tabs.forEach((tab, i) => {
+    const prev = newTabs[i - 1];
+    if (!prev) {
+      newTabs.push({
+        name: tab,
+        link: `${initialLink}/${tab}`,
+      });
+    } else {
+      newTabs.push({
+        name: tab,
+        link: `${prev.link}/${tab}`,
+      });
+    }
+  });
+  return newTabs;
+}
+
 export default function Project(props: ProjectProps) {
+  const router = useRouter();
+  const tabs = generateTabs('/dashboard/projects', router.query.all as string[]);
   const tab = (props.tab && tabMapping[props.tab](props)) || tabMapping.clusters(props);
+  console.log(router);
   return (
     <ContainerWrapper>
       <Style.Container>
         <Style.ProjectWrap>
-          <ProjectStyle.Title>
-            {props.data.name}
-          </ProjectStyle.Title>
+          <Style.NavFeedContainer>
+            <Style.NavFeedWrapper>
+              <Link
+                passHref
+                href="/dashboard/projects"
+              >
+                <Style.NavFeedItem>
+                  Projects
+                </Style.NavFeedItem>
+              </Link>
+              <Style.NavFeedSeparator>
+                {">"}
+              </Style.NavFeedSeparator>
+            </Style.NavFeedWrapper>
+            {tabs.map((tab, i) => (
+              <Style.NavFeedWrapper
+                key={tab.name}
+              >
+                <Link
+                  passHref
+                  href={tab.link}
+                >
+                  <Style.NavFeedItem>
+                    {tab.name}
+                  </Style.NavFeedItem>
+                </Link>
+                {i < tabs.length - 1 ?
+                  <Style.NavFeedSeparator>
+                    {">"}
+                  </Style.NavFeedSeparator> : null}
+              </Style.NavFeedWrapper>
+            ))}
+          </Style.NavFeedContainer>
           <NavStyle.Nav
             className='scroll-bar'
           >

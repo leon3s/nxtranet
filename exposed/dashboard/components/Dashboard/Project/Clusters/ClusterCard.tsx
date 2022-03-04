@@ -6,11 +6,12 @@ import type {
 } from '@nxtranet/headers';
 import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
-import api from '~/api';
 import Accordion from '~/components/Shared/Accordion';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ClusterContainer from '~/components/Shared/ClusterContainer';
 import EnvVar from '~/components/Shared/EnvVar';
+import InfoRow from '~/components/Shared/InfoRow';
+import ItemRounded from '~/components/Shared/ItemRounded';
 import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
 
@@ -24,7 +25,9 @@ type CusterCardProps = {
   onClickEditEnvVar: (data: ModelEnvVar) => void;
   onClickCreateEnvVar: (namespace: string) => void;
   onClickCreateContainer: () => void;
-  onClicClusterDeploy: () => void;
+  onClickClusterDeploy: () => void;
+  onClickOpenPipelineLinkModal: (data: ModelCluster) => void;
+  onClickPipelineLink: (data: ModelCluster, item: ModelPipeline) => void;
 }
 
 export default function ClusterCard(props: CusterCardProps) {
@@ -34,7 +37,7 @@ export default function ClusterCard(props: CusterCardProps) {
     onClickShowContainer,
     onClickDeleteEnvVar,
     onClickEditEnvVar,
-    onClicClusterDeploy,
+    onClickClusterDeploy,
     onClickDeleteContainer,
   } = props;
 
@@ -46,13 +49,36 @@ export default function ClusterCard(props: CusterCardProps) {
     props.onClickCreateEnvVar(data.namespace);
   }
 
-  async function onAddClusterPipeline(item: ModelPipeline) {
-    await api.post(`/clusters/${data.id}/pipelines/${item.id}/link`);
+  function onClickOpenPipelineLinkModal() {
+    props.onClickOpenPipelineLinkModal(data);
   }
 
-  async function onRemoveClusterPipeline(item: ModelPipeline) {
-    await api.delete(`/clusters/${data.id}/pipelines/${item.id}/link`);
+  function onGenerateClickPipelineLink(item: ModelPipeline) {
+    return () => {
+      props.onClickPipelineLink(data, item);
+    }
   }
+
+  const infoRow = [
+    {
+      label: 'Type',
+      value: data.type,
+    },
+    {
+      label: 'Hostname',
+      href: `http://${data.hostname}`,
+      target: '_blank',
+      value: data.hostname,
+    },
+    {
+      label: 'Host',
+      value: data.host,
+    },
+    {
+      label: 'Git branch',
+      value: data.gitBranch?.name || 'any',
+    },
+  ]
 
   return (
     <AccordionStyle.AccordionContainer>
@@ -67,6 +93,12 @@ export default function ClusterCard(props: CusterCardProps) {
         content={
           <AccordionStyle.AccordionContent>
             <Style.ClusterContent>
+              {infoRow.map((info) => (
+                <InfoRow
+                  key={info.label}
+                  {...info}
+                />
+              ))}
               <Style.Title>
                 Pipelines
               </Style.Title>
@@ -75,10 +107,20 @@ export default function ClusterCard(props: CusterCardProps) {
                   {
                     title: 'Create',
                     icon: () => <AiOutlinePlus size={12} />,
-                    fn: onClickCreateEnvVar,
+                    fn: onClickOpenPipelineLinkModal,
                   }
                 ]} />
               </ActionWrapper>
+              <Style.EnvVars>
+                {data?.pipelines?.map((pipeline) => (
+                  <ItemRounded
+                    key={pipeline.id}
+                    onClick={onGenerateClickPipelineLink(pipeline)}
+                  >
+                    {pipeline.name}
+                  </ItemRounded>
+                ))}
+              </Style.EnvVars>
               <Style.Title>
                 Environement Variables
               </Style.Title>
@@ -109,7 +151,7 @@ export default function ClusterCard(props: CusterCardProps) {
                   {
                     title: 'New container',
                     icon: () => <AiOutlinePlus size={12} />,
-                    fn: onClicClusterDeploy,
+                    fn: onClickClusterDeploy,
                   }
                 ]} />
               </ActionWrapper>

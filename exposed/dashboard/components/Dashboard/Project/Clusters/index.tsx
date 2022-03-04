@@ -1,7 +1,8 @@
 import type {
   ModelCluster,
   ModelContainer,
-  ModelEnvVar
+  ModelEnvVar,
+  ModelPipeline
 } from '@nxtranet/headers';
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
@@ -9,16 +10,19 @@ import React from 'react';
 import {AiOutlinePlus} from 'react-icons/ai';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
+import api from '~/api';
 import ActionBar, {ActionWrapper} from '~/components/Shared/ActionBar';
 import ModalConfirm from '~/components/Shared/ModalConfirm';
 import ModalForm from '~/components/Shared/ModalForm';
+import {ModalRelationMultiple} from '~/components/Shared/ModalRelationMultiple';
 import {bindPathOptions} from '~/forms/utils';
 import {projectActions} from '~/redux/actions';
 import type {State} from '~/redux/reducers';
 import {
   IconCluster,
   IconContainer,
-  IconEnvVar
+  IconEnvVar,
+  IconPipeline
 } from '~/styles/icons';
 import type {Dispatch} from '~/utils/redux';
 import ClusterCard from './ClusterCard';
@@ -63,6 +67,8 @@ type ClustersState = {
   clusterFormErrors: Record<string, string>;
   envVarFormErrors: Record<string, string>;
   targetClusterNamespace: string | null;
+  targetCluster?: ModelCluster | null;
+  isModalPipelineRelationOpen: boolean;
 }
 
 class Clusters extends
@@ -80,6 +86,8 @@ class Clusters extends
     envVarFormErrors: {},
     clusterFormErrors: {},
     targetClusterNamespace: null,
+    isModalPipelineRelationOpen: false,
+    targetCluster: null,
   };
 
   deploySubmitForm = async (data: {branch: string}) => {
@@ -279,6 +287,31 @@ class Clusters extends
     })
   }
 
+  onClickOpenPipelineRelation = (cluster: ModelCluster) => {
+    this.setState({
+      targetCluster: cluster,
+      isModalPipelineRelationOpen: true,
+    })
+  }
+
+  onClickClosePipelineRelation = () => {
+    this.setState({
+      targetCluster: null,
+      isModalPipelineRelationOpen: false,
+    })
+  }
+
+  onAddPipelineRelation = async (item: ModelPipeline) => {
+    const {targetCluster} = this.state;
+    if (!targetCluster) return;
+    await api.post(`/clusters/${targetCluster.id}/pipelines/${item.id}/link`);
+    this.onClickClosePipelineRelation();
+  }
+
+  onClickPipelineLink = async (cluster: ModelCluster, item: ModelPipeline) => {
+    await api.delete(`/clusters/${cluster.id}/pipelines/${item.id}/link`);
+  }
+
   render() {
     const {
       clusters,
@@ -294,15 +327,30 @@ class Clusters extends
       containerToDelete,
       envVarFormErrors,
       clusterFormErrors,
+      targetCluster,
       isModalDeployOpen,
       isModalEditEnvVarOpen,
       isModalDeleteEnvVarOpen,
       isModalCreateClusterOpen,
       isModalDeleteContainerOpen,
+      isModalPipelineRelationOpen,
     } = this.state;
-    console.log({envVarToEdit});
     return (
       <React.Fragment>
+        <ModalRelationMultiple
+          title="Link pipeline"
+          icon={<IconPipeline size={40} />}
+          isVisible={isModalPipelineRelationOpen}
+          onClickCancel={this.onClickClosePipelineRelation}
+          onClickItem={this.onAddPipelineRelation}
+          value={targetCluster?.pipelines || []}
+          options={{
+            path: `/projects/${projectName}/pipelines`,
+            returnKey: 'id',
+            key: 'id',
+            displayKey: 'name',
+          }}
+        />
         {containerToDelete ?
           <ModalConfirm
             title="Warning"
@@ -381,13 +429,15 @@ class Clusters extends
                 key={cluster.id}
                 onClick={this.onClickCard}
                 isVisible={clusterName === cluster.name}
+                onClickPipelineLink={this.onClickPipelineLink}
                 onClickEditEnvVar={this.onClickEditEnvVar}
                 onClickCreateContainer={this.openModalDeploy}
                 onClickCreateEnvVar={this.onClickCreateEnvVar}
                 onClickDeleteEnvVar={this.openModalDeleteEnvVar}
                 onClickShowContainer={this.onClickShowContainer}
                 onClickDeleteContainer={this.openModalDeleteContainer}
-                onClicClusterDeploy={this.openModalDeploy}
+                onClickOpenPipelineLinkModal={this.onClickOpenPipelineRelation}
+                onClickClusterDeploy={this.openModalDeploy}
               />
             ))}
           </Style.ClustersContainer>

@@ -37,7 +37,8 @@ export const EnvVars = Styled.div`
   flex: 1;
   max-width: auto;
   align-items: center;
-  min-height: 40px;
+  max-height: 40px;
+  height: fit-content;
 ${props => `
   padding: ${props.theme.padding.light}px;
 `}`;
@@ -45,4 +46,7 @@ ${props => `
 export const ClusterContainers = Styled.div`
   padding: 8px;
   display: flex;
+`;
+
+export const PipelineContainer = Styled.div`
 `;

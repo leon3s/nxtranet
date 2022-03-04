@@ -4,6 +4,7 @@ import {bindActionCreators} from 'redux';
 import api from '~/api';
 import type {State} from '~/redux/reducers';
 import type {Dispatch} from '~/utils/redux';
+import ItemRounded from '../../ItemRounded';
 import type InputProps from './props';
 import * as Style from './style';
 
@@ -97,16 +98,13 @@ class InputRelationMultiple extends
               return options.render(val, key);
             }
             return (
-              <Style.InputMultipleItem
+              <ItemRounded
                 key={key}
                 title="remove"
+                onClick={this.generateOnRemoveItem(val)}
               >
-                <Style.InputMultipleItemOverlay onClick={this.generateOnRemoveItem(val)}>
-                </Style.InputMultipleItemOverlay>
-                <Style.InputMultipleItemTitle>
-                  {val[options.displayKey]}
-                </Style.InputMultipleItemTitle>
-              </Style.InputMultipleItem>
+                {val[options.displayKey]}
+              </ItemRounded>
             )
           })}
         </Style.InputMultipleLine>
@@ -117,16 +115,13 @@ class InputRelationMultiple extends
               return options.render(d, key);
             }
             return (
-              <Style.InputMultipleItem
+              <ItemRounded
                 title="add"
                 key={key}
+                onClick={this.generateAddItem(d)}
               >
-                <Style.InputMultipleItemOverlay onClick={this.generateAddItem(d)}>
-                </Style.InputMultipleItemOverlay>
-                <Style.InputMultipleItemTitle>
-                  {d[options.displayKey]}
-                </Style.InputMultipleItemTitle>
-              </Style.InputMultipleItem>
+                {d[options.displayKey]}
+              </ItemRounded>
             )
           })}
         </Style.InputMultipleLine>

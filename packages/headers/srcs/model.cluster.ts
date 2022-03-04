@@ -15,6 +15,7 @@ export type ModelCluster = {
   creationDate: Date;
   namespace: string;
   projectName: string;
+  type: ModelClusterType;
   project?: ModelProject;
   containers: ModelContainer[];
   name: string;

@@ -61,6 +61,9 @@ export const getClusters = createAction<[
                 relation: 'pipelines',
               },
               {
+                relation: "gitBranch",
+              },
+              {
                 relation: "containers",
                 scope: {
                   include: [

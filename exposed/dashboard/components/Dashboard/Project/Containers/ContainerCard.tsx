@@ -1,7 +1,7 @@
 import type {ModelContainer, ModelProject} from '@nxtranet/headers';
-import Link from 'next/link';
 import React from 'react';
 import Accordion from '~/components/Shared/Accordion';
+import InfoRow from '~/components/Shared/InfoRow';
 import PipelineBadge from '~/components/Shared/PipelineBadge';
 import * as AccordionStyle from '~/styles/accordionLine';
 import * as Style from './style';
@@ -24,8 +24,24 @@ export default function ContainerCard(props: ContainerCardProps) {
   function onClick() {
     props.onClick(data);
   }
-
   const domain = data.cluster?.hostname;
+  const infoRow = [
+    {
+      label: 'Port',
+      value: data.appPort,
+    },
+    {
+      label: 'Cluster',
+      href: `/dashboard/projects/${projectName}/clusters/${data?.cluster?.name}`,
+      value: data.clusterNamespace,
+    },
+    {
+      label: 'Hostname',
+      href: `http://${data.name}.${domain}`,
+      target: '_blank',
+      value: `${data.name}.${domain}`,
+    },
+  ]
   return (
     <AccordionStyle.AccordionContainer>
       <Accordion
@@ -45,46 +61,15 @@ export default function ContainerCard(props: ContainerCardProps) {
         content={
           <AccordionStyle.AccordionContent>
             <Style.AccordionContent>
-
-              <Style.ContainerLine>
-                <Style.ContainerTitle>
-                  name
-                </Style.ContainerTitle>
-                <Link
-                  passHref
-                  href={`http://${data.name}.${domain}`}
-                >
-                  <Style.ContainerValueLink
-                    target="_blank"
-                  >
-                    {data.name}
-                  </Style.ContainerValueLink>
-                </Link>
-              </Style.ContainerLine>
-
-              <Style.ContainerLine>
-                <Style.ContainerTitle>
-                  cluster
-                </Style.ContainerTitle>
-                <Link
-                  passHref
-                  href={`/dashboard/projects/${projectName}/clusters/${data?.cluster?.name}`}
-                >
-                  <Style.ContainerValueLink>
-                    {data.clusterNamespace}
-                  </Style.ContainerValueLink>
-                </Link>
-              </Style.ContainerLine>
-
-              <Style.ContainerLine>
-                <Style.ContainerTitle>
-                  Port
-                </Style.ContainerTitle>
-                <Style.ContainerValue>
-                  {data.appPort}
-                </Style.ContainerValue>
-              </Style.ContainerLine>
-
+              {infoRow.map((info) => (
+                <InfoRow
+                  key={info.label}
+                  {...info}
+                />
+              ))}
+              <Style.Title>
+                Outputs
+              </Style.Title>
               <Style.ContainerOutputWrapper
                 className="scroll-bar"
               >

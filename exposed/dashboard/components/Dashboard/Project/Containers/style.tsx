@@ -1,5 +1,4 @@
 import Styled from 'styled-components';
-import {A} from '~/styles/link';
 
 export const Container = Styled.div`
   width: 100%;
@@ -17,6 +16,13 @@ ${props => `
 `}
 `;
 
+export const Title = Styled.h1`
+  font-weight: bold;
+  font-size: 12px;
+  margin: 0px;
+  padding: 8px;
+`;
+
 export const ContainersContainer = Styled.div`
   margin-top: 8px;
   display: flex;
@@ -28,42 +34,6 @@ export const AccordionContent = Styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-`;
-
-export const ContainerLine = Styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 18px;
-  justify-content: space-between;
-`;
-
-export const ContainerTitle = Styled.p`
-  font-size: 10px;
-  margin: 0px;
-  min-width: 50%;
-  font-weight: bold;
-  &:first-letter {
-    text-transform: uppercase;
-  }
-`;
-
-export const ContainerValue = Styled.p`
-  font-size: 10px;
-  margin: 0px;
-  text-align: right;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-`;
-
-export const ContainerValueLink = Styled(A)`
-  font-size: 10px;
-  margin: 0px;
-  padding: 0px;
-  text-align: right;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 `;
 
 export const ContainerOutputWrapper = Styled.div`
@@ -78,7 +48,7 @@ export const ContainerOutputWrapper = Styled.div`
 
 export const ContainerOutput = Styled.code`
   color: white;
-  padding: 18px;
+  padding: 8px;
   height: fit-content;
   word-break: break-word;
   white-space: pre-wrap;
