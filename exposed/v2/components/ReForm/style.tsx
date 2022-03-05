@@ -1,8 +1,4 @@
 import Styled from 'styled-components';
-import {
-  ButtonCancelDefault,
-  ButtonSubmitDefault,
-} from '~/styles/buttons';
 
 export const Container = Styled.div`
   width: 100%;
@@ -22,7 +18,7 @@ export const InputTitle = Styled.label`
   font-size: 12px;
   margin: 0px;
 ${props => `
-  color: ${props.theme.text.primary};
+  color: ${props.theme.text.color.primary};
 `}`;
 
 export const InputDescription = Styled.span`
@@ -30,7 +26,7 @@ export const InputDescription = Styled.span`
   padding: 8px 0px;
   margin: 0 0 8px 0;
 ${props => `
-  color: ${props.theme.text.secondary};
+  color: ${props.theme.text.color.secondary};
   box-shadow: ${props.theme.boxShadowSmooth};
 `}
 `;
@@ -67,14 +63,4 @@ export const ButtonContainer = Styled.div`
 
 export const HiddenDiv = Styled.div`
   display: flex;
-`;
-
-export const ButtonSubmit = Styled(ButtonSubmitDefault)`
-  height: 30px;
-  width: fit-content;
-  min-width: 142px;
-`;
-
-export const ButtonCancel = Styled(ButtonCancelDefault)`
-  min-width: 142px;
 `;

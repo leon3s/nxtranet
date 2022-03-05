@@ -1,17 +1,6 @@
-/*
- * Filename: c:\Users\leone\Documents\code\nextranet\dashboard\components\Shared\HeaderLogo\index.tsx
- * Path: c:\Users\leone\Documents\code\docktron\org
- * Created Date: Tuesday, October 26th 2021, 1:17:20 pm
- * Author: leone
- * 
- * Copyright (c) 2021 docktron
- */
-
-import Styled from 'styled-components';
-
 import Link from 'next/link';
-
-import Image from '../Image';
+import Image from 'next/image';
+import Styled from 'styled-components';
 
 const LogoContainer = Styled.div`
   width: 30px;

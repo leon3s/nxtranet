@@ -22,10 +22,9 @@ export const ActionWrapper = Styled.div<ActionWrapperProps>`
   align-items: center;
   overflow: hidden;
 ${props => `
-  margin: 0px ${props.theme.padding.light}px;
   ${props.isVisible ? `
     transition: min-height .4s, padding .4s, opacity 1.4s ease-in-out;
-    min-height: ${props.theme.padding.light * 2 + 20}px;
+    min-height: ${props.theme.spacingLight * 2 + 20}px;
     opacity: 1;
   ` : `
     transition: min-height 1.4s, padding 1.4s, opacity .4s ease-in-out;
@@ -35,18 +34,22 @@ ${props => `
   `}
 `}`;
 
-export default (props: ActionBarProps) => (
-  <Style.Container>
-    <Style.Buttons>
-      {props.actions.map((action, i) => (
-        <Style.Button
-          title={action.title}
-          onClick={action.fn}
-          key={`action-bar-action-${action.title}-${i}`}
-        >
-          {action.icon()}
-        </Style.Button>
-      ))}
-    </Style.Buttons>
-  </Style.Container>
-)
+function ActionBar(props: ActionBarProps) {
+  return (
+    <Style.Container>
+      <Style.Buttons>
+        {props.actions.map((action, i) => (
+          <Style.Button
+            title={action.title}
+            onClick={action.fn}
+            key={`action-bar-action-${action.title}-${i}`}
+          >
+            {action.icon()}
+          </Style.Button>
+        ))}
+      </Style.Buttons>
+    </Style.Container>
+  );
+};
+
+export default ActionBar;

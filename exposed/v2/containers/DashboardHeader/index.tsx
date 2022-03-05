@@ -1,27 +1,43 @@
 import React from 'react';
 
-import { NextRouter, withRouter } from 'next/router'
+import { withRouter } from 'next/router';
 
-import Link from 'next/link';
-
-import HeaderLogo from '~/components/Shared/HeaderLogo';
+import HeaderLogo from '~/components/HeaderLogo';
+import MenuNav from '~/components/MenuNav';
 
 import * as Style from './style';
 
-const navItems = [
-  { title: 'Overview', href: '/dashboard' },
-  { title: 'Projects', href: '/dashboard/projects' },
-  { title: 'Nginx', href: '/dashboard/nginx' },
+import type {NextRouter} from 'next/router';
+import type { MenuNavItem } from '~/components/MenuNav';
+
+const navItems: MenuNavItem[] = [
+  {
+    displayName: 'Overview',
+    name: undefined,
+    href: '/dashboard'
+  },
+  {
+    displayName: 'Projects',
+    name: 'projects',
+    href: '/dashboard/projects'
+  },
+  {
+    displayName: 'Nginx',
+    name: 'nginx',
+    href: '/dashboard/nginx',
+  },
 ];
 
-interface DashboardHeaderProps {
+type DashboardHeaderProps = {
   router: NextRouter;
 }
 
-class DashboardHeader extends React.PureComponent<DashboardHeaderProps> {
+class DashboardHeader extends
+  React.PureComponent<DashboardHeaderProps> {
+
   state = {
     sticky: false,
-  }
+  };
 
   el?: HTMLElement | null;
 
@@ -41,17 +57,18 @@ class DashboardHeader extends React.PureComponent<DashboardHeaderProps> {
     if (((window.scrollY + 68) >= elY)) {
       this.setState({
         sticky: true,
-      })
+      });
     } else if (this.state.sticky) {
       this.setState({
         sticky: false,
       });
     }
-  }
+  };
 
   render() {
     const {sticky} = this.state;
     const {router} = this.props;
+    const [currentTab] = router.query.all || [] as string[];
 
     return (
       <React.Fragment>
@@ -81,27 +98,14 @@ class DashboardHeader extends React.PureComponent<DashboardHeaderProps> {
                       href="/dashboard"
                     />
                   </Style.AnimLogo>
-                  <Style.MenuNav
+                  <Style.MenuNavContainer
                     sticky={sticky}
                   >
-                    {navItems.map((navItem) => (
-                      <Link
-                        passHref
-                        href={navItem.href}
-                        key={`dash-${navItem.title}-${navItem.href}`}
-                      >
-                        <Style.NavItem
-                          active={
-                            navItem.href === '/dashboard' ?
-                              navItem.href === router.asPath
-                            : router.asPath.includes(navItem.href)
-                          }
-                        >
-                          {navItem.title}
-                        </Style.NavItem>
-                      </Link>
-                    ))}
-                  </Style.MenuNav>
+                    <MenuNav
+                      current={currentTab}
+                      data={navItems}
+                    />
+                  </Style.MenuNavContainer>
                 </Style.MenuContent>
               </Style.MenuContainer>
             </Style.Sticky>
@@ -109,7 +113,7 @@ class DashboardHeader extends React.PureComponent<DashboardHeaderProps> {
           <Style.Limiter id="dashboard-nav-limiter" />
         </Style.SubMenu>
       </React.Fragment>
-    )
+    );
   }
 }
 
