@@ -4,7 +4,7 @@ import { Dispatch } from '~/utils/redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
 
-import {closeModalForm} from '~/redux/actions/modalForm';
+import {closeModalForm, setModalFormData} from '~/redux/actions/modalForm';
 import * as formHashmap from '~/forms/hashmap';
 import * as formActions from '~/redux/actions/form';
 import ModalForm from '~/components/ModalForm';
@@ -17,6 +17,7 @@ import { bindPathOptions } from '~/forms/utils';
 
 const actions = {
   closeModalForm,
+  setModalFormData,
 };
 
 const formActionBindinds = formActions;
@@ -38,17 +39,24 @@ export type ModalFormContainerProps = {
 class ModalFormContainer extends
   React.PureComponent<ModalFormContainerProps> {
 
-  onSubmit = async (formData: any) => {
+  onSubmit = async () => {
     const {modalForm, formActions} = this.props;
     if (!modalForm?.props || !modalForm.data) return;
     const action = formActions[modalForm.props.formSubmitKey] as any;
-    await action(formData);
-    this.props.closeModalForm();
+    try {
+      await action(modalForm.formData);
+      this.props.closeModalForm();
+    } catch (e) {};
+  };
+
+  componentWillUnmount() {
+    console.log('UNMOUNTING !');
   };
 
   render() {
     const {
       modalForm,
+      setModalFormData,
       closeModalForm,
     } = this.props;
     const schema = modalForm.props?.formKey ? formHashmap[modalForm?.props?.formKey] : [];
@@ -58,13 +66,15 @@ class ModalFormContainer extends
         title={modalForm.props?.title || ''}
         icon={Icon ? <Icon size={40}/> : undefined}
         formProps={{
-          // modalForm.props
+          onChange: setModalFormData,
           onSubmit: this.onSubmit,
           onCancel: closeModalForm,
-          errors: modalForm.errors,
+          data: modalForm.formData,
           isButtonCancelEnabled: true,
+          errors: modalForm.errors || {},
           submitTitle: modalForm.props?.formSubmitTitle || '',
           schema: bindPathOptions(schema, modalForm.data || {}),
+          isButtonLoadingResolving: true,
         }}
         isVisible={modalForm.isVisible}
       />

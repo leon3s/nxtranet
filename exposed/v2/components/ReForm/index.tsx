@@ -28,11 +28,11 @@ export type ReformProps = {
   isButtonCancelEnabled?: boolean;
   onCancel?: () => void;
   submitTitle?: string;
-  onSearch?: (term: string) => void;
   errors?: Record<string, string> | null;
   onSubmit?: (d: any) => void | Promise<void>;
   isButtonLoadingResolving?: boolean;
   hideButtons?: boolean;
+  onChange?: (data: any) => void;
 };
 
 type ReformState = {
@@ -85,8 +85,12 @@ function Input(schema: ReformSchema, onChange: OnChange, data: any = {}, errors:
 
 export default class Reform
   extends React.PureComponent<ReformProps, ReformState> {
+
   state = {
-    data: this.props.data,
+    data: this.props.schema.reduce((acc, schema) => {
+      acc[schema.key] = (this.props.data && this.props.data[schema.key]) || defaultValue[schema.type];
+      return acc;
+    }, {} as Record<string, string>),
     dataPtr: this.props.data,
   };
 
@@ -145,6 +149,8 @@ export default class Reform
         ...this.state.data,
         [key]: val,
       },
+    }, () => {
+      this.props.onChange && this.props.onChange(this.state.data);
     });
   };
 
@@ -152,6 +158,10 @@ export default class Reform
     e.preventDefault();
     if (this.props.onCancel) this.props.onCancel();
   };
+
+  componentWillUnmount() {
+    console.log('REFORM UMOUNT');
+  }
 
   render() {
     const {
@@ -172,11 +182,14 @@ export default class Reform
           {!hideButtons ? <Style.ButtonContainer>
             {isButtonCancelEnabled ?
               <ButtonLoading
+                colorType='danger'
+                isResolving={false}
                 onClick={this.onClickCancel}
               >
                 Cancel
               </ButtonLoading>
-              : <Style.HiddenDiv />}
+              : <Style.HiddenDiv />
+            }
             <ButtonLoading
               onClick={this.onClickCreate}
               isResolving={isButtonLoadingResolving}

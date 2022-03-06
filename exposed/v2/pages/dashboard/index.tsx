@@ -1,10 +1,11 @@
 import type {GetServerSidePropsResult} from 'next';
 import type {NextRouter} from 'next/router';
-import {withRouter} from 'next/router';
 import React from 'react';
-import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import HomeContainer from '~/containers/Home';
+import DashboardHeader from '~/containers/DashboardHeader';
+import DashboardHud from '~/containers/DashboardHud';
+import Home from '~/containers/Home';
+import ModalForm from '~/containers/ModalForm';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
 import type {Dispatch} from '~/utils/redux';
@@ -17,7 +18,7 @@ const mapStateToprops = () => ({
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators(actions, dispatch);
 
-type IndexPageProps = {
+type DashboardHomePageProps = {
   router: NextRouter;
 } & ReturnType<typeof mapStateToprops>
 & ReturnType<typeof mapDispatchToProps>
@@ -30,16 +31,19 @@ export const getServerSideProps = wrapper.getServerSideProps(({}) =>
   }
 );
 
-class IndexPage extends
-  React.PureComponent<IndexPageProps> {
+class DashboardHomePage extends
+  React.PureComponent<DashboardHomePageProps> {
   render() {
     return (
-      <HomeContainer />
+      <React.Fragment>
+        <DashboardHeader />
+        <ModalForm />
+        <DashboardHud>
+          <Home />
+        </DashboardHud>
+      </React.Fragment>
     );
   }
 }
 
-export default connect(
-  mapStateToprops,
-  mapDispatchToProps
-)(withRouter(IndexPage));
+export default DashboardHomePage;

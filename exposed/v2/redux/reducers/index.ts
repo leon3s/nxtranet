@@ -1,10 +1,12 @@
 import {combineReducers} from 'redux';
 
 import home from './home';
+import projects from './projects';
 import modalForm from './modalForm';
 
 const reducers = combineReducers({
   home,
+  projects,
   modalForm,
 });
 

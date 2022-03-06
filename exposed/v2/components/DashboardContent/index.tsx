@@ -1,5 +1,7 @@
 import React from 'react';
 
+import ResponsiveComponent from '../ResponsiveComponent';
+
 import * as Style from './style';
 
 export type DashboardContentProps = {
@@ -12,10 +14,10 @@ export default function DashboardContent(props: DashboardContentProps) {
     children
   } = props;
   return (
-    <Style.Container>
+    <ResponsiveComponent>
       <Style.Content>
         {children}
       </Style.Content>
-    </Style.Container>
+    </ResponsiveComponent>
   );
 }

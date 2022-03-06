@@ -1,29 +1,25 @@
-import React from 'react';
-
-import { withRouter } from 'next/router';
-
-import HeaderLogo from '~/components/HeaderLogo';
-import MenuNav from '~/components/MenuNav';
-
-import * as Style from './style';
-
 import type {NextRouter} from 'next/router';
-import type { MenuNavItem } from '~/components/MenuNav';
+import {withRouter} from 'next/router';
+import React from 'react';
+import HeaderLogo from '~/components/HeaderLogo';
+import type {MenuNavItem} from '~/components/MenuNav';
+import MenuNav from '~/components/MenuNav';
+import * as Style from './style';
 
 const navItems: MenuNavItem[] = [
   {
     displayName: 'Overview',
-    name: undefined,
+    name: '/dashboard',
     href: '/dashboard'
   },
   {
     displayName: 'Projects',
-    name: 'projects',
+    name: '/dashboard/projects',
     href: '/dashboard/projects'
   },
   {
     displayName: 'Nginx',
-    name: 'nginx',
+    name: '/nginx',
     href: '/dashboard/nginx',
   },
 ];
@@ -48,6 +44,7 @@ class DashboardHeader extends
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.onScrollPtr);
+    console.log('UN MOUNTING');
   }
 
   onScrollPtr = (): void => {
@@ -70,6 +67,7 @@ class DashboardHeader extends
     const {router} = this.props;
     const [currentTab] = router.query.all || [] as string[];
 
+    console.log(router);
     return (
       <React.Fragment>
         <Style.FixedContainer>
@@ -102,7 +100,7 @@ class DashboardHeader extends
                     sticky={sticky}
                   >
                     <MenuNav
-                      current={currentTab}
+                      current={router.pathname}
                       data={navItems}
                     />
                   </Style.MenuNavContainer>

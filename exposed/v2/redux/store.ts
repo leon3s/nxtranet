@@ -50,7 +50,7 @@ type AppContext = {
 
 const rootReducer = (state: State, action: AnyAction): State => {
   if (action.type === HYDRATE) {
-    return {...action.payload};
+    return state;
   }
   return reducers(state, action);
 };

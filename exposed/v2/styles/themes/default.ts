@@ -23,6 +23,7 @@ export const themeDefault = {
     background: {
       primary: 'white',
       secondary: 'white',
+      loading: COLOR_LIGHTBLUE,
     }
   },
   text: {
@@ -57,12 +58,12 @@ export const themeDefault = {
         color: COLOR_RED,
       },
       color: {
-        default: COLOR_RED,
-        hoverDefault: 'white',
-      },
-      background: {
         default: 'white',
         hoverDefault: COLOR_RED,
+      },
+      background: {
+        default: COLOR_RED,
+        hoverDefault: 'white',
       }, 
     }
   }

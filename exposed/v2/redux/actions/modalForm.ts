@@ -8,10 +8,15 @@ import type {FormActionKey} from './form';
 import type {FormHashmapKey} from '~/forms/hashmap';
 
 export type OpenModalFormArgs = {
+  /** Title of the modal */
   title: string;
-  formSubmitTitle: string;
+  /** Icon of the modal */
   iconKey: Icons;
+  /** key to resolve form schema */
   formKey: FormHashmapKey;
+  /** title of the submit button */
+  formSubmitTitle: string;
+  /** key to resolve action when submit is clicked */
   formSubmitKey: FormActionKey;
 }
 
@@ -33,9 +38,18 @@ export const closeModalForm = createAction<[
   () => {},
 );
 
+const SET_MODAL_FORM_DATA = defineAction('SET_MODAL_FORM_DATA');
+export const setModalFormData = createAction<[
+  any
+], State, void>(
+  SET_MODAL_FORM_DATA,
+  (data) => data,
+);
+
 const DEFINES = {
   OPEN_MODAL_FORM,
   CLOSE_MODAL_FORM,
+  SET_MODAL_FORM_DATA,
 };
 
 export default DEFINES;

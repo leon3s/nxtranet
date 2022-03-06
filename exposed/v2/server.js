@@ -1,7 +1,7 @@
 const next = require('next');
 const express = require('express');
 
-const port = +(process.env.PORT || 3001);
+const port = +(process.env.PORT || 3005);
 const dev = process.env.NODE_ENV !== 'production';
 
 const app = next({ dev });

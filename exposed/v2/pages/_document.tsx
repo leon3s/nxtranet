@@ -1,9 +1,9 @@
 import Document, {
+  DocumentContext,
   Head,
   Html,
   Main,
-  NextScript,
-  DocumentContext,
+  NextScript
 } from 'next/document';
 import {ServerStyleSheet} from 'styled-components';
 

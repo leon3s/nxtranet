@@ -5,7 +5,6 @@ import React from 'react';
 import {ThemeProvider} from 'styled-components';
 import {wrapper} from '~/redux/store';
 import {themeDefault} from '~/styles/themes';
-
 import '../public/styles/index.css';
 
 class MyApp extends App<AppInitialProps> {

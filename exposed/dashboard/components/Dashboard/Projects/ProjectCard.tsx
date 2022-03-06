@@ -17,10 +17,6 @@ export default function ProjectCard(props: ProjectCardProps) {
     data,
   } = props;
 
-  function onClick() {
-    props.onClick(data);
-  }
-
   function onMouseEnter() {
     setIsHover(true);
   }

@@ -7,16 +7,24 @@ import type { NextRouter } from 'next/router';
 import type { State } from '~/redux/reducers';
 
 import { openModalForm } from '~/redux/actions/modalForm';
+import { getProjects } from '~/redux/actions/project';
+
+import ProjectCard from '~/components/ProjectCard';
 import DashboardContent from '~/components/DashboardContent';
 import DashboardTitle from '~/components/DashboardTitle';
+
 import { IconPlus } from '~/styles/icons';
+
+import * as Style from './style';
 
 const actions = {
   openModalForm,
+  getProjects,  
 };
 
 const mapStateToProps = (state: State) => ({
-  counter: state.home.counter,
+  projectCards: state.projects.data,
+  isPending: state.projects.isPending,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -30,17 +38,29 @@ export type DashboardProjectsContainerProps = {
 class DashboardProjectsContainer extends
   React.PureComponent<DashboardProjectsContainerProps> {
 
+  async componentDidMount() {
+    try {
+      await this.props.getProjects();
+    } catch (e) {
+      e;
+    }
+  }
+
   onClickCreateProject = () => {
     this.props.openModalForm({
       title: 'New project',
       iconKey: 'IconProject',
       formKey: 'formProject',
-      formSubmitTitle: 'new',
+      formSubmitTitle: 'New',
       formSubmitKey: 'createProject',
     }, {});
   };
 
   render() {
+    const {
+      isPending,
+      projectCards,
+    } = this.props;
     return (
       <DashboardContent>
         <DashboardTitle
@@ -51,6 +71,20 @@ class DashboardProjectsContainer extends
             fn: this.onClickCreateProject,
           }]}
         />
+        <Style.ProjectsContainer>
+          {isPending ? (
+            <React.Fragment>
+              <ProjectCard/>
+              <ProjectCard/>
+            </React.Fragment>
+          ) : null}
+          {projectCards.map((projectCard) => (
+            <ProjectCard
+              data={projectCard}
+              key={projectCard.id}
+            />
+          ))}
+        </Style.ProjectsContainer>
       </DashboardContent>
     );
   }

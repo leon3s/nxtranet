@@ -3,6 +3,8 @@ import React from 'react';
 import * as Style from './style';
 import type {ButtonColorType} from './style';
 
+export type {ButtonColorType} from './style';
+
 export type ButtonProps = {
   title?: string;
   className?: string;
@@ -22,15 +24,16 @@ function Button(props: ButtonProps) {
     onClick,
     children,
     disabled,
+    colorType,
     className,
   } = props;
   return (
     <Style.Button
       title={title}
       onClick={onClick}
-      colorType="default"
       disabled={disabled}
       className={className}
+      colorType={colorType || 'default'}
     >
       {children}
     </Style.Button>

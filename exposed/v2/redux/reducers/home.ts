@@ -6,6 +6,10 @@ import HOME_DEFINES, {
   setCounter,
 } from '../actions/home';
 
+const {
+  COUNTER_INC,
+} = HOME_DEFINES;
+
 export type HomeState = {
   counter: number;
 };
@@ -13,10 +17,6 @@ export type HomeState = {
 const initialState: HomeState = {
   counter: 0,
 };
-
-const {
-  COUNTER_INC,
-} = HOME_DEFINES;
 
 const reducerHooks: ReducerHooks<HomeState> = {
   [COUNTER_INC.DEFAULT]:

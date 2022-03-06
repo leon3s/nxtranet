@@ -1,13 +1,13 @@
 import React from 'react';
 import {PuffLoader} from 'react-spinners';
 
-import Button from '~/components/Button';
+import Button, {ButtonColorType} from '~/components/Button';
 
 import * as Style from './style';
 
 type ButtonLoadingProps = {
   className?: string;
-  colorType?: string;
+  colorType?: ButtonColorType;
   isResolving?: boolean;
   children?: React.ReactNode;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void | Promise<void>;
@@ -20,7 +20,7 @@ type ButtonLoadingState = {
 export default class ButtonLoading
   extends React.PureComponent<ButtonLoadingProps, ButtonLoadingState> {
   static defaultProps = {
-    colorType: '',
+    colorType: 'default',
   };
 
   state = {
@@ -56,10 +56,12 @@ export default class ButtonLoading
     } = this.state;
     const {
       children,
+      colorType,
       className,
     } = this.props;
     return (
       <Button
+        colorType={colorType}
         className={className}
         disabled={isLoading}
         onClick={this.onClick}

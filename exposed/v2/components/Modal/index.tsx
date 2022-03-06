@@ -20,7 +20,7 @@ export default function Modal(props: ModalProps) {
             </Style.TitleContainer>
             : null}
           <Style.Children className='scroll-bar'>
-            {props.isVisible ? props.children : null}
+            {props.children}
           </Style.Children>
         </Style.Content>
       </Style.ContentWrapper>

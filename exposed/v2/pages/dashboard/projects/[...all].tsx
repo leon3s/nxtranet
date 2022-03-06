@@ -1,16 +1,12 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import {wrapper} from '~/redux/store';
-import {withRouter} from 'next/router';
-
-import type {State} from '~/redux/reducers';
-import type {Dispatch} from '~/utils/redux';
 import type {GetServerSidePropsResult} from 'next';
 import type {NextRouter} from 'next/router';
-
-import Dashboard from '~/containers/Dashboard';
+import React from 'react';
+import {bindActionCreators} from 'redux';
+import DashboardHud from '~/containers/DashboardHud';
 import ModalForm from '~/containers/ModalForm';
+import type {State} from '~/redux/reducers';
+import {wrapper} from '~/redux/store';
+import type {Dispatch} from '~/utils/redux';
 
 const actions = {};
 
@@ -20,7 +16,7 @@ const mapStateToprops = () => ({
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators(actions, dispatch);
 
-type IndexPageProps = {
+type ProjectPageProps = {
   router: NextRouter;
 } & ReturnType<typeof mapStateToprops>
 & ReturnType<typeof mapDispatchToProps>
@@ -33,19 +29,16 @@ export const getServerSideProps = wrapper.getServerSideProps(({}) =>
   }
 );
 
-class IndexPage extends
-  React.PureComponent<IndexPageProps> {
+class ProjectPage extends
+  React.PureComponent<ProjectPageProps> {
   render() {
     return (
       <React.Fragment>
         <ModalForm />
-        <Dashboard />
+        <DashboardHud />
       </React.Fragment>
     );
   }
 }
 
-export default connect(
-  mapStateToprops,
-  mapDispatchToProps
-)(withRouter(IndexPage));
+export default ProjectPage;

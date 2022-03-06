@@ -1,18 +1,26 @@
 import {inject} from '@loopback/core';
 import {
-  Count,
-  CountSchema,
   Filter,
   FilterExcludingWhere,
-  repository,
-  Where
+  repository
 } from '@loopback/repository';
 import {
-  del, get,
-  getModelSchemaRef, HttpErrors, param, patch, post, requestBody
+  del,
+  get,
+  getModelSchemaRef,
+  HttpErrors,
+  param,
+  patch,
+  post,
+  requestBody
 } from '@loopback/rest';
 import crypto from 'crypto';
-import {GithubServiceBindings, NginxServiceBindings, ProjectServiceBindings, WebSockerServiceBindings} from '../keys';
+import {
+  GithubServiceBindings,
+  NginxServiceBindings,
+  ProjectServiceBindings,
+  WebSockerServiceBindings
+} from '../keys';
 import {Project} from '../models';
 import {ProjectRepository} from '../repositories';
 import {GithubService} from '../services/github-service';
@@ -34,6 +42,7 @@ export class ProjectController {
     protected projectRepository: ProjectRepository,
   ) { }
 
+  /** DASHBOARD_IN_USE */
   @post('/projects', {
     responses: {
       '200': {
@@ -57,7 +66,22 @@ export class ProjectController {
   ): Promise<Project> {
     project.github_webhook = `/webhooks/github/${project.name}`;
     project.github_webhook_secret = `nxtwh_${crypto.randomBytes(6).toString('hex')}`;
-    const projectDB = await this.projectRepository.create(project);
+    let projectDB = null;
+    try {
+      projectDB = await this.projectRepository.create(project);
+    } catch (error) {
+      if (error.code === 11000) {
+        if (error.errmsg.includes('index: uniqueName')) {
+          const err = new HttpErrors.UnprocessableEntity('Project name already taken.');
+          err.details = {
+            messages: {},
+          };
+          err.details.messages.name = ['already taken must be unique.'];
+          throw err;
+        }
+      }
+      throw error;
+    }
     try {
       await this.githubService.getProjectBranch({
         projectName: project.github_project,
@@ -78,21 +102,7 @@ export class ProjectController {
     return projectDB;
   }
 
-  @get('/projects/count', {
-    description: 'Get projects count',
-    responses: {
-      '200': {
-        description: 'Project model count',
-        content: {'application/json': {schema: CountSchema}},
-      }
-    }
-  })
-  async count(
-    @param.where(Project) where?: Where<Project>,
-  ): Promise<Count> {
-    return this.projectRepository.count(where);
-  }
-
+  /** DASHBOARD_IN_USE */
   @get('/projects', {
     description: 'Get list of projects',
     responses: {
@@ -115,6 +125,7 @@ export class ProjectController {
     return this.projectRepository.find(filter);
   }
 
+  /** DASHBOARD_IN_USE */
   @get('/projects/{name}', {
     description: 'Get project by his name',
     responses: {
@@ -176,6 +187,7 @@ export class ProjectController {
     await this.projectRepository.updateById(projectDB.id, project);
   }
 
+  /** DASHBOARD_IN_USE */
   @del('/projects/{name}', {
     description: 'Delete project by his name',
     responses: {
