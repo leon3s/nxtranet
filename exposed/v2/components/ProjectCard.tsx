@@ -5,6 +5,7 @@ import {
   IconProject,
   IconProjectOpen
 } from '~/styles/icons';
+import LoadingBackground from './LoadingBackground';
 import * as Style from './ProjectCard.s';
 
 type ProjectCardProps = {
@@ -31,9 +32,7 @@ export default function ProjectCard(props: ProjectCardProps) {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <Style.Overlay>
-          <Style.AnimatedLine />
-        </Style.Overlay>
+        <LoadingBackground />
         <Style.ProjectCardIcon>
           {isHover ?
             <IconProjectOpen size={50} />

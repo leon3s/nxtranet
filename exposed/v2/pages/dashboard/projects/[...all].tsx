@@ -6,7 +6,7 @@ import DashboardHud from '~/containers/DashboardHud';
 import DashboardProject from '~/containers/DashboardProject';
 import ModalConfirm from '~/containers/ModalConfirm';
 import ModalForm from '~/containers/ModalForm';
-import {getProjectByName} from '~/redux/actions/project';
+import {getProjectByName, getProjectClusterByName, getProjectPipelineByNamespace} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
 import type {Dispatch} from '~/utils/redux';
@@ -22,17 +22,17 @@ const mapDispatchToProps = (dispatch: Dispatch<State>) =>
 type ProjectPageProps = {
   projectName: string;
   tab: string;
+  subtab?: string | null;
   router: NextRouter;
 } & ReturnType<typeof mapStateToprops>
 & ReturnType<typeof mapDispatchToProps>
 
 export const getServerSideProps = wrapper.getServerSideProps((store) =>
   async (ctx): Promise<GetServerSidePropsResult<any>> => {
-    const [projectName, tab] = ctx.query.all || [];
+    const [projectName, tab, subtab] = ctx.query.all || [];
     try {
       await store.dispatch(getProjectByName(projectName));
     } catch (e) {
-      console.error(e);
       return {
         redirect: {
           permanent: false,
@@ -48,11 +48,17 @@ export const getServerSideProps = wrapper.getServerSideProps((store) =>
         },
       };
     }
-    // ctx.req.all
+    if (tab === 'clusters' && subtab) {
+      await store.dispatch(getProjectClusterByName(projectName, subtab, {}));
+    }
+    if (tab === 'pipelines' && subtab) {
+      await store.dispatch(getProjectPipelineByNamespace(`${projectName}.${subtab}`));
+    }
     return {
       props: {
-        tab: tab,
-        projectName: projectName,
+        tab,
+        subtab: subtab || null,
+        projectName,
       },
     };
   }
@@ -74,12 +80,14 @@ class ProjectPage extends
 
   render() {
     const {
-      projectName,
       tab,
+      subtab,
+      projectName,
     } = this.props;
     return (
       <DashboardProject
         tab={tab}
+        subtab={subtab}
         projectName={projectName}
       />
     );

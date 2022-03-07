@@ -20,7 +20,7 @@ const actions = {
 
 const mapStateToProps = (state: State) => ({
   projectCards: state.projects.data,
-  isPending: state.projects.isPending,
+  isPending: state.projects.isDataPending,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>

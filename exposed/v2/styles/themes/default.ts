@@ -1,5 +1,7 @@
 const COLOR_RED = 'red';
-const COLOR_TEXT_DEFAULT = '#696969';
+// OLD TEX_SECONDARY
+// '#696969';
+const COLOR_TEXT_SECONDARY = '#8c8c8c';
 const COLOR_ORANGE = 'rgba(255, 78, 43, 0.8)';
 const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 0.6)';
 
@@ -32,13 +34,14 @@ export const themeDefault = {
     fontSize: {
       title: '16px',
       subtitle: '14px',
-      label: '12px',
-      description: '10px',
+      text: '12px',
+      label: '10px',
+      description: '8px',
     },
     color: {
-      primary: COLOR_TEXT_DEFAULT,
+      primary: '#111',
       colored: COLOR_ORANGE,
-      secondary: '#000',
+      secondary: COLOR_TEXT_SECONDARY,
     }
   },
   button: {

@@ -3,6 +3,7 @@ import Title from './Title';
 
 export const ModalFormTitle = Styled(Title)`
   ${props => `
+    width: 100%;
     margin-left: ${props.theme.spacing};
   `}
 `;

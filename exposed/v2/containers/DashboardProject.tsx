@@ -7,10 +7,13 @@ import DashboardContent from '~/components/DashboardContent';
 import DashboardTitle from '~/components/DashboardTitle';
 import MenuNav from '~/components/MenuNav';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
+import {clearProjectCluster, getProjectClusterByName} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
-import {IconCluster, IconContainer, IconDelete, IconPipeline, IconPlus} from '~/styles/icons';
+import {IconCluster, IconContainer, IconDelete, IconPipeline} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardProject.s';
+import DashboardProjectClusters from './DashboardProjectClusters';
+import DashboardProjectPipelines from './DashboardProjectPipelines';
 
 const navItems = [
   {
@@ -42,38 +45,29 @@ const navItems = [
 const actions = {
   openModalForm,
   openModalConfirm,
+  clearProjectCluster,
+  getProjectClusterByName,
 };
 
 const mapStateToProps = (state: State) => ({
   project: state.projects.current,
+  cluster: state.projects.cluster,
+  isClusterPending: state.projects.isCurrentClusterPending,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
   bindActionCreators(actions, dispatch);
 
 export type DashboardProjectContainerProps = {
-  projectName: string;
   tab: string;
+  subtab?: string | null;
+  projectName: string;
   router: NextRouter;
 } & ReturnType<typeof mapStateToProps>
 & ReturnType<typeof mapDispatchToProps>;
 
 class DashboardProjectContainer extends
   React.PureComponent<DashboardProjectContainerProps> {
-
-  onClickCreateCluster = () => {
-    this.props.openModalForm({
-      title: 'New cluster',
-      iconKey: 'IconCluster',
-      formKey: 'formCluster',
-      formSubmitTitle: 'New',
-      formSubmitKey: 'createProjectCluster',
-      formSubmitArgs: [this.props.projectName],
-      mustacheData: {
-        projectName: this.props.projectName,
-      },
-    });
-  };
 
   onClickDeleteProject = () => {
     this.props.openModalConfirm({
@@ -89,7 +83,9 @@ class DashboardProjectContainer extends
       tab,
       project,
       projectName,
+      router,
     } = this.props;
+    const [{}, {}, subtab] = router.query.all as string[];
     return (
       <DashboardContent>
         <DashboardTitle
@@ -107,14 +103,20 @@ class DashboardProjectContainer extends
             baseUrl={`/dashboard/projects/${projectName}`}
           />
         </Style.MenuNavContainer>
-        <DashboardTitle
-          title={`${projectName}/clusters`}
-          actions={[{
-            title: `New cluster in project ${projectName}`,
-            icon: () => <IconPlus size={12} />,
-            fn: this.onClickCreateCluster,
-          }]}
-        />
+        {tab === 'clusters' ?
+          <DashboardProjectClusters
+            tab={tab}
+            subtab={subtab}
+            projectName={projectName}
+          />
+          : null}
+        {tab === 'pipelines' ?
+          <DashboardProjectPipelines
+            tab={tab}
+            subtab={subtab}
+            projectName={projectName}
+          /> : null
+        }
       </DashboardContent>
     );
   }

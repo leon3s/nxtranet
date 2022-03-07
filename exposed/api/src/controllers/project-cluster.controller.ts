@@ -36,6 +36,36 @@ export class ProjectClusterController {
     protected projectRepository: ProjectRepository,
   ) { }
 
+  /** DASHBOARD USED */
+  @get(`/projects/{name}/clusters/{clusterName}`, {
+    responses: {
+      '200': {
+        description: 'Get project cluster for given names',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Cluster),
+          },
+        },
+      },
+    },
+  })
+  async getProjectClusterByName(
+    @param.path.string('name') name: string,
+    @param.path.string('clusterName') clusterName: string,
+    @param.query.object('filter') filter?: Filter<Cluster>,
+  ): Promise<Cluster> {
+    const [cluster] = await this.projectRepository.clusters(name).find({
+      ...(filter || {}),
+      where: {
+        ...(filter?.where || {}),
+        name: clusterName,
+      }
+    });
+    if (!cluster) throw new HttpErrors
+      .NotFound(`Cluster ${clusterName} doesn't exists inside ${name}`);
+    return cluster;
+  }
+
   @get('/projects/{name}/clusters', {
     responses: {
       '200': {

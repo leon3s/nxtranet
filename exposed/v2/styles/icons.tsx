@@ -3,6 +3,7 @@ import {
   AiFillFolderOpen,
   AiOutlineCluster, AiOutlinePlus, AiOutlineQuestionCircle
 } from 'react-icons/ai';
+import {FaTerminal} from 'react-icons/fa';
 import {GiMatterStates} from 'react-icons/gi';
 import {HiOutlineViewGrid, HiVariable} from 'react-icons/hi';
 import {IoMdCube} from 'react-icons/io';
@@ -24,8 +25,9 @@ export const IconProjectOpen = AiFillFolderOpen;
 export const IconNginx = SiNginx;
 export const IconWarning = MdDangerous;
 export const IconConfirm = AiOutlineQuestionCircle;
+export const IconPipelineCmd = FaTerminal;
 
 export type Icons = "IconCluster" | "IconPipeline" | "IconContainer" |
   "IconSetting" | "IconMetrix" | "IconEnvVar" | "IconPlus" | "IconOverview" |
     "IconDelete" | "IconProject" | "IconProjectOpen" | "IconNginx" | "IconWarning" |
-    "IconConfirm";
+    "IconConfirm" | "IconPipelineCmd";

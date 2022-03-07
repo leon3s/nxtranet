@@ -1,8 +1,5 @@
 import type {AxiosInstance} from 'axios';
-import type {Context} from 'next-redux-wrapper';
-import {
-  createWrapper
-} from 'next-redux-wrapper';
+import {Context, createWrapper} from 'next-redux-wrapper';
 import type {
   AnyAction,
   CombinedState,

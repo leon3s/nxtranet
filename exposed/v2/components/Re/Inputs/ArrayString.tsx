@@ -12,13 +12,13 @@ export default function InputNumber(props: InputProps) {
       if (!s.length) return;
       if (i === null) {
         props.onChange([
-          ...props.value,
+          ...(props.value || []),
           s,
         ]);
       } else {
         props.value[i] = s;
         setI(null);
-        props.onChange([...props.value]);
+        props.onChange([...(props.value || [])]);
       }
       setS('');
     }
@@ -41,7 +41,7 @@ export default function InputNumber(props: InputProps) {
   return (
     <Style.ArrayStringContainer>
       <Style.StringBadgeContainer>
-        {props.value.map((s: string, i: number) => (
+        {(props.value || []).map((s: string, i: number) => (
           <Style.StringBadgeWrapper
             key={`${s}-${i}`}
           >

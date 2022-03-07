@@ -12,7 +12,7 @@ export enum ModelClusterType {
 
 export type ModelCluster = {
   id: string;
-  creationDate: Date;
+  creationDate: Date | string;
   namespace: string;
   projectName: string;
   type: ModelClusterType;
