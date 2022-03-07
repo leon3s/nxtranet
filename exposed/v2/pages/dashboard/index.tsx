@@ -2,7 +2,6 @@ import type {GetServerSidePropsResult} from 'next';
 import type {NextRouter} from 'next/router';
 import React from 'react';
 import {bindActionCreators} from 'redux';
-import DashboardHeader from '~/containers/DashboardHeader';
 import DashboardHud from '~/containers/DashboardHud';
 import Home from '~/containers/Home';
 import ModalForm from '~/containers/ModalForm';
@@ -33,15 +32,20 @@ export const getServerSideProps = wrapper.getServerSideProps(({}) =>
 
 class DashboardHomePage extends
   React.PureComponent<DashboardHomePageProps> {
-  render() {
+  static getLayout = (page: React.ReactElement) => {
     return (
       <React.Fragment>
-        <DashboardHeader />
         <ModalForm />
         <DashboardHud>
-          <Home />
+          {page}
         </DashboardHud>
       </React.Fragment>
+    );
+  };
+
+  render() {
+    return (
+      <Home />
     );
   }
 }

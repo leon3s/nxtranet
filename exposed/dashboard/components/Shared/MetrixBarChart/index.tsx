@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   Bar,
   BarChart,
@@ -17,7 +17,6 @@ type BarCharProps = {
 }
 
 export default function BarChar(props: BarCharProps) {
-  const [activeBarLabel, setActiveBarLabel] = useState<string | null>(null);
   const renderTooltips: ContentType<number, string> = ({active, label, payload}) => {
     if (active && payload && payload.length) {
       return (
@@ -55,8 +54,6 @@ export default function BarChar(props: BarCharProps) {
           >
           </XAxis>
           <Bar
-            onMouseEnter={({label}) => setActiveBarLabel(label)}
-            onMouseLeave={() => setActiveBarLabel(null)}
             radius={4}
             style={{
               borderTopRightRadius: 4,

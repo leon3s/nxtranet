@@ -1,5 +1,5 @@
 import Mustache from 'mustache';
-import {ReformSchema} from '~/components/ReForm';
+import {ReformSchema} from '~/components/Re/Form';
 
 export function bindPathOptions(schema: ReformSchema[], data: Record<any, any>) {
   return schema.map((item: ReformSchema) => ({
@@ -13,13 +13,15 @@ export function bindPathOptions(schema: ReformSchema[], data: Record<any, any>) 
 
 export function transformError(e: any) {
   let envVarFormErrors: Record<string, string> = {};
-  console.log(
-    e.response.data.error,
-  );
-  console.log(e);
-  if (e.response.status === 422) {
-    if (e.response.data.error.code === "VALIDATION_FAILED") {
-      const {details} = e.response.data.error;
+  const {response} = e;
+  if (!response) {
+    console.warn('Unexpected error.');
+    return envVarFormErrors;
+  }
+  const {status, data} = response;
+  if (status === 422) {
+    if (data.error.code === "VALIDATION_FAILED") {
+      const {details} = data.error;
       details.forEach((detail: any) => {
         envVarFormErrors[detail.info.missingProperty] = detail.code;
       });
@@ -27,7 +29,7 @@ export function transformError(e: any) {
     }
     const {
       messages,
-    } = e.response.data.error.details;
+    } = data.error.details;
     const errorKeys = Object.keys(messages);
     envVarFormErrors = errorKeys.reduce((acc: Record<string, string>, errorKey: string) => {
       acc[errorKey] = messages[errorKey] as string;
@@ -35,8 +37,8 @@ export function transformError(e: any) {
     }, {});
     return envVarFormErrors;
   }
-  if (e.response.status === 409) {
-    envVarFormErrors[e.response.data.error.name] = e.response.data.error.message;
+  if (status === 409) {
+    envVarFormErrors[data.error.name] = data.error.message;
     return envVarFormErrors;
   }
   return envVarFormErrors;

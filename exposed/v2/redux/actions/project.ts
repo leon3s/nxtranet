@@ -1,12 +1,11 @@
-import {defineAction} from '~/utils/redux';
-import {createAction} from '~/utils/redux';
-
-import type {AxiosResponse} from 'axios';
-import type {
+import {
+  ModelCluster,
   ModelProject
 } from '@nxtranet/headers';
-
-import type { State } from '../reducers';
+import type {AxiosResponse} from 'axios';
+import Router from 'next/router';
+import {createAction, defineAction} from '~/utils/redux';
+import type {State} from '../reducers';
 
 /** Action Used to create a project */
 const CREATE_PROJECT = defineAction('CREATE_PROJECT');
@@ -23,10 +22,12 @@ export const createProject = createAction<[
 const DELETE_PROJECT_BY_NAME = defineAction('DELETE_PROJECT_BY_NAME');
 export const deleteProjectByName = createAction<[
   string
-], State, AxiosResponse<ModelProject>>(
+], State, {name: string}>(
   DELETE_PROJECT_BY_NAME, (name) =>
-    ({}, {}, api) => {
-      return api.delete(`/projects/${name}`);
+    async ({}, {}, api) => {
+      await api.delete(`/projects/${name}`);
+      await Router.push('/dashboard/projects');
+      return {name};
     }
 );
 
@@ -36,30 +37,47 @@ export const getProjects = createAction<[
 ], State, AxiosResponse<ModelProject[]>>(
   GET_PROJECTS, () =>
     ({}, {}, api) => {
+      /** We slow the request in purpose to have time to see animation. */
+      /** LOL */
       return new Promise(async (resolve, reject) => {
         try {
-          const res = await api.get<ModelProject[]>('/projects', {
-            params: {
-              filter: {
-                // includes: [
-                //   { relation: 'gitBranch' }
-                // ]
-              }
-            }
-          });
+          const res = await api.get<ModelProject[]>('/projects');
           setTimeout(() => {
             resolve(res);
           }, 1000);
         } catch (e) {
-          reject(e);
+          setTimeout(() => {
+            reject(e);
+          }, 1000);
         }
       });
+    }
+);
+
+const GET_PROJECT_BY_NAME = defineAction('GET_PROJECT_BY_NAME');
+export const getProjectByName = createAction<[
+  string
+], State, AxiosResponse<ModelProject>>(
+  GET_PROJECT_BY_NAME, (name) =>
+    ({}, {}, api) =>
+      api.get<ModelProject>(`/projects/${name}`)
+);
+
+const CREATE_PROJECT_CLUSTER = defineAction('CREATE_PROJECT_CLUSTER');
+export const createProjectCluster = createAction<[
+  string,
+  ModelCluster,
+], State, AxiosResponse<ModelCluster>>(
+  CREATE_PROJECT_CLUSTER, (projectName, cluster) =>
+    ({}, {}, api) => {
+      return api.post(`/projects/${projectName}/clusters`, cluster);
     }
 );
 
 const DEFINES = {
   GET_PROJECTS,
   CREATE_PROJECT,
+  GET_PROJECT_BY_NAME,
   DELETE_PROJECT_BY_NAME,
 };
 

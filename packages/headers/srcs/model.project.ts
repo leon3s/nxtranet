@@ -4,7 +4,7 @@ import type {ModelPipeline} from "./model.pipeline";
 
 export type ModelProject = {
   id: string;
-  creationDate: Date;
+  creationDate: Date | string;
   name: string;
   github_project: string;
   github_username: string;

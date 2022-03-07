@@ -1,36 +1,25 @@
-import type {AxiosInstance, AxiosRequestConfig} from 'axios';
-import axios from 'axios';
+import type {AxiosInstance} from 'axios';
 import type {Context} from 'next-redux-wrapper';
 import {
-  createWrapper, HYDRATE
+  createWrapper
 } from 'next-redux-wrapper';
-import type {AnyAction, CombinedState, Reducer} from 'redux';
+import type {
+  AnyAction,
+  CombinedState,
+  Reducer
+} from 'redux';
 import {
-  applyMiddleware, createStore
+  applyMiddleware,
+  createStore
 } from 'redux';
 import promise from 'redux-promise-middleware';
 import thunk, {ThunkMiddleware} from 'redux-thunk';
-import io, {Socket} from 'socket.io-client';
+import type {ApiOption} from '~/api';
+import {apiUrl, updateApiInstance} from '~/api';
 import type {State} from './reducers';
 import reducers from './reducers';
 
 const isProd = process.env.NODE_ENV === 'production';
-
-const apiUrl = process.env.API_URL || 'http://api.nxtra.net';
-
-declare module "axios" {
-  export interface AxiosInstance {
-    socket: Socket;
-  }
-}
-
-type ApiOption = {
-  baseURL: string;
-  withCredentials: boolean;
-  headers: {
-    cookie?: null | undefined | string;
-  }
-} & AxiosRequestConfig;
 
 const apiOpts: ApiOption = {
   baseURL: apiUrl,
@@ -49,9 +38,6 @@ type AppContext = {
 } & Context;
 
 const rootReducer = (state: State, action: AnyAction): State => {
-  if (action.type === HYDRATE) {
-    return state;
-  }
   return reducers(state, action);
 };
 
@@ -63,10 +49,7 @@ const makeStore = (context: Context) => {
     cookie = _context.ctx.req.headers.cookie || '';
     apiOpts.headers.cookie = cookie;
   }
-  const apiInstance = axios.create(apiOpts);
-  if (typeof window !== 'undefined') {
-    apiInstance.socket = io(apiUrl);
-  }
+  const apiInstance = updateApiInstance(apiOpts, true);
   return createStore(
     rootReducer as Reducer<CombinedState<State>>,
     applyMiddleware(

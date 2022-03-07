@@ -1,5 +1,5 @@
 const COLOR_RED = 'red';
-const COLOR_TEXT_DEFAULT = '#111';
+const COLOR_TEXT_DEFAULT = '#696969';
 const COLOR_ORANGE = 'rgba(255, 78, 43, 0.8)';
 const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 0.6)';
 
@@ -14,6 +14,7 @@ export const themeDefault = {
   border: {
     color: {
       default: 'rgba(0, 0, 0, 0.2)',
+      selected: COLOR_ORANGE,
     }
   },
   view: {
@@ -23,6 +24,7 @@ export const themeDefault = {
     background: {
       primary: 'white',
       secondary: 'white',
+      hover: COLOR_LIGHTBLUE,
       loading: COLOR_LIGHTBLUE,
     }
   },
@@ -36,7 +38,7 @@ export const themeDefault = {
     color: {
       primary: COLOR_TEXT_DEFAULT,
       colored: COLOR_ORANGE,
-      secondary: '#696969',
+      secondary: '#000',
     }
   },
   button: {
@@ -64,7 +66,7 @@ export const themeDefault = {
       background: {
         default: COLOR_RED,
         hoverDefault: 'white',
-      }, 
+      },
     }
   }
 };

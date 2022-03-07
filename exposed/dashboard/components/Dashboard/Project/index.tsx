@@ -1,6 +1,5 @@
 import type {ModelProject} from '@nxtranet/headers';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
 import React from 'react';
 import FooterDefault from '~/components/Shared/FooterDefault';
 import PageTitle from '~/components/Shared/PageTitle';
@@ -19,7 +18,6 @@ import Clusters from './Clusters';
 import Containers from './Containers';
 import Metrix from './Metrix';
 import Pipelines from './Pipelines';
-import Production from './Production';
 import Settings from './Settings';
 import * as Style from './style';
 
@@ -94,11 +92,6 @@ const tabMapping: TabMapping = {
       projectName={props.data.name}
     />
   ),
-  production: (props) => (
-    <Production
-      projectName={props.data.name}
-    />
-  ),
   metrix: (props) => (
     <Metrix
       projectName={props.data.name}
@@ -117,35 +110,34 @@ function isActive(tab: string | null, href: string): boolean {
   return `/${tab}` === href;
 }
 
-type TabLink = {
-  name: string;
-  link: string;
-}
+// type TabLink = {
+//   name: string;
+//   link: string;
+// }
 
-function generateTabs(initialLink: string, tabs: string[]) {
-  const newTabs: TabLink[] = [];
-  tabs.forEach((tab, i) => {
-    const prev = newTabs[i - 1];
-    if (!prev) {
-      newTabs.push({
-        name: tab,
-        link: `${initialLink}/${tab}`,
-      });
-    } else {
-      newTabs.push({
-        name: tab,
-        link: `${prev.link}/${tab}`,
-      });
-    }
-  });
-  return newTabs;
-}
+// TODO
+// function generateTabs(initialLink: string, tabs: string[]) {
+//   const newTabs: TabLink[] = [];
+//   tabs.forEach((tab, i) => {
+//     const prev = newTabs[i - 1];
+//     if (!prev) {
+//       newTabs.push({
+//         name: tab,
+//         link: `${initialLink}/${tab}`,
+//       });
+//     } else {
+//       newTabs.push({
+//         name: tab,
+//         link: `${prev.link}/${tab}`,
+//       });
+//     }
+//   });
+//   return newTabs;
+// }
 
 export default function Project(props: ProjectProps) {
-  const router = useRouter();
-  const tabs = generateTabs('/dashboard/projects', router.query.all as string[]);
   const tab = (props.tab && tabMapping[props.tab](props)) || tabMapping.clusters(props);
-  console.log(router);
+
   function onOpenModalDeleteProject() {
     props.onOpenDeleteModal(props.data);
   }

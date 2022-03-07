@@ -11,6 +11,6 @@ export function bindPathOptions(schema: ReformSchema[], data: Record<any, any>) 
   }))
 }
 
-export function transformError422(error: any) {
+// export function transformError422(error: any) {
 
-}
+// }

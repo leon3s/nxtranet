@@ -1,4 +1,5 @@
-import type {AppInitialProps} from 'next/app';
+import type {NextPage} from 'next';
+import type {AppProps} from 'next/app';
 import App from 'next/app';
 import Head from 'next/head';
 import React from 'react';
@@ -7,7 +8,15 @@ import {wrapper} from '~/redux/store';
 import {themeDefault} from '~/styles/themes';
 import '../public/styles/index.css';
 
-class MyApp extends App<AppInitialProps> {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: React.ReactElement) => React.ReactNode
+}
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout
+}
+
+class MyApp extends App<AppPropsWithLayout> {
   public static getInitialProps = wrapper.getInitialAppProps(({}) => async (appCtx) => {
     try {
       if (appCtx.ctx?.res?.statusCode === 404) {
@@ -25,6 +34,7 @@ class MyApp extends App<AppInitialProps> {
 
   public render() {
     const {Component, pageProps} = this.props;
+    const getLayout = Component.getLayout ?? ((page) => page);
     return (
       <ThemeProvider theme={themeDefault}>
         <React.Fragment>
@@ -33,7 +43,7 @@ class MyApp extends App<AppInitialProps> {
             <link rel="shortcut icon" href="/images/icon.ico" type="image/x-icon" />
             <meta name="viewport" content="width=device-width, user-scalable=no" />
           </Head>
-          <Component {...pageProps} />
+          {getLayout(<Component {...pageProps} />)}
         </React.Fragment>
       </ThemeProvider>
     );

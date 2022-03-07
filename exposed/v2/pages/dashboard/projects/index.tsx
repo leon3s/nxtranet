@@ -2,9 +2,9 @@ import type {GetServerSidePropsResult} from 'next';
 import type {NextRouter} from 'next/router';
 import React from 'react';
 import {bindActionCreators} from 'redux';
-import DashboardHeader from '~/containers/DashboardHeader';
 import DashboardHud from '~/containers/DashboardHud';
 import DashboardProjects from '~/containers/DashboardProjects';
+import ModalConfirm from '~/containers/ModalConfirm';
 import ModalForm from '~/containers/ModalForm';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
@@ -32,15 +32,21 @@ export const getServerSideProps = wrapper.getServerSideProps(({}) =>
 
 class ProjectsPage extends
   React.PureComponent<ProjectsPageProps> {
-  render() {
+  static getLayout = (page: React.ReactElement) => {
     return (
       <React.Fragment>
-        <DashboardHeader />
+        <ModalConfirm />
         <ModalForm />
         <DashboardHud>
-          <DashboardProjects />
+          {page}
         </DashboardHud>
       </React.Fragment>
+    );
+  };
+
+  render() {
+    return (
+      <DashboardProjects />
     );
   }
 }

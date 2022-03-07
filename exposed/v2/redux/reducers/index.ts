@@ -1,13 +1,12 @@
 import {combineReducers} from 'redux';
-
 import home from './home';
+import modal from './modal';
 import projects from './projects';
-import modalForm from './modalForm';
 
 const reducers = combineReducers({
   home,
+  modal,
   projects,
-  modalForm,
 });
 
 export type Store = typeof reducers;

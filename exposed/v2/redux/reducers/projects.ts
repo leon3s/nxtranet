@@ -1,30 +1,51 @@
-import type {ReducerAction} from '~/utils/redux';
+import type {ModelProject} from '@nxtranet/headers';
+import {
+  HYDRATE
+} from 'next-redux-wrapper';
 import type {ReducerHooks} from '~/utils/reducer';
 import {createReducer} from '~/utils/reducer';
-
-import type {ModelProject} from '@nxtranet/headers';
-
+import type {ReducerAction} from '~/utils/redux';
 import PROJECTS_DEFINES, {
-  getProjects,
   createProject,
+  getProjectByName,
+  getProjects
 } from '../actions/project';
 
 const {
   GET_PROJECTS,
   CREATE_PROJECT,
+  GET_PROJECT_BY_NAME,
 } = PROJECTS_DEFINES;
 
 export type ProjectsState = {
   data: ModelProject[];
   isPending: boolean;
+  current: ModelProject;
 };
 
 const initialState: ProjectsState = {
   data: [],
   isPending: false,
+  current: {
+    id: 'testID',
+    creationDate: (new Date()).toString(),
+    name: 'testname',
+    github_project: 'express-test-deploy',
+    github_username: 'leon3s',
+    github_webhook: '/webhook/test/testname',
+    github_webhook_secret: 'sup3rs3cr3t',
+    github_password: 'sup3rp4ssword',
+    clusters: [],
+    pipelines: [],
+    gitBranches: [],
+  },
 };
 
 const reducerHooks: ReducerHooks<ProjectsState> = {
+  [HYDRATE]: (state, action) => ({
+    ...state,
+    current: action.payload.projects.current,
+  }),
   [GET_PROJECTS.PENDING]: (state) => ({
     ...state,
     isPending: true,
@@ -52,6 +73,10 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       ...state.data,
       action.payload.data,
     ]
+  }),
+  [GET_PROJECT_BY_NAME.FULFILLED]: (state, action: ReducerAction<typeof getProjectByName>) => ({
+    ...state,
+    current: action.payload.data,
   }),
 };
 
