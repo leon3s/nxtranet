@@ -1,17 +1,14 @@
 import {combineReducers} from 'redux';
-import HomeReducer from './home';
-import MeReducer from './me';
-import NginxReducer from './nginx';
-import ProjectReducer from './project';
+import home from './home';
+import modal from './modal';
+import projects from './projects';
 
 const reducers = combineReducers({
-  me: MeReducer,
-  nginx: NginxReducer,
-  project: ProjectReducer,
-  home: HomeReducer,
+  home,
+  modal,
+  projects,
 });
 
 export type Store = typeof reducers;
 export type State = ReturnType<typeof reducers>;
-
 export default reducers;

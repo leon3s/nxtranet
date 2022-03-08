@@ -1,0 +1,186 @@
+import Styled from 'styled-components';
+
+export const BaseInput = Styled.input`
+  border-radius: 4px;
+  padding: 0px 12px;
+  line-height: normal;
+  height: 28px;
+  min-width: 0;
+  outline: none;
+  font-size: 10px;
+  outline: none;
+  -webkit-appearance: none;
+  transition: border-color .15s ease;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+${props => `
+:focus {
+  border-color: ${props.theme.border.color.default};
+}`}`;
+
+export const HiddenFileInput = Styled.input.attrs(() => ({
+  type: 'file',
+}))`
+  display: none;
+`;
+
+export const InputIconContainer = Styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+`;
+
+interface InputIconImgProps {
+  backgroundSrc?: string | null;
+}
+
+export const InputIconImg = Styled.div<InputIconImgProps>`
+  background-color: grey;
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  cursor: pointer;
+  background-size: cover;
+${props => `
+${props.backgroundSrc ? `
+  background-image: url('${props.backgroundSrc}');
+`: ''}
+`}`;
+
+export const ArrayStringContainer = Styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const StringBadgeContainer = Styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+export const StringBadge = Styled.p`
+  width: fit-content;
+  padding: 6px;
+  font-size: 10px;
+  margin: 0px;
+`;
+
+export const ArrayStringInput = Styled(BaseInput)`
+`;
+
+export const InputColor = Styled.input`
+  border-radius: 20px;
+  width: 20px;
+  border: 0px;
+  cursor: pointer;
+  margin: 0px;
+  padding: 0px;
+  height: 20px;
+  &::-webkit-color-swatch-wrapper {
+    margin: 0px;
+    padding: 0px;
+    border-radius: 20px;
+  }
+  &::-webkit-color-swatch {
+    margin: 0px;
+    padding: 0px;
+    border-radius: 20px;
+  }
+`;
+
+export const InputRelationContainer = Styled.div`
+`;
+
+export const InputRelationSelect = Styled.select`
+  width: 100%;
+  height: 30px;
+  font-size: 10px;
+  padding: 0px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  outline: none;
+${props => `
+:focus {
+  border-color: ${props.theme.border.color.default};
+}`}`;
+
+export const InputRelationOptions = Styled.option`
+  padding: 0px 12px;
+  height: 30px;
+  font-size: 10px;
+
+${props => `
+    border-color: ${props.theme.border.color.default};
+`}`;
+
+export const Delete = Styled.div`
+  position: relative;
+  background-color: rgba(220, 20, 60, 0.25);
+  width: 100%;
+  transition: all .2s ease;
+${props => `
+  :hover {
+    border: 1px solid ${props.theme.border.color.default};
+    box-shadow: ${props.theme.boxShadowAdvenced};
+  }
+`}`;
+
+export const Edit = Styled.div`
+  position: relative;
+  background-color: rgba(0, 191, 255, 0.25);
+  width: 100%;
+  transition: all .2s ease;
+${props => `
+  :hover {
+    border: 1px solid ${props.theme.border.color.default};
+    box-shadow: ${props.theme.boxShadowAdvenced};
+  }
+`}`;
+
+export const StringBadgeAbs = Styled.div`
+  width: 100%;
+  height: 100%;
+  display: none;
+  position: absolute;
+  z-index: 101;
+`;
+
+export const StringBadgeWrapper = Styled.div`
+  position: relative;
+  margin: 8px 0px;
+  :hover {
+    ${StringBadgeAbs} {
+      display: flex;
+    }
+  }
+  :first-child {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    ${Delete} {
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+    }
+  }
+  :last-child {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    ${Edit} {
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+  }
+  ${props => `
+    border: 1px solid ${props.theme.border.color.default};
+  `}
+`;
+
+
+export const InputMultipleContainer = Styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const InputMultipleLine = Styled.div`
+  display: inline-flex;
+  height: 50px;
+  flex-wrap: wrap;
+  gap: 8px;
+`;

@@ -1,24 +1,7 @@
-/*
- *  ___   _   _ |  _|_ __  _
- *  |__) [_] |_ |<  |_ |  [_] |\|
- *
- * File: \utils\redux.ts
- * Project: dashboard
- * Created Date: Friday, 22nd October 2021 8:01:29 pm
- * Author: leone
- * -----
- * Last Modified: Mon Jan 17 2022
- * Modified By: leone
- * -----
- * Copyright (c) 2021 docktron
- * -----
- */
-
 import type {AxiosInstance} from "axios";
 import {AnyAction, Dispatch as ReduxDispatch} from "redux";
 import type {ThunkDispatch} from "redux-thunk";
 import {ThunkAction} from "redux-thunk";
-
 
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T
 
@@ -33,23 +16,23 @@ declare module "redux" {
     };
 }
 
-type DefineAction = {
+export type DefineAction = {
   DEFAULT: string;
   PENDING: string;
   REJECTED: string;
   FULFILLED: string;
   ON_EVENT: string;
-};
+}
 
 export const defineAction = (name: string): DefineAction => {
   return {
     DEFAULT: name,
     PENDING: `${name}_PENDING`,
     REJECTED: `${name}_REJECTED`,
-    FULFILLED: `${name}_FULFILLED`,
     ON_EVENT: `${name}_ON_EVENT`,
-  }
-}
+    FULFILLED: `${name}_FULFILLED`,
+  };
+};
 
 export type ActionGen<S, R> = R | ((...args: ThunkParam<S>) => R | Promise<R>);
 export type Action<Args extends any[], S, R> = (...args: Args) => ActionGen<S, R>;
@@ -82,3 +65,10 @@ export const createAction = <Args extends any[], S, R>(define: DefineAction, fn:
       });
     }
   };
+
+type ValueOf<T> = T[keyof T];
+
+export type ReducerAction<T extends (...args: any) => any> = AnyAction & {
+  type:  ValueOf<Awaited<ReturnType<ReturnType<T>>>['type']>;
+  payload: Awaited<Awaited<ReturnType<ReturnType<T>>>['payload']>;
+};

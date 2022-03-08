@@ -1,4 +1,4 @@
-import type {ReformSchema} from '~/components/Shared/ReForm';
+import type {ReformSchema} from '~/components/Re/Form';
 
 export const formContainerDeploy: ReformSchema[] = [
   {
@@ -6,7 +6,7 @@ export const formContainerDeploy: ReformSchema[] = [
     key: 'branch',
     type: 'Relation',
     description: `
-      Select branch to deploy inside this cluster
+      Select branch download inside container
     `,
     isDescriptionEnabled: true,
     options: {
@@ -16,4 +16,4 @@ export const formContainerDeploy: ReformSchema[] = [
       key: 'namespace',
     }
   }
-]
+];

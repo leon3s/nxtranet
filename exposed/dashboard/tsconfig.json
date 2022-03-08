@@ -1,10 +1,4 @@
 {
-  "rules": {
-    "semicolon": [
-      true,
-      "always"
-    ],
-  },
   "compilerOptions": {
     "baseUrl": ".",
     "target": "esnext",
@@ -31,7 +25,7 @@
     "isolatedModules": true,
     "paths": {
       "@nxtranet/headers": [
-        "../../packages/headers",
+        "../../packages/headers"
       ],
       "~/styles/*": [
         "./styles/*"
@@ -39,21 +33,21 @@
       "~/redux/*": [
         "./redux/*"
       ],
-      "~/theme/*": [
-        "./theme/*"
-      ],
       "~/utils/*": [
         "./utils/*"
       ],
       "~/components/*": [
         "./components/*"
       ],
+      "~/containers/*": [
+        "./containers/*"
+      ],
       "~/forms/*": [
         "./forms/*"
       ],
       "~/api": [
-        "./api",
-      ]
+        "./api/index"
+      ],
     },
     "incremental": true
   },

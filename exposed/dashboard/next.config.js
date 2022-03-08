@@ -1,11 +1,13 @@
-const removeImports = require("next-remove-imports")();
+/** @type {import('next').NextConfig} */
 
-module.exports = removeImports({
-  experimental: { esmExternals: true },
+const nextConfig = {
   compiler: {
     styledComponents: true,
   },
   env: {
+    API_URL: process.env.API_URL,
     NXTRANET_DOMAIN: process.env.NXTRANET_DOMAIN,
-  }
-});
+  },
+};
+
+module.exports = nextConfig;

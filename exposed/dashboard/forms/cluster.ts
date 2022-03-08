@@ -1,4 +1,4 @@
-import type {ReformSchema} from '~/components/Shared/ReForm';
+import type {ReformSchema} from '~/components/Re/Form';
 
 export const formCluster: ReformSchema[] = [
   {

@@ -1,44 +1,28 @@
-import type {AxiosInstance, AxiosRequestConfig} from 'axios';
-import axios from 'axios';
-import type {Context} from 'next-redux-wrapper';
+import type {AxiosInstance} from 'axios';
+import {Context, createWrapper} from 'next-redux-wrapper';
+import type {
+  AnyAction,
+  CombinedState,
+  Reducer
+} from 'redux';
 import {
-  createWrapper, HYDRATE
-} from 'next-redux-wrapper';
-import type {AnyAction, CombinedState, Reducer} from 'redux';
-import {
-  applyMiddleware, createStore
+  applyMiddleware,
+  createStore
 } from 'redux';
 import promise from 'redux-promise-middleware';
 import thunk, {ThunkMiddleware} from 'redux-thunk';
-import io, {Socket} from 'socket.io-client';
+import type {ApiOption} from '~/api';
+import {apiUrl, updateApiInstance} from '~/api';
 import type {State} from './reducers';
 import reducers from './reducers';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-const apiUrl = isProd
-  ? `http://api.${process.env.NXTRANET_DOMAIN}`
-  : `http://api.${process.env.NXTRANET_DOMAIN}`;
-
-declare module "axios" {
-  export interface AxiosInstance {
-    socket: Socket;
-  }
-}
-
-type ApiOption = {
-  baseURL: string;
-  withCredentials: boolean;
-  headers: {
-    cookie?: null | undefined | string;
-  }
-} & AxiosRequestConfig;
-
 const apiOpts: ApiOption = {
   baseURL: apiUrl,
   withCredentials: true,
   headers: {},
-}
+};
 
 type AppContext = {
   ctx: {
@@ -51,11 +35,8 @@ type AppContext = {
 } & Context;
 
 const rootReducer = (state: State, action: AnyAction): State => {
-  if (action.type === HYDRATE) {
-    return {...action.payload};
-  }
   return reducers(state, action);
-}
+};
 
 // create a makeStore function
 const makeStore = (context: Context) => {
@@ -65,17 +46,14 @@ const makeStore = (context: Context) => {
     cookie = _context.ctx.req.headers.cookie || '';
     apiOpts.headers.cookie = cookie;
   }
-  const apiInstance = axios.create(apiOpts);
-  if (typeof window !== 'undefined') {
-    apiInstance.socket = io(apiUrl);
-  }
+  const apiInstance = updateApiInstance(apiOpts, true);
   return createStore(
     rootReducer as Reducer<CombinedState<State>>,
     applyMiddleware(
       thunk.withExtraArgument(apiInstance) as ThunkMiddleware<State, AnyAction, AxiosInstance>,
       promise,
     )
-  )
+  );
 };
 
 export const wrapper = createWrapper<ReturnType<typeof makeStore>>(

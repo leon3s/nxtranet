@@ -1,36 +1,78 @@
+const COLOR_RED = 'red';
+// OLD TEX_SECONDARY
+// '#696969';
+const COLOR_TEXT_SECONDARY = '#8c8c8c';
+const COLOR_ORANGE = 'rgba(255, 78, 43, 0.8)';
+const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 1)';
+const COLOR_LIGHTBLUE_LIGHT = 'rgba(224, 255, 255, 0.6)';
+
 export const themeDefault = {
-  primaryBackground: 'white',
-  backgroundGradient: 'linear-gradient(rgba(224, 255, 255, 0.6), rgba(255, 255, 255, 1), rgba(224, 255, 255, 0.6))',
-  backgroundGradientInverted: 'linear-gradient(rgba(242, 242, 242, 1), rgba(222, 222, 222, 1))',
-  borderColorDefault: 'rgba(0, 0, 0, 0.2)',
-  borderColorPrimary: 'rgba(253, 77, 43, 0.6)',
-  boxShadowDefault: '0 2px 4px rgb(0 0 0 / 10%)',
+  pageSpacing: '8px',
+  spacing: '8px',
+  borderRadius: '4px',
+  spacingLight: 4,
+  linearGradient: `linear-gradient(${COLOR_LIGHTBLUE_LIGHT}, white, ${COLOR_LIGHTBLUE_LIGHT})`,
   boxShadowSmooth: 'inset 0 -1px 0 0 rgba(0, 0, 0, 0.1)',
-  boxShadowSmoothRight: '1px 0px 0px 0px rgba(0, 0, 0, 0.1)',
-  orange: 'rgba(255, 78, 43, 0.8)',
   boxShadowAdvenced: '0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 2px 1px -1px rgb(0 0 0 / 12%), 0px 1px 3px 0px rgb(0 0 0 / 20%)',
-  padding: {
-    default: 16,
-    light: 8,
+  border: {
+    color: {
+      default: 'rgba(0, 0, 0, 0.2)',
+      selected: COLOR_ORANGE,
+    }
   },
-  borderRadius: 4,
-  button: {
-    primaryColor: 'rgba(255, 78, 43, 0.8)',
-    primaryBorder: 'rgba(255, 78, 43, 0.8)',
-    primaryBackground: 'white',
-  },
-  header: {
-    backdrop: 'saturate(180%) blur(5px)',
-    backgroundColor: 'hsla(0, 0%, 100%, 0.8)',
+  view: {
+    backdrop: {
+      primary: 'saturate(180%) blur(5px)',
+    },
+    background: {
+      primary: 'white',
+      secondary: 'white',
+      hover: COLOR_LIGHTBLUE,
+      loading: COLOR_LIGHTBLUE,
+    }
   },
   text: {
-    primary: '#111',
-    secondary: '#696969',
+    fontSize: {
+      title: '16px',
+      subtitle: '14px',
+      text: '12px',
+      label: '10px',
+      description: '8px',
+    },
+    color: {
+      primary: '#111',
+      colored: COLOR_ORANGE,
+      secondary: COLOR_TEXT_SECONDARY,
+    }
   },
-  link: {
-    colorPrimary: 'rgba(253, 77, 43, 0.8)',
-    colorPrimaryHover: 'rgba(253, 77, 43, 0.6)',
-  },
+  button: {
+    default: {
+      border: {
+        color: COLOR_ORANGE,
+      },
+      color: {
+        default: COLOR_ORANGE,
+        hoverDefault: 'white',
+      },
+      background: {
+        default: 'white',
+        hoverDefault: COLOR_ORANGE,
+      },
+    },
+    danger: {
+      border: {
+        color: COLOR_RED,
+      },
+      color: {
+        default: 'white',
+        hoverDefault: COLOR_RED,
+      },
+      background: {
+        default: COLOR_RED,
+        hoverDefault: 'white',
+      },
+    }
+  }
 };
 
 export type Theme = typeof themeDefault;

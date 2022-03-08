@@ -1,228 +1,170 @@
-import type {
-  ModelCluster, ModelContainer,
-  ModelContainerOutput,
-  ModelEnvVar,
+import {
+  ModelCluster,
+  ModelContainer,
   ModelPipeline,
   ModelPipelineCmd,
   ModelProject
 } from '@nxtranet/headers';
 import type {AxiosResponse} from 'axios';
-import {createAction} from '~/utils/redux';
-import {PROJECT_DEFINES} from '../defines';
+import Router from 'next/router';
+import {createAction, defineAction} from '~/utils/redux';
 import type {State} from '../reducers';
 
-export const get = createAction<[
+/** Action Used to create a project */
+const CREATE_PROJECT = defineAction('CREATE_PROJECT');
+export const createProject = createAction<[
+  Partial<ModelProject>
 ], State, AxiosResponse<ModelProject>>(
-  PROJECT_DEFINES.GET,
-  () =>
-    ({ }, { }, api) => {
-      return api.get<ModelProject>('/projects');
-    });
-
-export const post = createAction<[
-  ModelProject,
-], State, ModelProject>(
-  PROJECT_DEFINES.POST,
-  (project) =>
-    ({ }, { }, api) => {
+  CREATE_PROJECT, (project) =>
+    ({}, {}, api) => {
       return api.post('/projects', project);
-    }
-)
-
-export const getByName = createAction<[
-  string,
-], State, AxiosResponse<ModelProject>>(
-  PROJECT_DEFINES.GET_BY_NAME,
-  (name: string) =>
-    ({ }, { }, api) => {
-      return api.get<ModelProject>(`/projects/${name}`, {
-        params: {
-          filter: {
-          }
-        }
-      });
-    });
-
-export const getClusters = createAction<[
-  string,
-  (string | undefined)?,
-], State, AxiosResponse<ModelCluster>>(
-  PROJECT_DEFINES.GET_CLUSTERS,
-  (projectName, clusterName) =>
-    ({ }, { }, api) => {
-      return api.get<ModelCluster>(`/projects/${projectName}/clusters`, {
-        params: {
-          filter: {
-            include: [
-              {
-                relation: "envVars",
-              },
-              {
-                relation: 'pipelines',
-              },
-              {
-                relation: "gitBranch",
-              },
-              {
-                relation: "containers",
-                scope: {
-                  include: [
-                    {
-                      relation: "pipelineStatus",
-                      scope: {
-                        include: ["pipeline"]
-                      }
-                    }
-                  ]
-                }
-              }],
-            where: {
-              name: clusterName,
-            }
-          }
-        }
-      })
     }
 );
 
-export const postClusters = createAction<[
-  string,
-  ModelCluster,
-], State, ModelCluster>(
-  PROJECT_DEFINES.POST_CLUSTERS,
-  (projectName, cluster) =>
-    ({ }, { }, api) => {
-      return api.post(`/projects/${projectName}/clusters`, cluster);
+/** Action Used to delete a project by it's name */
+const DELETE_PROJECT_BY_NAME = defineAction('DELETE_PROJECT_BY_NAME');
+export const deleteProjectByName = createAction<[
+  string
+], State, {name: string}>(
+  DELETE_PROJECT_BY_NAME, (name) =>
+    async ({}, {}, api) => {
+      await api.delete(`/projects/${name}`);
+      await Router.push('/dashboard/projects');
+      return {name};
     }
-)
+);
 
-export const clusterDeploy = createAction<[
-  string,
-  {branch?: string}?
-], State, AxiosResponse<ModelContainer[]>>(
-  PROJECT_DEFINES.CLUSTER_DEPLOY,
-  (namespace, data) =>
-    ({ }, { }, api) => {
-      return api.post<ModelContainer[]>(`/clusters/${namespace}/deploy`, data);
-    });
-
-export const getContainers = createAction<[
-  string,
-  string,
-], State, AxiosResponse<ModelContainer>>(
-  PROJECT_DEFINES.GET_CONTAINERS,
-  (projectName, containerName) =>
-    ({ }, { }, api) => {
-      const include = ['cluster', {
-        relation: 'pipelineStatus',
-        scope: {
-          include: ['pipeline'],
-        },
-      }];
-      if (containerName) {
-        include.push('outputs');
-      }
-      return api.get<ModelContainer>(`/projects/${projectName}/containers`, {
-        params: {
-          filter: {
-            where: {
-              name: containerName,
-            },
-            include,
-          },
-        },
-      });
-    }
-)
-
-export const containerStatus = createAction<[
-  string,
-], State, null>(
-  PROJECT_DEFINES.CONTAINER_STATUS,
-  (namespace) =>
-    (dispatch, { }, api) => {
-      api.socket.on(namespace, (output: ModelContainerOutput) => {
-        dispatch({
-          type: PROJECT_DEFINES.CONTAINER_STATUS.ON_EVENT,
-          payload: output,
-        });
-      });
-      return null;
-    }
-)
-
-export const containerStatusOff = createAction<[
-  string,
-], State, null>(
-  PROJECT_DEFINES.CONTAINER_STATUS,
-  (namespace) =>
-    ({ }, { }, api) => {
-      api.socket.removeAllListeners(namespace);
-      return null;
-    }
-)
-
-export const deleteContainer = createAction<[
-  ModelContainer,
-], State, ModelContainer>(
-  PROJECT_DEFINES.DELETE_CONTAINER,
-  (container) =>
-    async ({ }, { }, api) => {
-      const {
-        name,
-        clusterNamespace,
-      } = container;
-      await api.delete(`/clusters/${clusterNamespace}/containers/${name}`);
-      return container;
-    }
-)
-
-export const deleteEnvVar = createAction<[
-  ModelEnvVar,
-], State, ModelEnvVar>(
-  PROJECT_DEFINES.DELETE_ENV_VAR,
-  (envVar) =>
-    async ({ }, { }, api) => {
-      await api.delete(`/clusters/${envVar.clusterNamespace}/env-vars`, {
-        params: {
-          where: {id: envVar.id},
+/** Action Used to get projects */
+const GET_PROJECTS = defineAction('GET_PROJECTS');
+export const getProjects = createAction<[
+], State, AxiosResponse<ModelProject[]>>(
+  GET_PROJECTS, () =>
+    ({}, {}, api) => {
+      /** We slow the request in purpose to have time to see animation. */
+      /** LOL */
+      return new Promise(async (resolve, reject) => {
+        try {
+          const res = await api.get<ModelProject[]>('/projects');
+          setTimeout(() => {
+            resolve(res);
+          }, 1000);
+        } catch (e) {
+          setTimeout(() => {
+            reject(e);
+          }, 1000);
         }
       });
-      return envVar;
-    })
-
-export const createEnvVar = createAction<[
-  string,
-  Partial<ModelEnvVar>
-], State, AxiosResponse<ModelEnvVar>>(
-  PROJECT_DEFINES.CREATE_ENV_VAR,
-  (namespace, envVar) =>
-    ({ }, { }, api) => {
-      return api.post<ModelEnvVar>(`/clusters/${namespace}/env-vars`, envVar);
-    });
-
-export const patchEnvVar = createAction<[
-  ModelEnvVar,
-], State, ModelEnvVar>(
-  PROJECT_DEFINES.PATCH_ENV_VAR,
-  (envVar) =>
-    async ({ }, { }, api) => {
-      await api.patch(`/clusters/${envVar.clusterNamespace}/env-vars`, envVar, {
-        params: {
-          where: {id: envVar.id},
-        },
-      });
-      return envVar;
     }
-)
+);
 
-export const getPipelines = createAction<[
+const GET_PROJECT_BY_NAME = defineAction('GET_PROJECT_BY_NAME');
+export const getProjectByName = createAction<[
   string
+], State, AxiosResponse<ModelProject>>(
+  GET_PROJECT_BY_NAME, (name) =>
+    ({}, {}, api) =>
+      api.get<ModelProject>(`/projects/${name}`, {
+        params: {
+          filter: {
+            include: [{
+              relation: 'clusters',
+            }, {
+              relation: 'pipelines',
+            }],
+          }
+        }
+      })
+);
+
+const CREATE_PROJECT_CLUSTER = defineAction('CREATE_PROJECT_CLUSTER');
+export const createProjectCluster = createAction<[
+  string,
+  ModelCluster,
+], State, AxiosResponse<ModelCluster>>(
+  CREATE_PROJECT_CLUSTER, (projectName, cluster) =>
+    ({}, {}, api) => {
+      return api.post(`/projects/${projectName}/clusters`, cluster);
+    }
+);
+
+const GET_PROJECT_CLUSTER_BY_NAME = defineAction('GET_PROJECT_CLUSTER_BY_NAME');
+export const getProjectClusterByName = createAction<[
+  string,
+  string,
+  any,
+], State, AxiosResponse<ModelCluster>>(
+  GET_PROJECT_CLUSTER_BY_NAME, (projectName, clusterName, options) =>
+    ({}, {}, api) => {
+      return api.get<ModelCluster>(`/projects/${projectName}/clusters/${clusterName}`, {
+        ...(options || {}),
+        params: {
+          filter: {
+            include: [
+              {relation: 'pipelines'},
+              {
+                relation: 'containers',
+                scope: {
+                  include: [
+                    {
+                      relation: 'pipelineStatus',
+                      scope: {
+                        include: ['pipeline'],
+                      },
+                    }
+                  ]
+                }
+              }
+            ],
+          }
+        }
+      });
+    }
+);
+
+const CLEAR_PROJECT_CLUSTER = defineAction('CLEAR_PROJECT_CLUSTER');
+export const clearProjectCluster = createAction(
+  CLEAR_PROJECT_CLUSTER,
+  () => {},
+);
+
+const CREATE_PROJECT_PIPELINE = defineAction('CREATE_PROJECT_PIPELINE');
+export const createProjectPipeline = createAction<[
+  string,
+  Partial<ModelPipeline>,
 ], State, AxiosResponse<ModelPipeline>>(
-  PROJECT_DEFINES.GET_PIPELINES,
-  (projectName) =>
+  CREATE_PROJECT_PIPELINE,
+  (projectName, pipeline) =>
     ({ }, { }, api) => {
-      return api.get<ModelPipeline>(`/projects/${projectName}/pipelines`, {
+      return api.post<ModelPipeline>(`/projects/${projectName}/pipelines`, pipeline);
+    }
+);
+
+const CREATE_PIPELINE_CMD = defineAction('CREATE_PIPELINE_CMD');
+export const createPipelineCmd = createAction<[
+  string,
+  {cmd: string[]},
+], State, AxiosResponse<ModelPipelineCmd>>(
+  CREATE_PIPELINE_CMD,
+  (namespace, {cmd}) =>
+    ({ }, { }, api) => {
+      const [name, ...args] = cmd;
+      return api.post<ModelPipelineCmd>(`/pipelines/${namespace}/cmds`, {
+        name,
+        args,
+      });
+    }
+);
+
+const GET_PROJECT_PIPELINE_BY_NAMESPACE = defineAction('GET_PROJECT_PIPELINE_BY_NAMESPACE');
+export const getProjectPipelineByNamespace = createAction<[
+  string,
+  any,
+], State, AxiosResponse<ModelPipeline>>(
+  GET_PROJECT_PIPELINE_BY_NAMESPACE,
+  (pipelineNamespace, options) =>
+    ({ }, { }, api) => {
+      return api.get<ModelPipeline>(`/pipelines/${pipelineNamespace}`, {
+        ...(options || {}),
         params: {
           filter: {
             include: ["commands"],
@@ -230,160 +172,137 @@ export const getPipelines = createAction<[
         }
       });
     }
-)
+);
 
-export const createPipeline = createAction<[
-  string,
-  Partial<ModelPipeline>,
-], State, AxiosResponse<ModelPipeline>>(
-  PROJECT_DEFINES.CREATE_PIPELINE,
-  (projectName, pipeline) =>
-    ({ }, { }, api) => {
-      return api.post<ModelPipeline>(`/projects/${projectName}/pipelines`, pipeline);
-    }
-)
+const CLEAR_PROJECT_PIPELINE = defineAction('CLEAR_PROJECT_PIPELINE');
+export const clearProjectPipeline = createAction(
+  CLEAR_PROJECT_PIPELINE,
+  () => {},
+);
 
-export const createPipelineCmd = createAction<[
-  string,
-  Partial<ModelPipelineCmd>,
-], State, AxiosResponse<ModelPipelineCmd>>(
-  PROJECT_DEFINES.CREATE_PIPELINE_CMD,
-  (namespace, pipelineCmd) =>
-    ({ }, { }, api) => {
-      return api.post<ModelPipelineCmd>(`/pipelines/${namespace}/cmds`, pipelineCmd);
-    }
-)
-
-export const patchPipelineCmd = createAction<[
-  string,
-  ModelPipelineCmd
+const DELETE_PIPELINE_CMD = defineAction('DELETE_PIPELINE_CMD');
+export const deletePipelineCmd = createAction<[
+  ModelPipelineCmd,
 ], State, ModelPipelineCmd>(
-  PROJECT_DEFINES.PATCH_MODEL_PIPELINE_CMD,
-  (namespace, pipelineCmd) =>
+  DELETE_PIPELINE_CMD, (cmd) =>
     async ({ }, { }, api) => {
-      await api.patch(`/pipelines/${namespace}/cmds`, pipelineCmd, {
+      await api.delete(`/pipelines/${cmd.pipelineNamespace}/cmds`, {
         params: {
-          where: {
-            id: pipelineCmd.id,
-          }
+          where: {id: cmd.id},
         }
       });
-      return pipelineCmd;
-    }
-)
+      return cmd;
+    });
 
-export const patchProject = createAction<[
-  string,
-  Partial<ModelProject>
-], State, AxiosResponse<ModelProject>>(
-  PROJECT_DEFINES.PATCH_PROJECT,
-  (projectName, projectData) =>
-    ({ }, { }, api) => {
-      return api.patch(`/projects/${projectName}`, projectData);
-    }
-)
+type ClusterPipelineLink = {
+  clusterId: string;
+  pipelineId: string;
+}
 
-export const metrixDomainPath = createAction<[
-  string
-], State, AxiosResponse<any>>(
-  PROJECT_DEFINES.METRIX_DOMAIN_NAME_PATH,
-  (name) =>
-    ({ }, { }, api) => {
-      return api.get(`/metrix/nginx/domains/${name}/path`);
-    })
-
-export const metrixDomainStatus = createAction<[
-  string
-], State, AxiosResponse<any>>(
-  PROJECT_DEFINES.METRIX_DOMAIN_NAME_STATUS,
-  (name) =>
-    ({ }, { }, api) => {
-      return api.get(`/metrix/nginx/domains/${name}/status`);
-    })
-
-export const metrixDomainArt = createAction<[
-  string
-], State, AxiosResponse<any>>(
-  PROJECT_DEFINES.METRIX_DOMAIN_NAME_ART,
-  (name) =>
-    ({ }, { }, api) => {
-      return api.get(`/metrix/nginx/domains/${name}/art`);
-    })
-
-export const metrixDomainReqCount = createAction<[
-  string
-], State, AxiosResponse<any>>(
-  PROJECT_DEFINES.METRIX_DOMAIN_NAME_REQ_COUNT,
-  (name) =>
-    ({ }, { }, api) => {
-      return api.get(`/metrix/nginx/domains/${name}/req-count`);
-    })
-
-export const clusterPipelineCreateLink = createAction<[
-  any,
-], State, Promise<any>>(
-  PROJECT_DEFINES.CLUSTER_PIPELINE_CREATE_LINK,
+const CREATE_CLUSTER_PIPELINE_LINK = defineAction('CREATE_CLUSTER_PIPELINE_LINK');
+export const createClusterPipelineLink = createAction<[
+  ClusterPipelineLink,
+], State, {clusterId: string, pipeline: ModelPipeline}>(
+  CREATE_CLUSTER_PIPELINE_LINK,
   (link) =>
     async ({ }, { }, api) => {
-      const {data: pipeline} = await api.post(`/clusters/${link.clusterId}/pipelines/${link.pipelineId}/link`);
+      const {data: pipeline} = await api.post<ModelPipeline>(`/clusters/${link.clusterId}/pipelines/${link.pipelineId}/link`);
       return {
         clusterId: link.clusterId,
         pipeline,
       };
-    })
+    });
 
-export const clusterPipelineDeleteLink = createAction<[
-  any,
-], State, Promise<{id: string}>>(
-  PROJECT_DEFINES.CLUSTER_PIPELINE_DELETE_LINK,
+const DELETE_CLUSTER_PIPELINE_LINK = defineAction('DELETE_CLUSTER_PIPELINE_LINK');
+export const deleteClusterPipelineLink = createAction<[
+  ClusterPipelineLink,
+], State, ClusterPipelineLink>(
+  DELETE_CLUSTER_PIPELINE_LINK,
   (link) =>
     async ({ }, { }, api) => {
       await api.delete(`/clusters/${link.clusterId}/pipelines/${link.pipelineId}/link`);
       return link;
-    })
+    });
 
-export const deleteProjectCluster = createAction<[
+const CLUSTER_DEPLOY = defineAction('CLUSTER_DEPLOY');
+export const clusterDeploy = createAction<[
   string,
-  string,
-], State, Promise<{projectName: string, clusterNamespace: string}>>(
-  PROJECT_DEFINES.CLUSTER_DELETE,
-  (projectName, clusterNamespace) =>
-    async ({ }, { }, api) => {
-      await api.delete(`/projects/${projectName}/clusters`, {
-        params: {
-          where: {
-            namespace: clusterNamespace,
-          }
-        }
-      });
-      return {
-        projectName,
-        clusterNamespace,
-      }
-    }
-)
+  {branch?: string}?
+], State, AxiosResponse<ModelContainer[]>>(
+  CLUSTER_DEPLOY,
+  (namespace, data) =>
+    ({ }, { }, api) => {
+      return api.post<ModelContainer[]>(`/clusters/${namespace}/deploy`, data);
+    });
 
-export const openDeleteModal = createAction<[
-  ModelProject
-], State, ModelProject>(
-  PROJECT_DEFINES.PROJECT_OPEN_DELETE_MODAL,
-  (project) =>
-    ({ }, { }, { }) => project
-)
-
-export const closeDeleteModal = createAction<[
-], State, void>(
-  PROJECT_DEFINES.PROJECT_CLOSE_DELETE_MODAL,
-  () => () => { },
-)
-
-export const deleteProject = createAction<[
+const GET_PROJECT_CONTAINERS = defineAction('GET_PROJECT_CONTAINERS');
+export const getProjectContainers = createAction<[
   string
-], State, void>(
-  PROJECT_DEFINES.DELETE,
-  (namespace) =>
-    async (dispatch, { }, api) => {
-      await api.delete(`/projects/${namespace}`);
-      dispatch(closeDeleteModal());
+], State, AxiosResponse<ModelContainer[]>>(
+  GET_PROJECT_CONTAINERS, (name) =>
+    ({}, {}, api) => api.get<ModelContainer[]>(`/projects/${name}/containers`, {
+      params: {
+        filter: {
+          include: [{
+            relation: 'pipelineStatus',
+            scope: {
+              include: ['pipeline'],
+            }
+          }]
+        }
+      }
+    })
+);
+
+const GET_PROJECT_CONTAINER = defineAction('GET_PROJECT_CONTAINER');
+export const getProjectContainer = createAction<[
+  string,
+  string
+], State, AxiosResponse<ModelContainer>>(
+  GET_PROJECT_CONTAINER, (projectName, containerName) =>
+    ({}, {}, api) => api.get(`/projects/${projectName}/containers/${containerName}`, {
+      params: {
+        filter: {
+          include: ['cluster', {
+            relation: 'pipelineStatus',
+            scope: {
+              include: ['pipeline'],
+            },
+          }, 'outputs']
+        }
+      }
+    })
+);
+
+const DELETE_CLUSTER_CONTAINER = defineAction('DELETE_CLUSTER_CONTAINER');
+export const deleteClusterContainer = createAction<[
+  ModelContainer
+], State, ModelContainer>(
+  DELETE_CLUSTER_CONTAINER, (container) =>
+    async ({}, {}, api) => {
+      await api.delete(`/clusters/${container.clusterNamespace}/containers/${container.name}`);
+      return container;
     }
-)
+);
+
+const DEFINES = {
+  GET_PROJECTS,
+  CREATE_PROJECT,
+  GET_PROJECT_BY_NAME,
+  CLUSTER_DEPLOY,
+  CREATE_PIPELINE_CMD,
+  GET_PROJECT_CONTAINER,
+  GET_PROJECT_CONTAINERS,
+  CLEAR_PROJECT_PIPELINE,
+  DELETE_CLUSTER_PIPELINE_LINK,
+  CLEAR_PROJECT_CLUSTER,
+  DELETE_PIPELINE_CMD,
+  CREATE_CLUSTER_PIPELINE_LINK,
+  GET_PROJECT_PIPELINE_BY_NAMESPACE,
+  DELETE_PROJECT_BY_NAME,
+  CREATE_PROJECT_PIPELINE,
+  CREATE_PROJECT_CLUSTER,
+  GET_PROJECT_CLUSTER_BY_NAME,
+};
+
+export default DEFINES;

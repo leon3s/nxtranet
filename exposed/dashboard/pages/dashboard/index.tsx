@@ -1,69 +1,53 @@
-import {GetServerSidePropsResult} from 'next';
-import Error from 'next/error';
-import Head from 'next/head';
+import type {GetServerSidePropsResult} from 'next';
+import type {NextRouter} from 'next/router';
 import React from 'react';
-import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import DashboardHeader from '~/components/Dashboard/Header';
-import Dashboard from '~/components/Dashboard/Home';
-import {homeActions} from '~/redux/actions';
+import DashboardHud from '~/containers/DashboardHud';
+import DashboardOverview from '~/containers/DashboardOverview';
+import ModalForm from '~/containers/ModalForm';
+import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
+import type {Dispatch} from '~/utils/redux';
 
-type DasboardProps = {
-  statusCode?: number;
-}
+const actions = {};
 
-export const getServerSideProps = wrapper.getServerSideProps(store =>
-  async ({ }): Promise<GetServerSidePropsResult<any>> => {
-    // const state = store.getState();
-    // if (state.me.errors.whoiam) {
-    //   ctx.res.writeHead(301, { Location: '/' });
-    //   ctx.res.end();
-    // }
-    try {
-      await store.dispatch(homeActions.getUptime());
-      await store.dispatch(homeActions.getNetworkInterfaces());
-      await store.dispatch(homeActions.getAverageResponseTime());
-      await store.dispatch(homeActions.getMetrixNginxReq());
-      await store.dispatch(homeActions.getMetrixClusterProduction());
-      await store.dispatch(homeActions.getMetrixContainerRunning());
-      await store.dispatch(homeActions.getMetrixNginxDomains());
-      await store.dispatch(homeActions.getMetrixNginxStatus());
-    } catch (e: any) {
-      console.error(e);
-      return {
-        props: {
-          statusCode: e?.response?.statusCode || 500,
-        }
-      }
-    }
+const mapStateToprops = () => ({
+});
 
+const mapDispatchToProps = (dispatch: Dispatch<State>) =>
+  bindActionCreators(actions, dispatch);
+
+type DashboardHomePageProps = {
+  router: NextRouter;
+} & ReturnType<typeof mapStateToprops>
+& ReturnType<typeof mapDispatchToProps>
+
+export const getServerSideProps = wrapper.getServerSideProps(({}) =>
+  async ({}): Promise<GetServerSidePropsResult<any>> => {
     return {
       props: {},
-    }
+    };
   }
-)
+);
 
-function DashboardPage(props: DasboardProps) {
-  const {statusCode} = props;
-  return (
-    <React.Fragment>
-      <Head>
-        <title>Dashboard - nxtranet</title>
-      </Head>
-      <DashboardHeader />
-      {
-        statusCode ?
-          <Error statusCode={statusCode} /> :
-          <Dashboard />
-      }
-    </React.Fragment>
-  )
+class DashboardHomePage extends
+  React.PureComponent<DashboardHomePageProps> {
+  static getLayout = (page: React.ReactElement) => {
+    return (
+      <React.Fragment>
+        <ModalForm />
+        <DashboardHud>
+          {page}
+        </DashboardHud>
+      </React.Fragment>
+    );
+  };
+
+  render() {
+    return (
+      <DashboardOverview />
+    );
+  }
 }
 
-export default connect(() => ({
-}), (dispatch) =>
-  bindActionCreators({
-  }, dispatch)
-)(DashboardPage);
-
+export default DashboardHomePage;
