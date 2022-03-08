@@ -4,7 +4,7 @@ import {
 } from '@loopback/repository';
 import {
   get,
-  getModelSchemaRef, param
+  getModelSchemaRef, HttpErrors, param
 } from '@loopback/rest';
 import {
   Container
@@ -41,5 +41,37 @@ export class ProjectContainerController {
         projectName: name,
       }
     })
+  }
+
+  @get('/projects/{name}/containers/{containerName}', {
+    description: 'Get containers for given project',
+    responses: {
+      '200': {
+        description: 'Get Container by name for specify project',
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Container),
+          },
+        },
+      },
+    },
+  })
+  async findByName(
+    @param.path.string('name') name: string,
+    @param.path.string('containerName') containerName: string,
+    @param.query.object('filter') filter?: Filter<Container>,
+  ): Promise<Container> {
+    const container = await this.containerRepo.findOne({
+      ...(filter || {}),
+      where: {
+        ...(filter?.where || {}),
+        projectName: name,
+        name: containerName,
+      }
+    });
+    if (!container) {
+      throw new HttpErrors.NotFound('Container not found.');
+    }
+    return container;
   }
 }

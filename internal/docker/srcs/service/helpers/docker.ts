@@ -91,8 +91,8 @@ export const createContainer = async (cluster: ModelCluster, branch: string): Pr
   containerInstance: Container,
   containerApi: Partial<ModelContainer>,
 }> => {
-  const genID = crypto.randomBytes(4).toString('hex').toLowerCase();
-  const name = `${branch}-${genID}`;
+  const genID = crypto.randomBytes(1).toString('hex').toLowerCase();
+  const name = `${branch.substring(0, 4)}-${genID}`;
   const namespace = `${cluster.namespace}.${name}`;
   const appPort = await getFreePort();
   const deployerPort = await getFreePort();

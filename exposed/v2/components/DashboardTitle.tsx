@@ -4,7 +4,7 @@ import type {ActionBarAction} from './ActionBar';
 import ActionBar, {
   ActionWrapper
 } from './ActionBar';
-import Title from './Title';
+import Text from './Text';
 
 export type DashboardTitleProps = {
   title: string;
@@ -24,14 +24,13 @@ export const ProjectTitleContainer = Styled.div`
   `}
 `;
 
-export const ProjectTitle = Styled(Title)`
+export const ProjectTitle = Styled(Text)`
   margin: 0px;
-  font-weight: bold;
   :first-letter {
     text-transform: uppercase;
   }
   ${props => `
-    color: ${props.theme.text.color.secondary};
+    color: ${props.theme.text.color.primary};
   `}
 `;
 

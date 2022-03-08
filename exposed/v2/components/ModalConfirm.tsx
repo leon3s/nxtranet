@@ -34,7 +34,7 @@ export default class ModalConfirm
     return this.props.onConfirm()?.then(() => {
       this.setState({
         isConfirmLoading: false,
-        isConfirmSuccess: true,
+        isConfirmSuccess: false,
       });
     }).catch((err) => {
       this.setState({
@@ -79,6 +79,7 @@ export default class ModalConfirm
               Cancel
             </Style.ButtonCancel>
             <Style.Button
+              isResolving
               onClick={this.onConfirmHook}
             >
               Confirm

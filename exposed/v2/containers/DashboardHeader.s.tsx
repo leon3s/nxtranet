@@ -2,18 +2,28 @@ import Image from 'next/image';
 import Styled from 'styled-components';
 import ResponsiveComponent from '~/components/ResponsiveComponent';
 
+export const HeaderContainer = Styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100px;
+  max-height: 100px;
+  position: relative;
+`;
+
 export const FixedContainer = Styled.div`
   top: 0;
-  width: 100%;
-  height: 80px;
-  min-height: 80px;
-  max-height: 80px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  max-width: 100%;
 `;
 
 export const Container = Styled(ResponsiveComponent)`
   display: flex;
   flex: 1;
-  height: 100%;
+  height: 50px;
   width: 100%;
   z-index: 100;
   flex-direction: row;
@@ -27,6 +37,7 @@ export const UserAvatar = Styled(Image)`
 `;
 
 export const SubMenu = Styled.div`
+  height: 50px;
 `;
 
 export const SubMenuNav = Styled.div`
@@ -115,15 +126,24 @@ ${props.sticky ? `
 `}`;
 
 export const MenuNavContainer = Styled.div<StickyProps>`
+  position: relative;
   width: 100%;
+  max-width: 100%;
   flex: 1;
   align-items: flex-end;
   height: 100%;
   display: flex;
   transform: translate3d(-30px, 0, 0);
   transition: transform .25s ease;
+  @media (max-width: 901px) {
+    top: 6px;
+    max-width: calc(100% - 12px);
+  }
 ${props => `
 ${props.sticky ? `
+  @media (max-width: 901px) {
+    max-width: calc(100% - 60px);
+  }
   transform: translate3d(0, 0, 0);
 `: ``}
 `}`;

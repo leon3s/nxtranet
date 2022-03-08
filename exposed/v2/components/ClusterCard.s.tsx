@@ -43,8 +43,10 @@ padding: ${props.theme.spacing};
 
 export const ClusterContainers = Styled.div`
   display: flex;
+  flex-wrap: wrap;
   ${props => `
-    padding: ${props.theme.spacing};
+    gap: ${props.theme.spacing};
+    margin-bottom: ${props.theme.spacing};
   `}
 `;
 

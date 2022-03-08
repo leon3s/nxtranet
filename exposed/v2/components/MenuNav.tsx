@@ -13,6 +13,7 @@ export type MenuNavProps = {
   current?: string;
   baseUrl?: string;
   data: MenuNavItem[];
+  shallow?: boolean;
 }
 
 function MenuNav(props: MenuNavProps) {
@@ -20,42 +21,47 @@ function MenuNav(props: MenuNavProps) {
     data,
     baseUrl,
     current,
+    shallow,
   } = props;
   return (
     <Style.Nav
       className='scroll-bar'
     >
-      {data.map((navItem) => (
-        <Style.NavTabContainer
-          key={navItem.href}
-        >
-          <Link
-            passHref
-            href={`${baseUrl}${navItem.href}`}
+      <Style.NavContent>
+        {data.map((navItem) => (
+          <Style.NavTabContainer
+            key={navItem.href}
           >
-            <Style.NavTabLink
-              isActive={current === navItem.name}
+            <Link
+              passHref
+              shallow={shallow}
+              href={`${baseUrl}${navItem.href}`}
             >
-              <Style.NavTab>
-                <Style.IconContainer>
-                  {navItem.icon ?
-                    navItem.icon()
-                    : null}
-                </Style.IconContainer>
-                <Style.NavTabText>
-                  {navItem.displayName}
-                </Style.NavTabText>
-              </Style.NavTab>
-            </Style.NavTabLink>
-          </Link>
-        </Style.NavTabContainer>
-      ))}
+              <Style.NavTabLink
+                isActive={current === navItem.name}
+              >
+                <Style.NavTab>
+                  <Style.IconContainer>
+                    {navItem.icon ?
+                      navItem.icon()
+                      : null}
+                  </Style.IconContainer>
+                  <Style.NavTabText>
+                    {navItem.displayName}
+                  </Style.NavTabText>
+                </Style.NavTab>
+              </Style.NavTabLink>
+            </Link>
+          </Style.NavTabContainer>
+        ))}
+      </Style.NavContent>
     </Style.Nav>
   );
 }
 
 MenuNav.defaultProps = {
   baseUrl: '',
+  shallow: false,
 };
 
 export default MenuNav;

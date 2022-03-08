@@ -13,6 +13,7 @@ import {IconCluster, IconContainer, IconDelete, IconPipeline} from '~/styles/ico
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardProject.s';
 import DashboardProjectClusters from './DashboardProjectClusters';
+import DashboardProjectContainers from './DashboardProjectContainers';
 import DashboardProjectPipelines from './DashboardProjectPipelines';
 
 const navItems = [
@@ -80,12 +81,11 @@ class DashboardProjectContainer extends
 
   render() {
     const {
-      tab,
       project,
       projectName,
       router,
     } = this.props;
-    const [{}, {}, subtab] = router.query.all as string[];
+    const [{}, tab, subtab] = router.query.all as string[];
     return (
       <DashboardContent>
         <DashboardTitle
@@ -98,6 +98,7 @@ class DashboardProjectContainer extends
         />
         <Style.MenuNavContainer>
           <MenuNav
+            shallow
             data={navItems}
             current={tab}
             baseUrl={`/dashboard/projects/${projectName}`}
@@ -117,6 +118,12 @@ class DashboardProjectContainer extends
             projectName={projectName}
           /> : null
         }
+        {tab === 'containers' ?
+          <DashboardProjectContainers
+            tab={tab}
+            subtab={subtab}
+            projectName={projectName}
+          /> : null}
       </DashboardContent>
     );
   }

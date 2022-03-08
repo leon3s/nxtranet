@@ -1,4 +1,6 @@
-export const formPipeline = [
+import type {ReformSchema} from '~/components/Re/Form';
+
+export const formPipeline: ReformSchema[] = [
   {
     title: 'Color',
     key: 'color',
@@ -15,7 +17,7 @@ export const formPipeline = [
   },
 ];
 
-export const formPipelineCmd = [
+export const formPipelineCmd: ReformSchema[] = [
   {
     title: 'Command',
     key: 'cmd',

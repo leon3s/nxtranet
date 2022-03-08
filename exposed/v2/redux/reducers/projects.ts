@@ -1,4 +1,4 @@
-import {ModelCluster, ModelPipeline, ModelProject} from '@nxtranet/headers';
+import {ModelCluster, ModelContainer, ModelPipeline, ModelProject} from '@nxtranet/headers';
 import {
   HYDRATE
 } from 'next-redux-wrapper';
@@ -6,11 +6,13 @@ import type {ReducerHooks} from '~/utils/reducer';
 import {createReducer} from '~/utils/reducer';
 import type {ReducerAction} from '~/utils/redux';
 import PROJECTS_DEFINES, {
+  clusterDeploy,
+  createClusterPipelineLink,
   createProject,
   createProjectCluster,
+  deleteClusterPipelineLink,
   getProjectByName,
-  getProjectClusterByName,
-  getProjectPipelineByNamespace,
+  getProjectClusterByName, getProjectContainer, getProjectContainers, getProjectPipelineByNamespace,
   getProjects
 } from '../actions/project';
 
@@ -21,8 +23,13 @@ const {
   CLEAR_PROJECT_CLUSTER,
   CREATE_PROJECT_CLUSTER,
   GET_PROJECT_CLUSTER_BY_NAME,
+  GET_PROJECT_CONTAINERS,
   CLEAR_PROJECT_PIPELINE,
+  GET_PROJECT_CONTAINER,
   GET_PROJECT_PIPELINE_BY_NAMESPACE,
+  CREATE_CLUSTER_PIPELINE_LINK,
+  DELETE_CLUSTER_PIPELINE_LINK,
+  CLUSTER_DEPLOY,
 } = PROJECTS_DEFINES;
 
 export type ProjectsState = {
@@ -33,6 +40,9 @@ export type ProjectsState = {
   pipeline: ModelPipeline | null;
   isCurrentClusterPending: boolean;
   isCurrentPipelinePending: boolean;
+  containers: ModelContainer[];
+  container: ModelContainer | null;
+  isCurrentContainerPending: boolean;
 };
 
 const initialState: ProjectsState = {
@@ -51,10 +61,13 @@ const initialState: ProjectsState = {
     pipelines: [],
     gitBranches: [],
   },
+  containers: [],
   cluster: null,
   pipeline: null,
   isCurrentPipelinePending: true,
   isCurrentClusterPending: true,
+  isCurrentContainerPending: true,
+  container: null,
 };
 
 const reducerHooks: ReducerHooks<ProjectsState> = {
@@ -144,7 +157,60 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       ...state,
       pipeline: action.payload.data,
       isCurrentPipelinePending: false,
-    })
+    }),
+  [CREATE_CLUSTER_PIPELINE_LINK.FULFILLED]: (state, action: ReducerAction<typeof createClusterPipelineLink>) => {
+    const {cluster} = state;
+    if (!cluster) return state;
+    return ({
+      ...state,
+      cluster: {
+        ...cluster,
+        pipelines: [
+          ...cluster.pipelines,
+          action.payload.pipeline,
+        ]
+      }
+    });
+  },
+  [DELETE_CLUSTER_PIPELINE_LINK.FULFILLED]: (state, action: ReducerAction<typeof deleteClusterPipelineLink>) => {
+    const {cluster} = state;
+    if (!cluster) return state;
+    return ({
+      ...state,
+      cluster: {
+        ...(cluster),
+        pipelines: (cluster.pipelines).filter((pipeline) =>
+          pipeline.id !== action.payload.pipelineId
+        )
+      }
+    });},
+  [GET_PROJECT_CONTAINERS.FULFILLED]: (state, action: ReducerAction<typeof getProjectContainers>) => ({
+    ...state,
+    containers: action.payload.data,
+  }),
+  [GET_PROJECT_CONTAINER.PENDING]: (state) => ({
+    ...state,
+    isCurrentContainerPending: true,
+  }),
+  [GET_PROJECT_CONTAINER.FULFILLED]: (state, action: ReducerAction<typeof getProjectContainer>) => ({
+    ...state,
+    container: action.payload.data,
+    isCurrentContainerPending: false,
+  }),
+  [CLUSTER_DEPLOY.FULFILLED]: (state, action: ReducerAction<typeof clusterDeploy>) => {
+    const {cluster} = state;
+    if (!cluster) return state;
+    return ({
+      ...state,
+      cluster: {
+        ...cluster,
+        containers: [
+          ...cluster.containers,
+          ...action.payload.data,
+        ]
+      }
+    });
+  },
 };
 
 const reducer = createReducer<ProjectsState>(initialState, reducerHooks);

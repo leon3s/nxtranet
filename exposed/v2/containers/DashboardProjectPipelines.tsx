@@ -79,7 +79,7 @@ class DashboardProjectPipelinesContainer extends
     console.log('getProjectPipelineByNamespace', {
       pipelineNamespace,
     });
-    if (pipelineNamespace) {
+    if (pipelineNamespace && pipelineNamespace.length) {
       this.controller = new AbortController();
       await this.props.getProjectPipelineByNamespace(pipelineNamespace, {
         signal: this.controller.signal
@@ -128,14 +128,14 @@ class DashboardProjectPipelinesContainer extends
     return (
       <React.Fragment>
         <DashboardTitle
-          title={`${projectName}/${tab}`}
+          title={`${tab}${subtab ? `/${subtab}` : ''}`}
           actions={[{
             title: `New pipeline in project ${projectName}`,
             icon: () => <IconPlus size={12} />,
             fn: this.onClickNewPipeline,
           }]}
         />
-        {pipelines.map((pipelineRow) => (
+        {(pipelines || []).map((pipelineRow) => (
           <PipelineCard
             isLoading={isCurrentPipelinePending}
             isVisible={!subtab ? true : pipelineRow.name === subtab}

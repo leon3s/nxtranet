@@ -4,7 +4,7 @@ import React from 'react';
 import HeaderLogo from '~/components/HeaderLogo';
 import type {MenuNavItem} from '~/components/MenuNav';
 import MenuNav from '~/components/MenuNav';
-import {IconNginx, IconOverview, IconProject} from '~/styles/icons';
+import {IconDnsmasq, IconNginx, IconOverview, IconProject} from '~/styles/icons';
 import * as Style from './DashboardHeader.s';
 
 const navItems: MenuNavItem[] = [
@@ -22,10 +22,16 @@ const navItems: MenuNavItem[] = [
   },
   {
     displayName: 'Nginx',
-    name: '/nginx',
+    name: '/dashboard/nginx',
     href: '/dashboard/nginx',
     icon: () => <IconNginx size={16} />,
   },
+  {
+    displayName: 'Dnsmasq',
+    name: '/dashboard/dnsmasq',
+    href: '/dashboard/dnsmasq',
+    icon: () => <IconDnsmasq size={16} />,
+  }
 ];
 
 type DashboardHeaderProps = {
@@ -55,7 +61,7 @@ class DashboardHeader extends
     const {el} = this;
     if (!el) return;
     const elY = el.offsetTop;
-    if (((window.scrollY + 68) >= elY)) {
+    if (((window.scrollY + 40) >= elY)) {
       this.setState({
         sticky: true,
       });
@@ -75,7 +81,7 @@ class DashboardHeader extends
         : router.asPath.includes(navItem.href);
     });
     return (
-      <React.Fragment>
+      <Style.HeaderContainer>
         <Style.FixedContainer>
           <Style.Container>
             <HeaderLogo
@@ -87,36 +93,36 @@ class DashboardHeader extends
               src="/images/default_avatar.svg"
             />
           </Style.Container>
+          <Style.SubMenu>
+            <Style.SubMenuNav>
+              <Style.Sticky
+                sticky={sticky}
+              >
+                <Style.MenuContainer>
+                  <Style.MenuContent>
+                    <Style.AnimLogo
+                      sticky={sticky}
+                    >
+                      <HeaderLogo
+                        href="/dashboard"
+                      />
+                    </Style.AnimLogo>
+                    <Style.MenuNavContainer
+                      sticky={sticky}
+                    >
+                      <MenuNav
+                        current={item?.name}
+                        data={navItems}
+                      />
+                    </Style.MenuNavContainer>
+                  </Style.MenuContent>
+                </Style.MenuContainer>
+              </Style.Sticky>
+            </Style.SubMenuNav>
+          </Style.SubMenu>
         </Style.FixedContainer>
-        <Style.SubMenu>
-          <Style.SubMenuNav>
-            <Style.Sticky
-              sticky={sticky}
-            >
-              <Style.MenuContainer>
-                <Style.MenuContent>
-                  <Style.AnimLogo
-                    sticky={sticky}
-                  >
-                    <HeaderLogo
-                      href="/dashboard"
-                    />
-                  </Style.AnimLogo>
-                  <Style.MenuNavContainer
-                    sticky={sticky}
-                  >
-                    <MenuNav
-                      current={item?.name}
-                      data={navItems}
-                    />
-                  </Style.MenuNavContainer>
-                </Style.MenuContent>
-              </Style.MenuContainer>
-            </Style.Sticky>
-          </Style.SubMenuNav>
-          <Style.Limiter id="dashboard-nav-limiter" />
-        </Style.SubMenu>
-      </React.Fragment>
+        <Style.Limiter id="dashboard-nav-limiter" />
+      </Style.HeaderContainer>
     );
   }
 }

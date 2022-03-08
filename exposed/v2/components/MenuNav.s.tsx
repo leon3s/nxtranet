@@ -6,16 +6,19 @@ export type NavLinkProps = {
 }
 
 export const Nav = Styled.div`
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  flex: 1;
-  width: 100%;
   max-width: 100%;
+  display: flex;
+  flex: 1;
+  overflow-x: scroll;
+`;
+
+export const NavContent = Styled.div`
+  display: inline-flex;
+  flex: 1;
 `;
 
 export const NavTabContainer = Styled.div`
-  min-width: 80px;
+  display: flex;
 `;
 
 export const IconContainer = Styled.div`
@@ -29,6 +32,8 @@ export const IconContainer = Styled.div`
 
 export const NavTab = Styled.div`
   max-width: fit-content;
+  width: 100%;
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
@@ -36,6 +41,10 @@ export const NavTab = Styled.div`
   height: 40px;
   border: 2px solid transparent;
   padding: 0px 4px;
+  margin-right: 10px;
+  :last-child {
+    margin-right: 0px;
+  }
 `;
 
 export const NavTabText = Styled(Subtitle)`

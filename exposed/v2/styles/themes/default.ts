@@ -3,14 +3,15 @@ const COLOR_RED = 'red';
 // '#696969';
 const COLOR_TEXT_SECONDARY = '#8c8c8c';
 const COLOR_ORANGE = 'rgba(255, 78, 43, 0.8)';
-const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 0.6)';
+const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 1)';
+const COLOR_LIGHTBLUE_LIGHT = 'rgba(224, 255, 255, 0.6)';
 
 export const themeDefault = {
   pageSpacing: '8px',
   spacing: '8px',
   borderRadius: '4px',
   spacingLight: 4,
-  linearGradient: `linear-gradient(${COLOR_LIGHTBLUE}, white, ${COLOR_LIGHTBLUE})`,
+  linearGradient: `linear-gradient(${COLOR_LIGHTBLUE_LIGHT}, white, ${COLOR_LIGHTBLUE_LIGHT})`,
   boxShadowSmooth: 'inset 0 -1px 0 0 rgba(0, 0, 0, 0.1)',
   boxShadowAdvenced: '0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 2px 1px -1px rgb(0 0 0 / 12%), 0px 1px 3px 0px rgb(0 0 0 / 20%)',
   border: {

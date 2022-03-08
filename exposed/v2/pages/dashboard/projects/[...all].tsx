@@ -52,7 +52,7 @@ export const getServerSideProps = wrapper.getServerSideProps((store) =>
       await store.dispatch(getProjectClusterByName(projectName, subtab, {}));
     }
     if (tab === 'pipelines' && subtab) {
-      await store.dispatch(getProjectPipelineByNamespace(`${projectName}.${subtab}`));
+      await store.dispatch(getProjectPipelineByNamespace(`${projectName}.${subtab}`, {}));
     }
     return {
       props: {

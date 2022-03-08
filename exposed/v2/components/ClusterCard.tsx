@@ -12,7 +12,9 @@ import * as AccordionCard from './AccordionCard';
 import ActionBar, {ActionWrapper} from './ActionBar';
 import * as CardTitle from './CardTitle';
 import * as Style from './ClusterCard.s';
+import ContainerCard from './ContainerCard';
 import InfoRow from './InfoRow';
+import ItemRounded from './ItemRounded';
 import LoadingBackground from './LoadingBackground';
 
 export type ClusterCardProps = {
@@ -27,9 +29,9 @@ export type ClusterCardProps = {
   onClickEditEnvVar?: (data: ModelEnvVar) => void;
   onClickCreateEnvVar?: (namespace: string) => void;
   onClickCreateContainer?: () => void;
-  onClickClusterDeploy?: () => void;
-  onClickOpenPipelineLinkModal?: (data: ModelCluster) => void;
-  onClickPipelineLink?: (data: ModelCluster, item: ModelPipeline) => void;
+  onClickNewContainer?: () => void;
+  onClickNewPipelineLink?: (data: ModelCluster) => void;
+  onClickPipelineLink?: (item: ModelPipeline) => void;
   onClickOpenModalDelete?: (data: ModelCluster) => void;
 }
 
@@ -43,8 +45,8 @@ const defaultProps = {
   onClickEditEnvVar: () => {},
   onClickCreateEnvVar: () => {},
   onClickCreateContainer: () => {},
-  onClickClusterDeploy: () => {},
-  onClickOpenPipelineLinkModal: () => {},
+  onClickNewContainer: () => {},
+  onClickNewPipelineLink: () => {},
   onClickPipelineLink: () => {},
   onClickOpenModalDelete: () => {},
   data: {
@@ -68,32 +70,47 @@ function ClusterCard(props: ClusterCardProps) {
     isExtended,
     isVisible,
     isLoading,
-    onClickShowContainer,
-    onClickDeleteEnvVar,
-    onClickEditEnvVar,
-    onClickClusterDeploy,
-    onClickDeleteContainer,
   } = props;
 
   const data = props.data || defaultProps.data;
 
   function onClick(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
-    props.onClick && props.onClick(data);
+    props.onClick
+      && props.onClick(data);
   }
 
   function onClickCreateEnvVar() {
     // props.onClickCreateEnvVar(data.namespace);
   }
 
-  function onClickOpenPipelineLinkModal() {
-    // props.onClickOpenPipelineLinkModal(data);
+  function onClickNewPipelineLink() {
+    props.onClickNewPipelineLink
+      && props.onClickNewPipelineLink(data);
   }
 
   function onGenerateClickPipelineLink(item: ModelPipeline) {
     return () => {
-      // props.onClickPipelineLink(data, item);
+      props.onClickPipelineLink
+        && props.onClickPipelineLink(item);
     };
+  }
+
+  function onClickNewContainer() {
+    props.onClickNewContainer
+      && props.onClickNewContainer();
+  }
+
+  function onClickOpenModalEdit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  function onClickOpenModalDelete(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    props.onClickOpenModalDelete
+      && props.onClickOpenModalDelete(data);
   }
 
   const infoRow = [
@@ -116,21 +133,6 @@ function ClusterCard(props: ClusterCardProps) {
       value: data?.gitBranch?.name || 'any',
     },
   ];
-
-  function onClickOpenModalEdit(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
-  function onClickOpenModalDelete(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-    props.onClickOpenModalDelete(data);
-  }
-
-  function preventLink(e: React.MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault();
-  }
 
   return (
     <Style.ContainerAnimed
@@ -209,20 +211,20 @@ function ClusterCard(props: ClusterCardProps) {
                       {
                         title: 'New pipeline',
                         icon: () => <IconPlus size={12} />,
-                        fn: onClickOpenPipelineLinkModal,
+                        fn: onClickNewPipelineLink,
                       }
                     ]} />
                   </ActionWrapper>
                 </CardTitle.CardTitleContainer>
                 <Style.ClusterLine>
-                  {/* {data?.pipelines?.map((pipeline) => (
+                  {data?.pipelines?.map((pipeline) => (
                     <ItemRounded
                       key={pipeline.id}
                       onClick={onGenerateClickPipelineLink(pipeline)}
                     >
                       {pipeline.name}
                     </ItemRounded>
-                  ))} */}
+                  ))}
                 </Style.ClusterLine>
                 <CardTitle.CardTitleContainer>
                   <CardTitle.CardTitleText>
@@ -261,20 +263,19 @@ function ClusterCard(props: ClusterCardProps) {
                       {
                         title: 'New container',
                         icon: () => <IconPlus size={12} />,
-                        fn: onClickClusterDeploy,
+                        fn: onClickNewContainer,
                       }
                     ]} />
                   </ActionWrapper>
                 </CardTitle.CardTitleContainer>
                 <Style.ClusterContainers>
-                  {/* {data?.containers?.map((container) => (
-                    // <ClusterContainer
-                    //   data={container}
-                    //   key={container.id}
-                    //   onClickShow={onClickShowContainer}
-                    //   onClickDelete={onClickDeleteContainer}
-                    // />
-                  ))} */}
+                  {data?.containers?.map((container) => (
+                    <ContainerCard
+                      baseUrl={`/dashboard/projects/${data.projectName}`}
+                      key={container.id}
+                      data={container}
+                    />
+                  ))}
                 </Style.ClusterContainers>
               </Style.ClusterContent>
 

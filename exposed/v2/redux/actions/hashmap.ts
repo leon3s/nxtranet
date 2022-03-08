@@ -1,10 +1,11 @@
 export {
-  createPipelineCmd,
+  clusterDeploy, createPipelineCmd,
   createProject,
-  createProjectCluster,
-  createProjectPipeline, deletePipelineCmd, deleteProjectByName
+  createProjectCluster, createProjectPipeline, deleteClusterContainer, deleteClusterPipelineLink, deletePipelineCmd, deleteProjectByName
 } from './project';
 
 export type ActionKeys = "createProject" | "deleteProjectByName" |
   "createProjectCluster" | "createProjectPipeline" | "createPipelineCmd" |
-  "deletePipelineCmd";
+  "deletePipelineCmd" | "deleteClusterPipelineLink" | "clusterDeploy"
+  | "deleteClusterContainer";
+

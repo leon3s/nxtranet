@@ -23,7 +23,6 @@ export const AccordionTitleContainer = Styled.div`
     :hover {
       ${AccordionTitle} {
         color: ${props.theme.text.color.secondary};
-
       }
     }
   `}

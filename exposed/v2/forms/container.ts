@@ -6,7 +6,7 @@ export const formContainerDeploy: ReformSchema[] = [
     key: 'branch',
     type: 'Relation',
     description: `
-      Select branch to deploy inside this cluster
+      Select branch download inside container
     `,
     isDescriptionEnabled: true,
     options: {

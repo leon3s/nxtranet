@@ -3,7 +3,7 @@ import type {NextRouter} from 'next/router';
 import React from 'react';
 import {bindActionCreators} from 'redux';
 import DashboardHud from '~/containers/DashboardHud';
-import Home from '~/containers/Home';
+import DashboardOverview from '~/containers/DashboardOverview';
 import ModalForm from '~/containers/ModalForm';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
@@ -45,7 +45,7 @@ class DashboardHomePage extends
 
   render() {
     return (
-      <Home />
+      <DashboardOverview />
     );
   }
 }

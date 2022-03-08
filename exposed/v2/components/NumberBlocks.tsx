@@ -1,9 +1,10 @@
 import React from 'react';
-import * as Style from './style';
+import LoadingBackground from './LoadingBackground';
+import * as Style from './NumberBlocks.s';
 
 type NumberBlock = {
   title: string;
-  value: string | number;
+  value?: string | number;
 }
 
 type NumberBlocksProps = {
@@ -17,11 +18,12 @@ export default function NumberBlocks(props: NumberBlocksProps) {
         <Style.NumberBlock
           key={`${block.title}-${i}`}
         >
+          <LoadingBackground />
           <Style.NumberBlockTitle>
             {block.title}
           </Style.NumberBlockTitle>
           <Style.NumberBlockValue>
-            {block.value}
+            {block.value || '      '}
           </Style.NumberBlockValue>
         </Style.NumberBlock>
       ))}

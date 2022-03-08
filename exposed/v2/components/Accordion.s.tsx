@@ -22,9 +22,9 @@ export const Container = Styled.div`
 export const ContentContainer = Styled.div<IContentContainerProps>`
   width: 100%;
   overflow: hidden;
-  transition: all .8s ease-in-out;
+  transition: all .5s ease-in-out;
   ${props => props.isVisible ? `
-    max-height: 100vh;
+    max-height: 400vh;
   ` : `
     max-height: 0;
   `}

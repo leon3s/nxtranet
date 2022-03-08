@@ -4,7 +4,7 @@ import * as Style from './InfoRow.s';
 
 type InfoRowProps = {
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   href?: string;
   target?: string;
 }

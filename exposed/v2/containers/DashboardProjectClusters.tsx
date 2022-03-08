@@ -1,4 +1,4 @@
-import {ModelCluster} from '@nxtranet/headers';
+import type {ModelCluster, ModelPipeline} from '@nxtranet/headers';
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
 import React from 'react';
@@ -7,14 +7,17 @@ import {bindActionCreators} from 'redux';
 import {debounceTime, Subject} from 'rxjs';
 import ClusterCard from '~/components/ClusterCard';
 import DashboardTitle from '~/components/DashboardTitle';
-import {openModalForm} from '~/redux/actions/modal';
-import {clearProjectCluster, getProjectClusterByName, getProjects} from '~/redux/actions/project';
+import {ModalRelationLink} from '~/components/ModalRelationLink';
+import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
+import {clearProjectCluster, createClusterPipelineLink, getProjectClusterByName, getProjects} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
-import {IconPlus} from '~/styles/icons';
+import {IconPipeline, IconPlus} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardProjectClusters.s';
 
 const actions = {
+  createClusterPipelineLink,
+  openModalConfirm,
   getProjectClusterByName,
   clearProjectCluster,
   openModalForm,
@@ -39,8 +42,16 @@ export type DashboardProjectClustersContainerProps = {
 } & ReturnType<typeof mapStateToProps>
 & ReturnType<typeof mapDispatchToProps>;
 
+type DashboardProjectClustersContainerState = {
+  isModalPipelineLinkOpen: boolean;
+}
+
 class DashboardProjectClustersContainer extends
-  React.PureComponent<DashboardProjectClustersContainerProps> {
+  React.PureComponent<DashboardProjectClustersContainerProps, DashboardProjectClustersContainerState> {
+
+  state: DashboardProjectClustersContainerState = {
+    isModalPipelineLinkOpen: false,
+  };
 
   sub = new Subject<string | null>();
 
@@ -54,6 +65,23 @@ class DashboardProjectClustersContainer extends
       formSubmitTitle: 'New',
       formSubmitKey: 'createProjectCluster',
       formSubmitArgs: [this.props.projectName],
+      mustacheData: {
+        projectName: this.props.projectName,
+      },
+    });
+  };
+
+  // formContainerDeploy
+  onClickNewContainer = () => {
+    const {cluster} = this.props;
+    if (!cluster) return;
+    this.props.openModalForm({
+      title: 'New container',
+      iconKey: 'IconContainer',
+      formKey: 'formContainerDeploy',
+      formSubmitTitle: 'New',
+      formSubmitKey: 'clusterDeploy',
+      formSubmitArgs: [cluster.namespace],
       mustacheData: {
         projectName: this.props.projectName,
       },
@@ -102,6 +130,42 @@ class DashboardProjectClustersContainer extends
     this.sub.unsubscribe();
   }
 
+  onCreatePipelineLink = async (pipeline: ModelPipeline) => {
+    const {cluster} = this.props;
+    if (!cluster) return;
+    await this.props.createClusterPipelineLink({
+      clusterId: cluster.id,
+      pipelineId: pipeline.id
+    });
+    this.closeModalPipelineLink();
+  };
+
+  onOpenModalPipelineLink = () => {
+    this.setState({
+      isModalPipelineLinkOpen: true,
+    });
+  };
+
+  closeModalPipelineLink = () => {
+    this.setState({
+      isModalPipelineLinkOpen: false,
+    });
+  };
+
+  onClickPipelineLink = (pipeline: ModelPipeline) => {
+    const {cluster} = this.props;
+    if (!cluster) return;
+    this.props.openModalConfirm({
+      title: `Are you sure to unlink pipeline ${pipeline.name} ?`,
+      description: 'This action is not reversible and all containers emiting status for this pipeline will be ignored',
+      onConfirmKey: 'deleteClusterPipelineLink',
+      onConfirmArgs: [{
+        clusterId: cluster.id,
+        pipelineId: pipeline.id
+      }],
+    });
+  };
+
   render() {
     const {
       tab,
@@ -111,10 +175,26 @@ class DashboardProjectClustersContainer extends
       projectName,
       isClusterPending,
     } = this.props;
+    const {isModalPipelineLinkOpen} = this.state;
     return (
       <React.Fragment>
+        <ModalRelationLink
+          title="Link pipeline"
+          description="Click on item to link pipeline"
+          icon={<IconPipeline size={40} />}
+          isVisible={isModalPipelineLinkOpen}
+          onClickCancel={this.closeModalPipelineLink}
+          onClickItem={this.onCreatePipelineLink}
+          value={cluster?.pipelines || []}
+          options={{
+            path: `/projects/${projectName}/pipelines`,
+            returnKey: 'id',
+            key: 'id',
+            displayKey: 'name',
+          }}
+        />
         <DashboardTitle
-          title={`${projectName}/${tab}`}
+          title={`${tab}${subtab ? `/${subtab}` : ''}`}
           actions={[{
             title: `New cluster in project ${projectName}`,
             icon: () => <IconPlus size={12} />,
@@ -122,7 +202,7 @@ class DashboardProjectClustersContainer extends
           }]}
         />
         <Style.ClusterCardContainer>
-          {clusters.map((clusterRow) => (
+          {(clusters || []).map((clusterRow) => (
             <ClusterCard
               key={clusterRow.id}
               onClick={this.onClickClusterRx}
@@ -130,6 +210,9 @@ class DashboardProjectClustersContainer extends
               isExtended={clusterRow.name === subtab}
               isVisible={!subtab ? true : clusterRow.name === subtab}
               data={cluster && subtab && (clusterRow.name === subtab) ? cluster : clusterRow}
+              onClickNewPipelineLink={this.onOpenModalPipelineLink}
+              onClickPipelineLink={this.onClickPipelineLink}
+              onClickNewContainer={this.onClickNewContainer}
             />
           ))}
         </Style.ClusterCardContainer>

@@ -17,8 +17,9 @@ const PipelineStatus = Styled.div<PipelineStatusProps>`
   width: 15px;
   height: 15px;
 ${props => `
+  overflow: hidden;
   border-radius: ${props.theme.borderRadius};
-  border: 1px solid ${props.theme.border.color.default};
+  border: 1px solid black;
   background: linear-gradient(135deg, ${props.color} 0 45%, white,
     ${props.status ? opacityStatus[props.status] : props.color} 55% 100%);
 `}`;

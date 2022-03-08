@@ -7,7 +7,6 @@ export const CardTitleContainer = Styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 8px;
-  flex: 1;
   ${props => `
   border-top: 1px solid ${props.theme.border.color.default};
     :first-child {
