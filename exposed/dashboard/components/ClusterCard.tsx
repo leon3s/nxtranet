@@ -113,6 +113,11 @@ function ClusterCard(props: ClusterCardProps) {
       && props.onClickOpenModalDelete(data);
   }
 
+  function onClickDeleteContainer(data: ModelContainer) {
+    props.onClickDeleteContainer
+      && props.onClickDeleteContainer(data);
+  }
+
   const infoRow = [
     {
       label: 'Type',
@@ -271,6 +276,7 @@ function ClusterCard(props: ClusterCardProps) {
                 <Style.ClusterContainers>
                   {data?.containers?.map((container) => (
                     <ContainerCard
+                      onClickDelete={onClickDeleteContainer}
                       baseUrl={`/dashboard/projects/${data.projectName}`}
                       key={container.id}
                       data={container}

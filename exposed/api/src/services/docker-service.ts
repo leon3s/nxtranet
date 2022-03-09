@@ -75,7 +75,9 @@ export
   }
 
   deleteContainer = async (container: Container) => {
-    await this._client.containersRemove(container);
+    await this._client.containersRemove({
+      Id: container.dockerID,
+    });
     await this.containerRepository.state(container.namespace).delete();
     await this.containerRepository.outputs(container.namespace).delete();
     await this.containerRepository.pipelineStatus(container.namespace).delete();

@@ -4,7 +4,7 @@ const COLOR_RED = 'red';
 const COLOR_TEXT_SECONDARY = '#8c8c8c';
 const COLOR_ORANGE = 'rgba(255, 78, 43, 0.8)';
 const COLOR_LIGHTBLUE = 'rgba(224, 255, 255, 1)';
-const COLOR_LIGHTBLUE_LIGHT = 'rgba(224, 255, 255, 0.6)';
+const COLOR_LIGHTBLUE_LIGHT = 'rgba(224, 255, 255, 0.0)';
 
 export const themeDefault = {
   pageSpacing: '8px',

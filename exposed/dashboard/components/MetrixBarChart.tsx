@@ -45,7 +45,7 @@ export default function MetrixBarChart(props: BarCharProps) {
         <XAxis
           interval={0}
           dataKey="_id"
-          tick={{fontSize: 6}}
+          tick={{fontSize: 8}}
         >
         </XAxis>
         <Bar

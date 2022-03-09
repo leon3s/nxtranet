@@ -9,6 +9,9 @@ export const HeaderContainer = Styled.div`
   min-height: 100px;
   max-height: 100px;
   position: relative;
+  ${props => `
+    background-color: ${props.theme.view.background.primary};
+  `}
 `;
 
 export const FixedContainer = Styled.div`
@@ -81,7 +84,6 @@ export const MenuContent = Styled(ResponsiveComponent)`
   width:100%;
   position:relative;
   display: flex;
-  height: 48px;
   transition: transform .25s ease;
   flex: 1;
   flex-grow: 1;

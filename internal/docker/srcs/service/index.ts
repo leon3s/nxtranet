@@ -1,11 +1,15 @@
-import {Server, type Socket} from "@nxtranet/service";
-import {io, type Socket as SocketIoClient} from 'socket.io-client';
+import {Server} from "@nxtranet/service";
+import type {Socket} from '@nxtranet/service';
+import {io} from 'socket.io-client';
+import type {Socket as SocketIoClient} from 'socket.io-client';
 import type {
   EventClustersDeploy,
   EventContainersAttach,
+  EventContainersCreate,
   EventContainersInfo,
   EventContainersRemove,
   EventContainersStart,
+  EventContainersStats,
   EventContainersStop
 } from '../headers/docker.h';
 import {
@@ -14,6 +18,7 @@ import {
 } from '../shared/config';
 import Events from '../shared/events';
 import {
+  createClusterContainer,
   createContainer,
   getContainerById,
   getContainersInfo,
@@ -21,6 +26,8 @@ import {
   startContainer,
   stopContainer
 } from './helpers/docker';
+import type { Stream } from "stream";
+import Dockerode from "dockerode";
 
 const server = new Server();
 
@@ -30,15 +37,16 @@ export const prepare = async () => {
       resolve();
     });
   });
-}
+};
 
 export const close = async () => {
   server.httpServer.close();
-}
+};
 
 class ClientManager {
   client: Socket;
   containerSocks: Record<string, SocketIoClient> = {};
+  containerStatsStreams: Record<string, Stream> = {};
 
   constructor(client: Socket) {
     this.client = client;
@@ -48,36 +56,72 @@ class ClientManager {
     return `http://${process.env.NXTRANET_DOCKER_HOST || '127.0.0.1'}:${port}`;
   }
 
-  disconnectContainers = () => {
+  disconnectContainerSocks = () => {
     Object.keys(this.containerSocks).forEach((key) => {
       const socket = this.containerSocks[key];
       socket.disconnect();
+      this.containerSocks[key] = null;
     });
-  }
+  };
 
-  connectToContainer = (namespace: string, port: number) => {
+  disconnectContainerStatsStream = () => {
+    Object.keys(this.containerStatsStreams).forEach((key) => {
+      const stream = this.containerStatsStreams[key];
+      stream.removeAllListeners();
+      this.containerStatsStreams[key] = null;
+    });
+  };
+
+  disconnect = () => {
+    this.disconnectContainerSocks();
+  };
+
+  listenDeployerAction = (containerSock: SocketIoClient, namespace: string) => {
+    containerSock.on('action', (output) => {
+      this.client.socket.emit(namespace, output);
+    });
+    containerSock.on('deployer_error', (err) => {
+      console.error(err);
+      this.client.socket.emit(`${namespace}_error`, err);
+    });
+  };
+
+  listenContainerStats = async (containerSock: SocketIoClient, Id: string) => {
+    const container = getContainerById(Id);
+    const stream: Stream = (await container.stats() as any);
+    stream.on('data', (buffer) => {
+      const stats: Dockerode.ContainerStats = JSON.parse(buffer.toString());
+      containerSock.emit(Id, stats);
+    });
+    this.containerStatsStreams[Id] = stream;
+  };
+
+  connectToContainer = (Id: string, namespace: string, port: number) => {
     const url = this.generateUrl(port);
     if (!this.containerSocks[url]) {
       const containerSock = this.containerSocks[url] = io(url);
-      containerSock.on('action', (output) => {
-        this.client.socket.emit(namespace, output);
-      });
-      containerSock.on('deployer_error', (err) => {
-        console.error(err);
-        this.client.socket.emit(`${namespace}_error`, err);
-      });
+      this.listenDeployerAction(containerSock, namespace);
+      this.listenContainerStats(containerSock, Id);
       return containerSock;
     }
     return this.containerSocks[url];
-  }
+  };
 }
 
 server.io.onNewClient((client) => {
   let clientManager = new ClientManager(client);
 
   client.onDisconnect(() => {
-    clientManager.disconnectContainers();
+    clientManager.disconnect();
     clientManager = null;
+  });
+
+  client.on<
+  EventContainersCreate.payload,
+  EventContainersCreate.response
+  >(Events.containersCreate, async (payload) => {
+    const container = await createContainer(payload);
+    return container.inspect();
   });
 
   client.on<
@@ -86,16 +130,17 @@ server.io.onNewClient((client) => {
   >(Events.clustersDeploy, (payload) => {
     const {cluster, branch, commitSHA} = payload;
     return new Promise(async (resolve, reject) => {
-      const createResponse = await createContainer(cluster, branch, commitSHA);
+      const createResponse = await createClusterContainer(cluster, branch, commitSHA);
       const {
         containerInstance,
         containerApi: {
           namespace,
+          dockerID,
           deployerPort,
         }
       } = createResponse;
       await containerInstance.start();
-      const containerSock = clientManager.connectToContainer(namespace, deployerPort);
+      const containerSock = clientManager.connectToContainer(dockerID, namespace, deployerPort);
       containerSock.emit('/github', cluster, branch, (err) => {
         if (err) return reject(err);
         resolve(createResponse.containerApi);
@@ -109,9 +154,10 @@ server.io.onNewClient((client) => {
   >(Events.containersAttach, async (container) => {
     const {
       namespace,
+      dockerID,
       deployerPort
     } = container;
-    const containerSock = clientManager.connectToContainer(namespace, deployerPort);
+    const containerSock = clientManager.connectToContainer(dockerID, namespace, deployerPort);
     containerSock.emit('/attach');
   });
 
@@ -136,7 +182,7 @@ server.io.onNewClient((client) => {
       deployerPort,
     } = container;
     await startContainer(dockerID);
-    const containerSock = clientManager.connectToContainer(namespace, deployerPort);
+    const containerSock = clientManager.connectToContainer(dockerID, namespace, deployerPort);
     return new Promise((resolve, reject) => {
       containerSock.emit('/start', (err: Error) => {
         console.error({err});
@@ -144,6 +190,15 @@ server.io.onNewClient((client) => {
         return resolve();
       });
     });
+  });
+
+  client.on<
+    EventContainersStats.payload,
+    EventContainersStats.response
+  >(Events.containersStats, async (payload) => {
+    const container = getContainerById(payload.Id);
+    const stats = await container.stats({ stream: false });
+    return stats;
   });
 
   client.on<
@@ -156,7 +211,7 @@ server.io.onNewClient((client) => {
   client.on<
     EventContainersRemove.payload,
     EventContainersRemove.response
-  >(Events.containersRemove, async (container) => {
-    await removeContainer(container.dockerID);
+  >(Events.containersRemove, async (payload) => {
+    await removeContainer(payload.Id);
   });
 });

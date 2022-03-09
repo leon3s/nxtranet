@@ -11,7 +11,7 @@ import {createAction, defineAction} from '~/utils/redux';
 import type {State} from '../reducers';
 
 /** Action Used to create a project */
-const CREATE_PROJECT = defineAction('CREATE_PROJECT');
+export const CREATE_PROJECT = defineAction('CREATE_PROJECT');
 export const createProject = createAction<[
   Partial<ModelProject>
 ], State, AxiosResponse<ModelProject>>(
@@ -22,7 +22,7 @@ export const createProject = createAction<[
 );
 
 /** Action Used to delete a project by it's name */
-const DELETE_PROJECT_BY_NAME = defineAction('DELETE_PROJECT_BY_NAME');
+export const DELETE_PROJECT_BY_NAME = defineAction('DELETE_PROJECT_BY_NAME');
 export const deleteProjectByName = createAction<[
   string
 ], State, {name: string}>(
@@ -35,7 +35,7 @@ export const deleteProjectByName = createAction<[
 );
 
 /** Action Used to get projects */
-const GET_PROJECTS = defineAction('GET_PROJECTS');
+export const GET_PROJECTS = defineAction('GET_PROJECTS');
 export const getProjects = createAction<[
 ], State, AxiosResponse<ModelProject[]>>(
   GET_PROJECTS, () =>
@@ -57,7 +57,7 @@ export const getProjects = createAction<[
     }
 );
 
-const GET_PROJECT_BY_NAME = defineAction('GET_PROJECT_BY_NAME');
+export const GET_PROJECT_BY_NAME = defineAction('GET_PROJECT_BY_NAME');
 export const getProjectByName = createAction<[
   string
 ], State, AxiosResponse<ModelProject>>(
@@ -76,7 +76,7 @@ export const getProjectByName = createAction<[
       })
 );
 
-const CREATE_PROJECT_CLUSTER = defineAction('CREATE_PROJECT_CLUSTER');
+export const CREATE_PROJECT_CLUSTER = defineAction('CREATE_PROJECT_CLUSTER');
 export const createProjectCluster = createAction<[
   string,
   ModelCluster,
@@ -87,7 +87,7 @@ export const createProjectCluster = createAction<[
     }
 );
 
-const GET_PROJECT_CLUSTER_BY_NAME = defineAction('GET_PROJECT_CLUSTER_BY_NAME');
+export const GET_PROJECT_CLUSTER_BY_NAME = defineAction('GET_PROJECT_CLUSTER_BY_NAME');
 export const getProjectClusterByName = createAction<[
   string,
   string,
@@ -121,13 +121,13 @@ export const getProjectClusterByName = createAction<[
     }
 );
 
-const CLEAR_PROJECT_CLUSTER = defineAction('CLEAR_PROJECT_CLUSTER');
+export const CLEAR_PROJECT_CLUSTER = defineAction('CLEAR_PROJECT_CLUSTER');
 export const clearProjectCluster = createAction(
   CLEAR_PROJECT_CLUSTER,
   () => {},
 );
 
-const CREATE_PROJECT_PIPELINE = defineAction('CREATE_PROJECT_PIPELINE');
+export const CREATE_PROJECT_PIPELINE = defineAction('CREATE_PROJECT_PIPELINE');
 export const createProjectPipeline = createAction<[
   string,
   Partial<ModelPipeline>,
@@ -139,7 +139,7 @@ export const createProjectPipeline = createAction<[
     }
 );
 
-const CREATE_PIPELINE_CMD = defineAction('CREATE_PIPELINE_CMD');
+export const CREATE_PIPELINE_CMD = defineAction('CREATE_PIPELINE_CMD');
 export const createPipelineCmd = createAction<[
   string,
   {cmd: string[]},
@@ -155,7 +155,7 @@ export const createPipelineCmd = createAction<[
     }
 );
 
-const GET_PROJECT_PIPELINE_BY_NAMESPACE = defineAction('GET_PROJECT_PIPELINE_BY_NAMESPACE');
+export const GET_PROJECT_PIPELINE_BY_NAMESPACE = defineAction('GET_PROJECT_PIPELINE_BY_NAMESPACE');
 export const getProjectPipelineByNamespace = createAction<[
   string,
   any,
@@ -174,13 +174,13 @@ export const getProjectPipelineByNamespace = createAction<[
     }
 );
 
-const CLEAR_PROJECT_PIPELINE = defineAction('CLEAR_PROJECT_PIPELINE');
+export const CLEAR_PROJECT_PIPELINE = defineAction('CLEAR_PROJECT_PIPELINE');
 export const clearProjectPipeline = createAction(
   CLEAR_PROJECT_PIPELINE,
   () => {},
 );
 
-const DELETE_PIPELINE_CMD = defineAction('DELETE_PIPELINE_CMD');
+export const DELETE_PIPELINE_CMD = defineAction('DELETE_PIPELINE_CMD');
 export const deletePipelineCmd = createAction<[
   ModelPipelineCmd,
 ], State, ModelPipelineCmd>(
@@ -199,7 +199,7 @@ type ClusterPipelineLink = {
   pipelineId: string;
 }
 
-const CREATE_CLUSTER_PIPELINE_LINK = defineAction('CREATE_CLUSTER_PIPELINE_LINK');
+export const CREATE_CLUSTER_PIPELINE_LINK = defineAction('CREATE_CLUSTER_PIPELINE_LINK');
 export const createClusterPipelineLink = createAction<[
   ClusterPipelineLink,
 ], State, {clusterId: string, pipeline: ModelPipeline}>(
@@ -213,7 +213,7 @@ export const createClusterPipelineLink = createAction<[
       };
     });
 
-const DELETE_CLUSTER_PIPELINE_LINK = defineAction('DELETE_CLUSTER_PIPELINE_LINK');
+export const DELETE_CLUSTER_PIPELINE_LINK = defineAction('DELETE_CLUSTER_PIPELINE_LINK');
 export const deleteClusterPipelineLink = createAction<[
   ClusterPipelineLink,
 ], State, ClusterPipelineLink>(
@@ -224,7 +224,7 @@ export const deleteClusterPipelineLink = createAction<[
       return link;
     });
 
-const CLUSTER_DEPLOY = defineAction('CLUSTER_DEPLOY');
+export const CLUSTER_DEPLOY = defineAction('CLUSTER_DEPLOY');
 export const clusterDeploy = createAction<[
   string,
   {branch?: string}?
@@ -235,7 +235,7 @@ export const clusterDeploy = createAction<[
       return api.post<ModelContainer[]>(`/clusters/${namespace}/deploy`, data);
     });
 
-const GET_PROJECT_CONTAINERS = defineAction('GET_PROJECT_CONTAINERS');
+export const GET_PROJECT_CONTAINERS = defineAction('GET_PROJECT_CONTAINERS');
 export const getProjectContainers = createAction<[
   string
 ], State, AxiosResponse<ModelContainer[]>>(
@@ -254,7 +254,7 @@ export const getProjectContainers = createAction<[
     })
 );
 
-const GET_PROJECT_CONTAINER = defineAction('GET_PROJECT_CONTAINER');
+export const GET_PROJECT_CONTAINER = defineAction('GET_PROJECT_CONTAINER');
 export const getProjectContainer = createAction<[
   string,
   string
@@ -274,7 +274,7 @@ export const getProjectContainer = createAction<[
     })
 );
 
-const DELETE_CLUSTER_CONTAINER = defineAction('DELETE_CLUSTER_CONTAINER');
+export const DELETE_CLUSTER_CONTAINER = defineAction('DELETE_CLUSTER_CONTAINER');
 export const deleteClusterContainer = createAction<[
   ModelContainer
 ], State, ModelContainer>(
@@ -284,25 +284,3 @@ export const deleteClusterContainer = createAction<[
       return container;
     }
 );
-
-const DEFINES = {
-  GET_PROJECTS,
-  CREATE_PROJECT,
-  GET_PROJECT_BY_NAME,
-  CLUSTER_DEPLOY,
-  CREATE_PIPELINE_CMD,
-  GET_PROJECT_CONTAINER,
-  GET_PROJECT_CONTAINERS,
-  CLEAR_PROJECT_PIPELINE,
-  DELETE_CLUSTER_PIPELINE_LINK,
-  CLEAR_PROJECT_CLUSTER,
-  DELETE_PIPELINE_CMD,
-  CREATE_CLUSTER_PIPELINE_LINK,
-  GET_PROJECT_PIPELINE_BY_NAMESPACE,
-  DELETE_PROJECT_BY_NAME,
-  CREATE_PROJECT_PIPELINE,
-  CREATE_PROJECT_CLUSTER,
-  GET_PROJECT_CLUSTER_BY_NAME,
-};
-
-export default DEFINES;

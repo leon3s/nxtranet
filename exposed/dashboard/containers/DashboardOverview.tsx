@@ -30,9 +30,12 @@ const actions = {
 };
 
 const mapStateToProps = (state: State) => ({
-  project: state.projects.current,
-  cluster: state.projects.cluster,
-  isClusterPending: state.projects.isCurrentClusterPending,
+  art: state.overview.art,
+  uptime: state.overview.uptime,
+  reqCount: state.overview.reqCount,
+  statusReqCount: state.overview.statusReqCount,
+  domainsReqCount: state.overview.domainsReqCount,
+  networkInterfaces: state.overview.networkInterfaces,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -48,25 +51,27 @@ class DashboardOverviewContainer extends
 
   render() {
     const {
+      art,
+      uptime,
+      reqCount,
+      statusReqCount,
+      domainsReqCount,
+      networkInterfaces,
     } = this.props;
+  
+    const networkInterface = networkInterfaces.eno1 || networkInterfaces.eth0;
     const blocks = [{
       title: 'Public Ip',
-      // value: networkInterface && networkInterface[0].address || 'unknow',
+      value: networkInterface && networkInterface[0].address || 'unknow',
     }, {
       title: 'Os Uptime',
-      // value: uptime,
+      value: uptime,
     }, {
       title: 'Requests Handled',
-      // value: nginxReqCount,
+      value: reqCount,
     }, {
       title: 'ART',
-      // value: art,
-    }, {
-      title: 'Clusters production',
-      // value: clusterProductionCount,
-    }, {
-      title: 'Containers Running',
-      // value: containerRunningCount,
+      value: art.toString(),
     }];
 
     return (
@@ -82,7 +87,16 @@ class DashboardOverviewContainer extends
             Most visited domains
           </Style.BarCharTitle>
           <MetrixBarChart
-            data={[]}
+            data={domainsReqCount}
+            color="#ff4d2a"
+          />
+        </Style.BarChartContainer>
+        <Style.BarChartContainer>
+          <Style.BarCharTitle>
+            Requests status
+          </Style.BarCharTitle>
+          <MetrixBarChart
+            data={statusReqCount}
             color="#ff4d2a"
           />
         </Style.BarChartContainer>

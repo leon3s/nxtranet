@@ -10,5 +10,3 @@ deployerService.init();
 if (require.main === module) {
   deployerService.listen(port);
 }
-
-console.log('nextranet deployer service started at port ' + port);

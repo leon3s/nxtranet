@@ -3,9 +3,11 @@ import {Client} from '@nxtranet/service';
 import type {
   EventClustersDeploy,
   EventContainersAttach,
+  EventContainersCreate,
   EventContainersInfo,
   EventContainersRemove,
   EventContainersStart,
+  EventContainersStats,
   EventContainersStop
 } from '../headers/docker.h';
 import {
@@ -77,6 +79,24 @@ export function containersRemove(
     EventContainersRemove.payload,
     EventContainersRemove.response
   >(Events.containersRemove, payload);
+}
+
+export function containersCreate(
+  payload: EventContainersCreate.payload,
+): Promise<EventContainersCreate.response> {
+  return client.send<
+    EventContainersCreate.payload,
+    EventContainersCreate.response
+  >(Events.containersCreate, payload);
+}
+
+export function containersStats(
+  payload: EventContainersStats.payload,
+): Promise<EventContainersStats.response> {
+  return client.send<
+  EventContainersStats.payload,
+  EventContainersStats.response
+  >(Events.containersStats, payload);
 }
 
 export function watchContainersStatus(

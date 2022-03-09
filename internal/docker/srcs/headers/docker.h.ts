@@ -4,6 +4,13 @@ import type {
 } from '@nxtranet/headers';
 import type Dockerode from 'dockerode';
 
+export declare namespace EventContainersStats {
+  export type payload = {
+    Id: string;
+  };
+  export type response = Dockerode.ContainerStats;
+}
+
 export declare namespace EventClustersDeploy {
   export type payload = {
     cluster: ModelCluster;
@@ -11,6 +18,11 @@ export declare namespace EventClustersDeploy {
     branch: string;
   }
   export type response = Partial<ModelContainer>;
+}
+
+export declare namespace EventContainersCreate {
+  export type payload = Dockerode.ContainerCreateOptions;
+  export type response = Dockerode.ContainerInspectInfo;
 }
 
 export declare namespace EventContainersAttach {
@@ -34,6 +46,8 @@ export declare namespace EventContainersStop {
 }
 
 export declare namespace EventContainersRemove {
-  export type payload = ModelContainer;
+  export type payload = {
+    Id: string;
+  };
   export type response = void;
 }

@@ -11,7 +11,7 @@ async function isContainerAlive() {
   await new Promise<void>((resolve, reject) => {
     const interv = setInterval(async () => {
       try {
-        await axios.get(`http://localhost:${container.appPort}`);
+        await axios.get(`http://127.0.0.1:${container.appPort}`);
         clearInterval(interv);
         clearTimeout(timeout);
         resolve();
@@ -45,6 +45,7 @@ describe('Test service docker', () => {
       branch: 'development',
       commitSHA: 'test-commit',
     });
+    console.log(container);
     await isContainerAlive();
   });
 
@@ -63,8 +64,27 @@ describe('Test service docker', () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
+  it('It should get stats of the container', async function() {
+    const stats = await client.containersStats({
+      Id: container.dockerID,
+    });
+    console.log(stats);
+  });
+
   it('It Should Remove container', async function () {
-    await client.containersRemove(container as ModelContainer);
+    await client.containersRemove({
+      Id: container.dockerID,
+    });
+  });
+
+  it('It should create a container with normal api', async function() {
+    const container = await client.containersCreate({
+      name: 'Test-name',
+      Image: 'nginx',
+    });
+    await client.containersRemove({
+      Id: container.Id,
+    });
   });
 
   afterAll(async () => {

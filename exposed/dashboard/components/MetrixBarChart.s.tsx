@@ -1,4 +1,5 @@
 import Styled from 'styled-components';
+import Label from './Label';
 import Text from './Text';
 import Title from './Title';
 
@@ -28,7 +29,7 @@ export const TooltipsContainer = Styled.div`
   `}
 `;
 
-export const TooltipsLabel = Styled(Title)`
+export const TooltipsLabel = Styled(Label)`
   margin: 0px;
 `;
 

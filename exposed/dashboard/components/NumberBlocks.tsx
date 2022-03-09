@@ -18,7 +18,6 @@ export default function NumberBlocks(props: NumberBlocksProps) {
         <Style.NumberBlock
           key={`${block.title}-${i}`}
         >
-          <LoadingBackground />
           <Style.NumberBlockTitle>
             {block.title}
           </Style.NumberBlockTitle>

@@ -1,4 +1,6 @@
 import Styled from 'styled-components';
+import Description from './Description';
+import Label from './Label';
 
 export const NumberBlocks = Styled.div`
   display: flex;
@@ -9,13 +11,12 @@ export const NumberBlocks = Styled.div`
 
 export const NumberBlock = Styled.div`
   width: 100%;
-  flex: 1 0 26%;
+  flex: 1 0 10%;
   height: auto;
   padding: 20px;
   display: flex;
   position: relative;
   overflow: hidden;
-
   flex-direction: column;
   justify-content: center;
   border: 1px solid transparent;
@@ -26,18 +27,15 @@ export const NumberBlock = Styled.div`
 `}
 `;
 
-export const NumberBlockTitle = Styled.h1`
-  font-weight: bold;
-  font-size: 12px;
+export const NumberBlockTitle = Styled(Label)`
   text-align: center;
   width: 100%;
   margin: 0px 0px 10px 0px;
 `;
 
-export const NumberBlockValue = Styled.p`
+export const NumberBlockValue = Styled(Description)`
   font-weight: bold;
   width: 100%;
-  font-size: 12px;
   text-align: center;
   margin: 0px;
   ${props => `

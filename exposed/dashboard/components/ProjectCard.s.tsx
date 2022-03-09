@@ -16,7 +16,7 @@ export const ProjectCardContainer = Styled.a`
   cursor: pointer;
   overflow: hidden;
   background-color: white;
-  transition: all .4 ease;
+  transition: all .4s;
   min-width: calc((100% / 4) - 6px);
   box-sizing: border-box;
   @media (max-width: 1024px) {

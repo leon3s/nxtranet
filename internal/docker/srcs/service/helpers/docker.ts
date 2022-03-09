@@ -4,8 +4,7 @@ import type {Container} from 'dockerode';
 import Docker from 'dockerode';
 import {getFreePort} from './net';
 
-
-type ContainerOpts = {
+type NxtranetDpContainerOpts = {
   name: string;
   appPort: number;
   deployerPort: number;
@@ -21,7 +20,7 @@ export const docker = new Docker({
 export const getContainerById = (containerID: string) => {
   const container = docker.getContainer(containerID);
   return container;
-}
+};
 
 export const getContainerInfo = (containerID: string) => {
   const container = getContainerById(containerID);
@@ -31,17 +30,17 @@ export const getContainerInfo = (containerID: string) => {
       return resolve(info);
     });
   });
-}
+};
 
 export const startContainer = async (containerID: string) => {
   const container = getContainerById(containerID);
   await container.start();
-}
+};
 
 export const stopContainer = async (containerID: string) => {
   const container = getContainerById(containerID);
   await container.stop();
-}
+};
 
 export const removeContainer = async (containerID: string) => {
   const container = getContainerById(containerID);
@@ -56,38 +55,46 @@ export const removeContainer = async (containerID: string) => {
       return resolve(data);
     });
   });
-}
+};
 
-const _createContainer = (opts: ContainerOpts): Promise<Container> => {
-  const {name, appPort, deployerPort} = opts;
-  return new Promise((resolve, reject) => {
-    docker.createContainer({
-      name,
-      Image: 'nextranet-dp-service',
-      HostConfig: {
-        PortBindings: {
-          "3000/tcp": [
-            {
-              "HostIp": "",
-              "HostPort": `${appPort}/tcp`,
-            }
-          ],
-          "1337/tcp": [
-            {
-              "HostIp": "",
-              "HostPort": `${deployerPort}/tcp`,
-            }
-          ],
-        }
-      }
-    }, (err, container) => {
+export const createContainer = (opts: Docker.ContainerCreateOptions) => {
+  return new Promise<Docker.Container>((resolve, reject) => {
+    docker.createContainer(opts, (err, container) => {
       if (err) return reject(err);
       return resolve(container);
     });
-  })
-}
+  });
+};
 
-export const createContainer = async (cluster: ModelCluster, branch: string, commitSHA: string): Promise<{
+const createNxtranetDpContainer = (opts: NxtranetDpContainerOpts): Promise<Container> => {
+  const {
+    name,
+    appPort,
+    deployerPort,
+  } = opts;
+  return createContainer({
+    name,
+    Image: 'nextranet-dp-service',
+    HostConfig: {
+      PortBindings: {
+        "3000/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": `${appPort}/tcp`,
+          }
+        ],
+        "1337/tcp": [
+          {
+            "HostIp": "",
+            "HostPort": `${deployerPort}/tcp`,
+          }
+        ],
+      }
+    }
+  });
+};
+
+export const createClusterContainer = async (cluster: ModelCluster, branch: string, commitSHA: string): Promise<{
   containerInstance: Container,
   containerApi: Partial<ModelContainer>,
 }> => {
@@ -96,7 +103,7 @@ export const createContainer = async (cluster: ModelCluster, branch: string, com
   const namespace = `${cluster.namespace}.${name}`;
   const appPort = await getFreePort();
   const deployerPort = await getFreePort();
-  const container = await _createContainer({
+  const container = await createNxtranetDpContainer({
     name,
     appPort,
     deployerPort,
@@ -121,4 +128,4 @@ export const getContainersInfo = (): Promise<Docker.ContainerInfo[]> => {
       resolve(containers);
     });
   });
-}
+};

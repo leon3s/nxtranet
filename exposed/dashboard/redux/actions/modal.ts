@@ -31,7 +31,7 @@ export type OpenModalConfirmProps = {
 }
 
 /** Action Used to open a modal form */
-const OPEN_MODAL_FORM = defineAction('OPEN_MODAL_FORM');
+export const OPEN_MODAL_FORM = defineAction('OPEN_MODAL_FORM');
 export const openModalForm = createAction<[
   OpenModalFormArgs,
 ], State, OpenModalFormArgs>(
@@ -39,7 +39,7 @@ export const openModalForm = createAction<[
     props,
 );
 
-const ON_MODAL_FORM_ERROR = defineAction('ON_MODAL_FORM_ERROR');
+export const ON_MODAL_FORM_ERROR = defineAction('ON_MODAL_FORM_ERROR');
 export const onModalFormError = createAction<[
   any
 ], State, any>(
@@ -47,13 +47,13 @@ export const onModalFormError = createAction<[
 );
 
 /** Action Used to close a modal form */
-const CLOSE_MODAL_FORM = defineAction('CLOSE_MODAL_FORM');
+export const CLOSE_MODAL_FORM = defineAction('CLOSE_MODAL_FORM');
 export const closeModalForm = createAction<[
 ], State, void>(
   CLOSE_MODAL_FORM, () => {},
 );
 
-const SET_MODAL_FORM_DATA = defineAction('SET_MODAL_FORM_DATA');
+export const SET_MODAL_FORM_DATA = defineAction('SET_MODAL_FORM_DATA');
 export const setModalFormData = createAction<[
   any
 ], State, void>(
@@ -61,7 +61,7 @@ export const setModalFormData = createAction<[
     data,
 );
 
-const OPEN_MODAL_CONFIRM = defineAction('OPEN_MODAL_CONFIRM');
+export const OPEN_MODAL_CONFIRM = defineAction('OPEN_MODAL_CONFIRM');
 export const openModalConfirm = createAction<[
   OpenModalConfirmProps,
 ], State, OpenModalConfirmProps>(
@@ -69,19 +69,8 @@ export const openModalConfirm = createAction<[
     props,
 );
 
-const CLOSE_MODAL_CONFIRM = defineAction('CLOSE_MODAL_CONFIRM');
+export const CLOSE_MODAL_CONFIRM = defineAction('CLOSE_MODAL_CONFIRM');
 export const closeModalConfirm = createAction<[
 ], State, void>(
   CLOSE_MODAL_CONFIRM, () => {},
 );
-
-const DEFINES = {
-  OPEN_MODAL_FORM,
-  ON_MODAL_FORM_ERROR,
-  CLOSE_MODAL_FORM,
-  OPEN_MODAL_CONFIRM,
-  CLOSE_MODAL_CONFIRM,
-  SET_MODAL_FORM_DATA,
-};
-
-export default DEFINES;

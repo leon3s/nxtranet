@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "exposed/dashboard"
+		},
+		{
+			"path": "exposed/api"
+		},
+		{
+			"path": "cli"
+		},
+		{
+			"path": "internal/docker"
+		},
+		{
+			"path": "internal/dnsmasq"
+		},
+		{
+			"path": "internal/nginx"
+		},
+		{
+			"path": "internal/system"
+		},
+		{
+			"path": "docker_images/node-deployer"
+		},
+		{
+			"path": "packages/headers"
+		}
+	],
+	"settings": {}
+}

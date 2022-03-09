@@ -5,32 +5,32 @@ import {
 import type {ReducerHooks} from '~/utils/reducer';
 import {createReducer} from '~/utils/reducer';
 import type {ReducerAction} from '~/utils/redux';
-import PROJECTS_DEFINES, {
+import {
+  CLEAR_PROJECT_CLUSTER,
+  CLEAR_PROJECT_PIPELINE,
   clusterDeploy,
+  CLUSTER_DEPLOY,
   createClusterPipelineLink,
   createProject,
   createProjectCluster,
-  deleteClusterPipelineLink,
-  getProjectByName,
-  getProjectClusterByName, getProjectContainer, getProjectContainers, getProjectPipelineByNamespace,
-  getProjects
-} from '../actions/project';
-
-const {
-  GET_PROJECTS,
-  CREATE_PROJECT,
-  GET_PROJECT_BY_NAME,
-  CLEAR_PROJECT_CLUSTER,
-  CREATE_PROJECT_CLUSTER,
-  GET_PROJECT_CLUSTER_BY_NAME,
-  GET_PROJECT_CONTAINERS,
-  CLEAR_PROJECT_PIPELINE,
-  GET_PROJECT_CONTAINER,
-  GET_PROJECT_PIPELINE_BY_NAMESPACE,
   CREATE_CLUSTER_PIPELINE_LINK,
+  CREATE_PROJECT,
+  CREATE_PROJECT_CLUSTER,
+  deleteClusterPipelineLink,
   DELETE_CLUSTER_PIPELINE_LINK,
-  CLUSTER_DEPLOY,
-} = PROJECTS_DEFINES;
+  getProjectByName,
+  getProjectClusterByName,
+  getProjectContainer,
+  getProjectContainers,
+  getProjectPipelineByNamespace,
+  getProjects,
+  GET_PROJECTS,
+  GET_PROJECT_BY_NAME,
+  GET_PROJECT_CLUSTER_BY_NAME,
+  GET_PROJECT_CONTAINER,
+  GET_PROJECT_CONTAINERS,
+  GET_PROJECT_PIPELINE_BY_NAMESPACE
+} from '../actions/project';
 
 export type ProjectsState = {
   data: ModelProject[];
@@ -204,7 +204,7 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       cluster: {
         ...cluster,
         containers: [
-          ...cluster.containers,
+          ...(cluster.containers || []),
           ...action.payload.data,
         ]
       }

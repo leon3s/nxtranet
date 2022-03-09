@@ -1,4 +1,4 @@
-import type {ModelCluster, ModelPipeline} from '@nxtranet/headers';
+import type {ModelCluster, ModelContainer, ModelPipeline} from '@nxtranet/headers';
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
 import React from 'react';
@@ -166,6 +166,15 @@ class DashboardProjectClustersContainer extends
     });
   };
 
+  onClickDeleteContainer = (container: ModelContainer) => {
+    this.props.openModalConfirm({
+      title: `Are you sure to delete container ${container.name} ?`,
+      description: 'This action is not reversible',
+      onConfirmKey: 'deleteClusterContainer',
+      onConfirmArgs: [container],
+    });
+  };
+
   render() {
     const {
       tab,
@@ -213,6 +222,7 @@ class DashboardProjectClustersContainer extends
               onClickNewPipelineLink={this.onOpenModalPipelineLink}
               onClickPipelineLink={this.onClickPipelineLink}
               onClickNewContainer={this.onClickNewContainer}
+              onClickDeleteContainer={this.onClickDeleteContainer}
             />
           ))}
         </Style.ClusterCardContainer>

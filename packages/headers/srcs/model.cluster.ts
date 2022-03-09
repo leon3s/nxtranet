@@ -6,7 +6,7 @@ import type {ModelProject} from './model.project';
 
 export enum ModelClusterType {
   TESTING = 'TESTING',
-  SINGLE = 'SINGLE',
+  SINGLE = 'DEPLOYING',
   SCALING = 'SCALING',
 }
 

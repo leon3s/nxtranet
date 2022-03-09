@@ -38,11 +38,13 @@ export default class Deployer {
 
   private hookCmd = (cmd: Cmd) => {
     const {exe, args, cwd, env} = cmd;
+    console.log(`> ${exe} ${args.join(' ')}`);
     const child = execa(exe, args, {
       cwd,
       env,
     });
     child.stdout.on("data", (d) => {
+      console.log(d.toString());
       this._emitAction('cmd', {
         exe,
         cwd,
@@ -53,6 +55,7 @@ export default class Deployer {
       });
     });
     child.stderr.on("data", (d) => {
+      console.log(d.toString());
       this._emitAction('cmd', {
         exe,
         cwd,

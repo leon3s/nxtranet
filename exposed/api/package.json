@@ -53,7 +53,7 @@
     "@loopback/authentication": "^8.0.1",
     "@loopback/authorization": "^0.10.1",
     "@loopback/boot": "^4.0.1",
-    "@loopback/cli": "^3.0.1",
+    "@loopback/cli": "^2.6.0",
     "@loopback/core": "^3.0.1",
     "@loopback/repository": "^4.0.1",
     "@loopback/rest": "^11.0.1",

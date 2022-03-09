@@ -13,10 +13,10 @@ export class MetrixController {
     protected clusterRepository: ClusterRepository,
   ) { }
 
-  @get('/metrix/nginx/average-response-time', {
+  @get('/metrix/nginx/art', {
     responses: {
       '200': {
-        description: 'Nginx average-response-time',
+        description: 'Nginx average response time',
         content: {
           'text/plain': {
             schema: {

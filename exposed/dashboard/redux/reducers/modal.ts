@@ -2,25 +2,12 @@ import {transformError} from '~/forms/utils';
 import type {ReducerHooks} from '~/utils/reducer';
 import {createReducer} from '~/utils/reducer';
 import type {ReducerAction} from '~/utils/redux';
-import type {OpenModalConfirmProps, OpenModalFormArgs} from '../actions/modal';
-import MODAL_DEFINES, {
+import {CLOSE_MODAL_CONFIRM, CLOSE_MODAL_FORM, ON_MODAL_FORM_ERROR, OpenModalConfirmProps, OpenModalFormArgs, OPEN_MODAL_CONFIRM, OPEN_MODAL_FORM, SET_MODAL_FORM_DATA} from '../actions/modal';
+import {
   openModalConfirm,
   openModalForm
 } from '../actions/modal';
-import PROJECT_DEFINES from '../actions/project';
 
-const {
-  CREATE_PROJECT,
-} = PROJECT_DEFINES;
-
-const {
-  OPEN_MODAL_FORM,
-  CLOSE_MODAL_FORM,
-  OPEN_MODAL_CONFIRM,
-  ON_MODAL_FORM_ERROR,
-  CLOSE_MODAL_CONFIRM,
-  SET_MODAL_FORM_DATA,
-} = MODAL_DEFINES;
 
 export type ModalFormState = {
   form: {
