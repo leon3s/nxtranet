@@ -13,8 +13,6 @@ const Container = (props: ContainerProps) => {
   const {data} = props;
   const domain = data?.cluster?.hostname || 'test-hostname.com';
 
-  console.log(data?.creationDate);
-  data?.pipelineStatus.pipeline?.name;
   const infoRow = [
     {
       label: 'Status',

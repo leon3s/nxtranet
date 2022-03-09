@@ -194,9 +194,11 @@ export default
       const containers = await this.deployProd(cluster, opts);
       this.deployBGProd(cluster, containers)
         .then(() => {
-          return Promise.all(containersToDelete.map(async (container) => {
-            return this.deleteContainer(container);
-          }));
+          // setTimeout(() => {
+          //   return Promise.all(containersToDelete.map(async (container) => {
+          //     return this.deleteContainer(container);
+          //   }));
+          // })
         })
         .catch((err) => {
           console.error('deployDB Prod error ', err);

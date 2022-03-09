@@ -7,6 +7,7 @@ import type Dockerode from 'dockerode';
 export declare namespace EventClustersDeploy {
   export type payload = {
     cluster: ModelCluster;
+    commitSHA: string;
     branch: string;
   }
   export type response = Partial<ModelContainer>;

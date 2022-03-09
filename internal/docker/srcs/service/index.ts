@@ -84,9 +84,9 @@ server.io.onNewClient((client) => {
     EventClustersDeploy.payload,
     EventClustersDeploy.response
   >(Events.clustersDeploy, (payload) => {
-    const {cluster, branch} = payload;
+    const {cluster, branch, commitSHA} = payload;
     return new Promise(async (resolve, reject) => {
-      const createResponse = await createContainer(cluster, branch);
+      const createResponse = await createContainer(cluster, branch, commitSHA);
       const {
         containerInstance,
         containerApi: {

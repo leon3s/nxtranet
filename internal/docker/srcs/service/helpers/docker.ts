@@ -87,12 +87,12 @@ const _createContainer = (opts: ContainerOpts): Promise<Container> => {
   })
 }
 
-export const createContainer = async (cluster: ModelCluster, branch: string): Promise<{
+export const createContainer = async (cluster: ModelCluster, branch: string, commitSHA: string): Promise<{
   containerInstance: Container,
   containerApi: Partial<ModelContainer>,
 }> => {
   const genID = crypto.randomBytes(1).toString('hex').toLowerCase();
-  const name = `${branch.substring(0, 4)}-${genID}`;
+  const name = `${branch.substring(0, 4)}-${genID}-${commitSHA.substring(0, 4)}`;
   const namespace = `${cluster.namespace}.${name}`;
   const appPort = await getFreePort();
   const deployerPort = await getFreePort();

@@ -3,6 +3,7 @@ import execa from 'execa';
 import fs from 'fs';
 import path from 'path';
 
+const accessLogDir = '/var/log/nginx';
 const errorLogPath = '/var/log/nginx/error.log';
 const accessLogPath = '/var/log/nginx/access.log';
 const siteEnabledPath = '/etc/nginx/sites-enabled';
@@ -29,9 +30,10 @@ const protectTraversing = (basePath: string, wantedPath: string) => {
   return p;
 }
 
-export const writeSiteAvailable = (filename: string, content: string) => {
+export const writeSiteAvailable = async (filename: string, content: string) => {
   const p = protectTraversing(siteAvailablePath, filename);
   fs.writeFileSync(p, content);
+  await execa('sudo', ['/usr/sbin/nginx', '-s', 'reopen']);
 }
 
 export const readSiteAvailable = (filename: string) => {
@@ -51,31 +53,31 @@ export const siteEnabledExists = (filename: string) => {
 }
 
 export const startService = () => {
-  return execa('sudo', ['service', 'nginx', 'start'], {
+  return execa('sudo', ['/usr/sbin/nginx'], {
     cwd: __dirname,
   });
 }
 
 export const restartService = () => {
-  return execa('sudo', ['service', 'nginx', 'restart'], {
+  return execa('sudo', ['/usr/sbin/nginx', 'restart'], {
     cwd: __dirname,
   });
 }
 
 export const reloadService = async () => {
-  return execa('sudo', ['service', 'nginx', 'reload'], {
+  return execa('sudo', ['/usr/sbin/service', 'nginx', 'force-reload'], {
     cwd: __dirname,
   });
 }
 
 export const testConfig = async () => {
-  const res = await execa('sudo', ['nginx', '-t'], {
+  const res = await execa('sudo', ['/usr/sbin/nginx', '-t'], {
     cwd: __dirname,
   });
   return res.stderr;
 }
 
-export const deployConfig = (filename: string) => {
+export const deployConfig = async (filename: string) => {
   const siteEnabled = protectTraversing(siteEnabledPath, filename);
   const siteAvailable = protectTraversing(siteAvailablePath, filename);
   return execa('ln', ['-s', siteAvailable, siteEnabled], {
@@ -102,7 +104,7 @@ export const convertLogLine = (line: string): NginxAccessLog => {
 export const deleteSite = (filename: string): Promise<void> => {
   const available = protectTraversing(siteAvailablePath, filename);
   const enabled = protectTraversing(siteEnabledPath, filename);
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
       if (fs.existsSync(enabled)) {
         fs.rmSync(enabled);
@@ -110,6 +112,7 @@ export const deleteSite = (filename: string): Promise<void> => {
       if (fs.existsSync(available)) {
         fs.rmSync(available);
       }
+      await execa('sudo', ['/usr/sbin/nginx', '-s', 'reopen']);
       resolve();
     } catch (e) {
       reject(e);
@@ -118,13 +121,13 @@ export const deleteSite = (filename: string): Promise<void> => {
 }
 
 export const watchAccessLog = (callback = (err: Error | null, s?: NginxAccessLog) => { }) => {
-  fs.watch(accessLogPath, async (event, filename) => {
-    console.log(event, filename);
-    if (event === 'change') {
+  fs.watch(accessLogDir, async (eventType, filename) => {
+    console.log(eventType, filename);
+    if (eventType === 'change' && filename === 'access.log') {
       try {
         const lastLine = await execa('tail', ['-n', '1', accessLogPath]);
         const nginxAccessLog = convertLogLine(lastLine.stdout);
-        console.log(nginxAccessLog);
+        console.log('nginx log ', nginxAccessLog.host);
         callback(null, nginxAccessLog);
       } catch (e: any) {
         callback(e);

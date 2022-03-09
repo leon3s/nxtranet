@@ -74,11 +74,10 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
   [HYDRATE]:
     (state, action) => ({
       ...state,
-      data: action.payload.projects.data || [],
       current: action.payload.projects.current,
       cluster: action.payload.projects.cluster,
-      isCurrentClusterPending: action.payload.projects.isCurrentClusterPending,
       pipeline: action.payload.projects.pipeline,
+      isCurrentClusterPending: action.payload.projects.isCurrentClusterPending,
       isCurrentPipelinePending: action.payload.projects.isCurrentPipelinePending,
     }),
   [GET_PROJECTS.PENDING]:

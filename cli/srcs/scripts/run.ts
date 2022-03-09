@@ -51,8 +51,7 @@ async function main() {
     await dev();
     process.exit(0);
   }
-  const isAttached = mod === '--attach';
-  await prod(isAttached);
+  await prod(mod === '--attach');
 }
 
 main().then(() => {

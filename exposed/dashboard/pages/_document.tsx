@@ -39,7 +39,6 @@ export default class MyDocument extends Document {
       <Html lang="en">
         <Head>
           <link rel="shortcut icon" href="/images/logo.png" type="image/png" />
-          <meta name="viewport" content="width=device-width, user-scalable=no" />
         </Head>
         <body>
           <Main />

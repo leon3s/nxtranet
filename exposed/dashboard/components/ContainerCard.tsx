@@ -3,7 +3,7 @@ import moment from 'moment';
 import Link from 'next/link';
 import React from 'react';
 import {IconDelete} from '~/styles/icons';
-import ActionBar, {ActionWrapper} from './ActionBar';
+import ActionBar from './ActionBar';
 import * as Style from './ContainerCard.s';
 
 export type ContainerCardProps = {
@@ -52,15 +52,11 @@ const ContainerCard = (props: ContainerCardProps) => {
             </Style.ContainerCardDescription>
           </Style.ContainerCardContent>
           <Style.ContainerCardActions>
-            <ActionWrapper
-              isVisible
-            >
-              <ActionBar actions={[{
-                title: `Delete`,
-                icon: () => <IconDelete size={12} />,
-                fn: onClickDelete,
-              }]} />
-            </ActionWrapper>
+            <ActionBar actions={[{
+              title: `Delete`,
+              icon: () => <IconDelete size={12} />,
+              fn: onClickDelete,
+            }]} />
           </Style.ContainerCardActions>
         </Style.HiddenLink>
       </Link>

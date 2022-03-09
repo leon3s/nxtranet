@@ -6,6 +6,6 @@
   "filePermissions": [
     "/etc/nginx/sites-available",
     "/etc/nginx/sites-enabled",
-    "/var/log/nginx/access.log"
+    "/var/log/nginx"
   ]
 }

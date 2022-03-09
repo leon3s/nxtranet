@@ -30,7 +30,20 @@ export async function test(service: ServiceDef, envs?: string[]) {
   });
 }
 
-export async function start(serviceDef: ServiceDef, envs: string[]) {
+export function start(serviceDef: ServiceDef, envs: string[]) {
+  return execa('sudo', [
+    '-u',
+    serviceDef.user,
+    ...(envs || []),
+    'node',
+    `${path.join(serviceDef.path, serviceDef.pkg.main)}`,
+  ], {
+    cwd: serviceDef.path,
+    stdio: ['ignore'],
+  });
+}
+
+export async function startWithRunner(serviceDef: ServiceDef, envs: string[]) {
   const runnerPath = path.join(__dirname, './runner');
   const child = await execa('sudo', [
     ...envs,

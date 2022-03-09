@@ -40,6 +40,7 @@ class MyApp extends App<AppPropsWithLayout> {
         <React.Fragment>
           <Head>
             <title>nxtranet</title>
+            <meta name="viewport" content="width=device-width, user-scalable=no" />
           </Head>
           {getLayout(<Component {...pageProps} />)}
         </React.Fragment>

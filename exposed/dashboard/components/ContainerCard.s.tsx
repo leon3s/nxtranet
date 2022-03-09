@@ -6,7 +6,7 @@ import Text from './Text';
 
 export const ContainerCardContainer = Styled.div`
 display: flex;
-padding: 6px;
+padding: 8px;
 position: relative;
 flex-direction: row;
 cursor: pointer;

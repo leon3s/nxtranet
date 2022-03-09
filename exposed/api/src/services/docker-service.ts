@@ -156,7 +156,8 @@ export
     if (!cluster) throw new HttpErrors.NotFound('Cluster not found');
     const partialContainer = await this._client.clustersDeploy({
       cluster,
-      branch
+      branch,
+      commitSHA,
     });
     partialContainer.commitSHA = commitSHA;
     partialContainer.gitBranchName = branch;

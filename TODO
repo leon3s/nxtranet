@@ -1,8 +1,0 @@
-Copy env variable to the container and update container env independentaly
-
-Restart / Stop container
-
-delete project, update project
-delete cluster, update cluster
-
-Warn if project doesn't have pipeline

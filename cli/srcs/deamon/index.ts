@@ -8,6 +8,8 @@ import getUserConfig, {userConfigToEnv} from '../lib/nxtUserconfig';
 import * as serviceHelper from '../lib/service';
 import {ensureUser} from '../lib/system';
 
+const PORT = +(process.env.PORT || 6587);
+
 const pidPath = path.join(runDir, 'nxtranet.pid');
 
 let exitAsked = false;
@@ -26,12 +28,23 @@ async function startServices(serviceDefs: ServiceDef[], envs: string[]) {
     if (process.env.NODE_ENV !== 'development' || !serviceDef.skipDevBuild) {
       await serviceHelper.build(serviceDef, envs);
     }
-    const pid = await serviceHelper.start(serviceDef, envs);
-    console.log('Service :\t', serviceDef.name, '\t\tstarted with pid :\t\t', pid);
-    services.push({
-      pid,
-      user: serviceDef.user,
-    });
+    if (process.env.NODE_ENV === 'development') {
+      const service = serviceHelper.start(serviceDef, envs);
+      service.stderr?.on('data', (data) => {
+        console.error(`[${serviceDef.name}]`);
+        console.error(`> ${data.toString()}`);
+      });
+      service.stdout?.on('data', (data) => {
+        console.log(`[${serviceDef.name}]`);
+        console.log(`> ${data.toString()}`);
+      });
+    } else {
+      const pid = await serviceHelper.startWithRunner(serviceDef, envs);
+      services.push({
+        pid: pid || 0,
+        user: serviceDef.user,
+      });
+    }
   }
 }
 
@@ -55,9 +68,9 @@ async function prepare() {
 }
 
 prepare().then(() => {
-  const server = new Server(6587);
+  const server = new Server(PORT);
   server.on('connection', (socket) => { });
-  console.log('master process started listening on port : ', 6587, ' with pid ', process.pid);
+  console.log(`[nxtranet][${process.pid}] deamon started on [::1]:${PORT}`);
   fs.writeFileSync(pidPath, process.pid.toString());
 }).catch((err) => {
   console.error(err);

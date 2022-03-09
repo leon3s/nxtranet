@@ -43,6 +43,7 @@ describe('Test service docker', () => {
     container = await client.clustersDeploy({
       cluster,
       branch: 'development',
+      commitSHA: 'test-commit',
     });
     await isContainerAlive();
   });

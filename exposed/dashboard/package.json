@@ -1,5 +1,5 @@
 {
-  "name": "next-starter",
+  "name": "@nxtranet/dashboard",
   "private": false,
   "main": "./server.js",
   "scripts": {
