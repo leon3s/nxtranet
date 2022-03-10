@@ -51,3 +51,9 @@ export declare namespace EventContainersRemove {
   };
   export type response = void;
 }
+
+
+export type ContainerStats = {
+  id: string;
+  name: string;
+} & Dockerode.ContainerStats;

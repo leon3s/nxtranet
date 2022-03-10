@@ -69,6 +69,6 @@ export const createAction = <Args extends any[], S, R>(define: DefineAction, fn:
 type ValueOf<T> = T[keyof T];
 
 export type ReducerAction<T extends (...args: any) => any> = AnyAction & {
-  type:  ValueOf<Awaited<ReturnType<ReturnType<T>>>['type']>;
+  type: ValueOf<Awaited<ReturnType<ReturnType<T>>>['type']>;
   payload: Awaited<Awaited<ReturnType<ReturnType<T>>>['payload']>;
 };

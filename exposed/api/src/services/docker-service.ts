@@ -6,7 +6,7 @@ import axios from 'axios';
 import {client} from '../../../../internal/docker';
 import {WebSockerServiceBindings} from '../keys';
 import {Container} from '../models';
-import {ClusterRepository, ContainerRepository} from '../repositories';
+import {ClusterRepository, ContainerRepository, ContainerStatRepository} from '../repositories';
 import {ContainerOutputRepository} from '../repositories/container-output.repository';
 import {PipelineStatusRepository} from '../repositories/pipeline-status.repository';
 import {WebsocketService} from '../websocket';
@@ -35,6 +35,8 @@ export
     protected containerOutputRepository: ContainerOutputRepository,
     @repository(PipelineStatusRepository)
     protected pipelineStatusRepository: PipelineStatusRepository,
+    @repository(ContainerStatRepository)
+    protected containerStatRepository: ContainerStatRepository,
   ) { }
 
   connect = () => {
@@ -47,14 +49,13 @@ export
 
   startContainer = async (container: Container) => {
     await this._client.containersStart(container);
-    this.clusterContainerStatus(container);
+    this.watchContainer(container);
     await this.whenContainerReady(container);
   }
 
   syncContainers = async () => {
     const containersInfo = await this._client.containersInfo();
     await Promise.all(containersInfo.map(async (containerInfo) => {
-      console.log(containerInfo);
       const container = await this.containerRepository.findOne({
         where: {
           dockerID: containerInfo.Id,
@@ -86,10 +87,29 @@ export
 
   attachContainer = async (container: Container) => {
     this._client.containersAttach(container);
-    this.clusterContainerStatus(container);
+    this.watchContainer(container);
   }
 
-  clusterContainerStatus = async (container: Container) => {
+  watchContainerStat = async (container: Container) => {
+    this._client.watchContainerStat(container, async (stat) => {
+      const newStat = {
+        ...stat,
+        dockerID: stat.id,
+        id: undefined,
+      }
+      const containerStatDB = await this.containerStatRepository.findOne({
+        where: {
+          dockerID: newStat.dockerID,
+        }
+      });
+      if (!containerStatDB) {
+        return this.containerStatRepository.create(newStat);
+      }
+      return this.containerStatRepository.updateById(containerStatDB.id, newStat);
+    });
+  }
+
+  watchContainerStatus = async (container: Container) => {
     this._client.watchContainersStatus(container, async (output) => {
       if (output.type === 'pipelineStatus') {
         output.payload.containerNamespace = container.namespace;
@@ -103,6 +123,11 @@ export
         this.webSocketService.io.emit(container.namespace, containerOuputDB);
       }
     });
+  }
+
+  watchContainer = async (container: Container) => {
+    await this.watchContainerStatus(container);
+    await this.watchContainerStat(container);
   }
 
   whenContainerReady = (container: Container): Promise<void> => {
@@ -167,7 +192,7 @@ export
     partialContainer.projectName = cluster.projectName;
     partialContainer.isGeneratedDeploy = isGeneratedDeploy;
     const container = await this.containerRepository.create(partialContainer);
-    this.clusterContainerStatus(container);
+    this.watchContainer(container);
     return container;
   }
 }

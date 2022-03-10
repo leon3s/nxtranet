@@ -6,10 +6,17 @@ import {DnsmasqService} from './services/dnsmasq-service';
 import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {PasswordHasher} from './services/hash.password-service';
+import MetrixService from './services/metrix-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
 import {SystemService} from './services/system-service';
 import {WebsocketService} from './websocket';
+
+export namespace MetrixServiceBindings {
+  export const METRIX_SERVICE = BindingKey.create<MetrixService>(
+    'service.metrix',
+  )
+}
 
 export namespace SystemServiceBindings {
   export const SYSTEM_SERVICE = BindingKey.create<SystemService>(

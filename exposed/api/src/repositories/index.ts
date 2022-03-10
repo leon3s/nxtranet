@@ -15,3 +15,4 @@ export * from './user-credential.repository';
 export * from './user-role.repository';
 export * from './user.repository';
 
+export * from './container-stat.repository';

@@ -17,6 +17,7 @@ import {
   DnsmasqServiceBindings,
   DockerServiceBindings,
   GithubServiceBindings,
+  MetrixServiceBindings,
   NginxServiceBindings,
   PasswordHasherBindings,
   ProjectServiceBindings, SystemServiceBindings,
@@ -31,6 +32,7 @@ import {DnsmasqService} from './services/dnsmasq-service';
 import {DockerService} from './services/docker-service';
 import {GithubService} from './services/github-service';
 import {BcryptHasher} from './services/hash.password-service';
+import MetrixService from './services/metrix-service';
 import {NginxService} from './services/nginx-service';
 import ProjectService from './services/project-service';
 import {SystemService} from './services/system-service';
@@ -68,7 +70,7 @@ export class NextranetApi extends BootMixin(
     // Customize @loopback/rest-explorer configuration here
     this.configure(RestExplorerBindings.COMPONENT).to({
       path: '/explorer',
-      docExpansion: 'none',
+      // docExpansion: 'none', ??
       indexTitle: 'api - nxtranet',
     });
     this.component(RestExplorerComponent);
@@ -86,6 +88,9 @@ export class NextranetApi extends BootMixin(
   }
 
   setupBindings() {
+
+    this.bind(MetrixServiceBindings.METRIX_SERVICE)
+      .toClass(MetrixService);
 
     this.bind(SystemServiceBindings.SYSTEM_SERVICE)
       .toClass(SystemService);
@@ -114,8 +119,8 @@ export class NextranetApi extends BootMixin(
     this.bind(TokenServiceBindings.TOKEN_SERVICE)
       .toClass(BASICService);
 
-    // // Bind bcrypt hash services
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
+
     this.bind(PasswordHasherBindings.PASSWORD_HASHER)
       .toClass(BcryptHasher);
 

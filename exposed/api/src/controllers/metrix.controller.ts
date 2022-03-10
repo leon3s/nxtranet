@@ -1,7 +1,14 @@
+import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, param} from '@loopback/rest';
+import {get, HttpErrors, param} from '@loopback/rest';
 import {ModelClusterType} from '@nxtranet/headers';
-import {ClusterRepository, ContainerRepository, NginxAccessLogRepository} from '../repositories';
+import {MetrixServiceBindings} from '../keys';
+import {
+  ClusterRepository,
+  ContainerRepository,
+  NginxAccessLogRepository
+} from '../repositories';
+import MetrixService from '../services/metrix-service';
 
 export class MetrixController {
   constructor(
@@ -11,6 +18,8 @@ export class MetrixController {
     protected containerRepository: ContainerRepository,
     @repository(ClusterRepository)
     protected clusterRepository: ClusterRepository,
+    @inject(MetrixServiceBindings.METRIX_SERVICE)
+    protected metrixService: MetrixService
   ) { }
 
   @get('/metrix/nginx/art', {
@@ -39,19 +48,7 @@ export class MetrixController {
     const hostnames = clusters.map(({hostname}) => hostname);
     const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
     if (!hostnames.length) return 0;
-    const [{request_time}] = await nginxAccessLogCollection
-      .aggregate()
-      .match({host: {$in: hostnames}})
-      .group({
-        _id: '',
-        request_time: {$sum: '$request_time'}
-      })
-      .project({
-        _id: 0,
-        request_time: '$request_time'
-      }).get();
-    const {count: total} = await this.nginxAccessLogRepository.count();
-    return (request_time / total).toFixed(3);
+    return this.metrixService.getArtForHostnames(hostnames);
   }
 
   @get('/metrix/nginx/domains', {
@@ -96,7 +93,7 @@ export class MetrixController {
   @get('/metrix/nginx/status', {
     responses: {
       '200': {
-        description: 'Nginx average-response-time',
+        description: 'Get nginx request status',
         content: {
           'text/plain': {
             schema: {
@@ -167,50 +164,6 @@ export class MetrixController {
     return count;
   }
 
-  @get('/metrix/cluster-production/count', {
-    responses: {
-      '200': {
-        description: 'Nginx average-response-time',
-        content: {
-          'text/plain': {
-            schema: {
-              type: "number",
-              example: 10,
-            }
-          }
-        },
-      },
-    },
-  })
-  async clusterProductionCount() {
-    const {count} = await this.clusterRepository.count({
-      type: {
-        nin: [ModelClusterType.TESTING, ModelClusterType.SINGLE],
-      }
-    });
-    return count;
-  }
-
-  @get('/metrix/docker/containers/count', {
-    responses: {
-      '200': {
-        description: 'Nginx average-response-time',
-        content: {
-          'text/plain': {
-            schema: {
-              type: "number",
-              example: 10,
-            }
-          }
-        },
-      },
-    },
-  })
-  async dockerContainersCount() {
-    const {count} = await this.containerRepository.count();
-    return count;
-  }
-
   @get('/metrix/nginx/domains/{name}/path', {
     responses: {
       '200': {
@@ -261,25 +214,9 @@ export class MetrixController {
   async domainNameArt(
     @param.path.string('name') name: string,
   ) {
-    const nginxAccessLogCollection = (this.nginxAccessLogRepository.dataSource.connector as any).collection("NginxAccessLog");
-    const [{request_time}] = await nginxAccessLogCollection
-      .aggregate()
-      .match({
-        host: name
-      })
-      .group({
-        _id: '',
-        request_time: {$sum: '$request_time'}
-      })
-      .project({
-        _id: 0,
-        request_time: '$request_time'
-      }).get();
-    const {count: total} = await this.nginxAccessLogRepository.count({
-      host: name
-    });
-    return (request_time / total).toFixed(3);
+    return this.metrixService.getArtForHostname(name);
   }
+
   @get('/metrix/nginx/domains/{name}/req-count', {
     responses: {
       '200': {
@@ -334,5 +271,40 @@ export class MetrixController {
       })
       .get();
     return res;
+  }
+
+  @get('/metrix/containers/{name}', {
+    responses: {
+      '200': {
+        description: 'Metrix of container for his given name',
+      }
+    }
+  })
+  async getContainerMetrixByName(
+    @param.path.string('name') name: string,
+  ) {
+    const container = await this.containerRepository.findOne({
+      where: {
+        name,
+      }
+    });
+    if (!container) {
+      throw new HttpErrors.NotFound(`Container ${name} not found.`);
+    }
+    const proxy_host = `127.0.0.1:${container.appPort}`;
+    const containerStat = await this.containerRepository
+      .stat(container.dockerID).get();
+
+    const art = await this.metrixService.getArtForProxyHost(proxy_host);
+    const {count} = await this.nginxAccessLogRepository.count({
+      proxy_host,
+    });
+    const rsc = await this.metrixService.getRscForProxyHost(proxy_host);
+    return {
+      art,
+      rsc,
+      reqCount: count,
+      stat: containerStat,
+    }
   }
 }

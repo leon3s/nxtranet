@@ -53,19 +53,19 @@ export const siteEnabledExists = (filename: string) => {
 }
 
 export const startService = () => {
-  return execa('sudo', ['/usr/sbin/nginx'], {
+  return execa('sudo', ['service', 'nginx', 'start'], {
     cwd: __dirname,
   });
 }
 
 export const restartService = () => {
-  return execa('sudo', ['/usr/sbin/nginx', 'restart'], {
+  return execa('sudo', ['service', 'nginx', 'restart'], {
     cwd: __dirname,
   });
 }
 
 export const reloadService = async () => {
-  return execa('sudo', ['/usr/sbin/service', 'nginx', 'force-reload'], {
+  return execa('sudo', ['service', 'nginx', 'reload'], {
     cwd: __dirname,
   });
 }

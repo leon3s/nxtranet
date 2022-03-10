@@ -50,7 +50,6 @@ export const removeContainer = async (containerID: string) => {
   }
   await new Promise((resolve, reject) => {
     container.remove({force: false}, function (err, data) {
-      console.log(err);
       if (err) return reject(err);
       return resolve(data);
     });

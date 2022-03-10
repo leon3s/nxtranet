@@ -7,16 +7,19 @@ import {bindActionCreators} from 'redux';
 import ContainerCard from '~/components/ContainerCard';
 import ContainerInspect from '~/components/ContainerInspect';
 import ContainerLogs from '~/components/ContainerLogs';
+import ContainerMetrix from '~/components/ContainerMetrix';
 import DashboardTitle from '~/components/DashboardTitle';
 import MenuNav, {MenuNavItem} from '~/components/MenuNav';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
-import {getProjectContainer, getProjectContainers} from '~/redux/actions/project';
+import {getContainerMetrixByName, getProjectContainer, getProjectContainers} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {IconContainerInspect, IconContainerLog, IconMetrix} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardProjectContainers.s';
 
+
 const actions = {
+  getContainerMetrixByName,
   getProjectContainer,
   getProjectContainers,
   openModalForm,
@@ -26,6 +29,7 @@ const actions = {
 const mapStateToProps = (state: State) => ({
   container: state.projects.container,
   containers: state.projects.containers,
+  containerMetrix: state.projects.containerMetrix,
   isCurrentContainerPending: state.projects.isCurrentContainerPending,
 });
 
@@ -38,7 +42,7 @@ export type DashboardProjectContainersContainerProps = {
   tab: string;
   subtab?: string;
 } & ReturnType<typeof mapStateToProps>
-& ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapDispatchToProps>;
 
 const navItems: MenuNavItem[] = [
   {
@@ -69,6 +73,7 @@ class DashboardProjectContainersContainer extends
     this.props.getProjectContainers(projectName);
     if (subtab) {
       this.props.getProjectContainer(projectName, subtab);
+      this.props.getContainerMetrixByName(subtab);
     }
   }
 
@@ -76,6 +81,7 @@ class DashboardProjectContainersContainer extends
     const {projectName, subtab} = this.props;
     if (!prevProps.subtab && subtab) {
       this.props.getProjectContainer(projectName, subtab);
+      this.props.getContainerMetrixByName(subtab);
     }
   }
 
@@ -94,13 +100,14 @@ class DashboardProjectContainersContainer extends
       subtab,
       containers,
       container,
+      containerMetrix,
       projectName,
       router,
     } = this.props;
     if (subtab) {
 
     }
-    let [{}, {}, ignore, subsubtab] = router.query.all || [] as string[];
+    let [{ }, { }, ignore, subsubtab] = router.query.all || [] as string[];
     subsubtab = subsubtab || 'inspect';
     return (
       <React.Fragment>
@@ -137,6 +144,11 @@ class DashboardProjectContainersContainer extends
             {container && subsubtab === 'inspect' ?
               <ContainerInspect
                 data={container}
+              />
+              : null}
+            {containerMetrix && subsubtab === 'metrix' ?
+              <ContainerMetrix
+                data={containerMetrix}
               />
               : null}
           </React.Fragment>

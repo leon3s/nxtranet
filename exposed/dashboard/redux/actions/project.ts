@@ -16,9 +16,9 @@ export const createProject = createAction<[
   Partial<ModelProject>
 ], State, AxiosResponse<ModelProject>>(
   CREATE_PROJECT, (project) =>
-    ({}, {}, api) => {
-      return api.post('/projects', project);
-    }
+  ({ }, { }, api) => {
+    return api.post('/projects', project);
+  }
 );
 
 /** Action Used to delete a project by it's name */
@@ -27,11 +27,11 @@ export const deleteProjectByName = createAction<[
   string
 ], State, {name: string}>(
   DELETE_PROJECT_BY_NAME, (name) =>
-    async ({}, {}, api) => {
-      await api.delete(`/projects/${name}`);
-      await Router.push('/dashboard/projects');
-      return {name};
-    }
+  async ({ }, { }, api) => {
+    await api.delete(`/projects/${name}`);
+    await Router.push('/dashboard/projects');
+    return {name};
+  }
 );
 
 /** Action Used to get projects */
@@ -39,22 +39,22 @@ export const GET_PROJECTS = defineAction('GET_PROJECTS');
 export const getProjects = createAction<[
 ], State, AxiosResponse<ModelProject[]>>(
   GET_PROJECTS, () =>
-    ({}, {}, api) => {
-      /** We slow the request in purpose to have time to see animation. */
-      /** LOL */
-      return new Promise(async (resolve, reject) => {
-        try {
-          const res = await api.get<ModelProject[]>('/projects');
-          setTimeout(() => {
-            resolve(res);
-          }, 1000);
-        } catch (e) {
-          setTimeout(() => {
-            reject(e);
-          }, 1000);
-        }
-      });
-    }
+  ({ }, { }, api) => {
+    /** We slow the request in purpose to have time to see animation. */
+    /** LOL */
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await api.get<ModelProject[]>('/projects');
+        setTimeout(() => {
+          resolve(res);
+        }, 1000);
+      } catch (e) {
+        setTimeout(() => {
+          reject(e);
+        }, 1000);
+      }
+    });
+  }
 );
 
 export const GET_PROJECT_BY_NAME = defineAction('GET_PROJECT_BY_NAME');
@@ -62,18 +62,18 @@ export const getProjectByName = createAction<[
   string
 ], State, AxiosResponse<ModelProject>>(
   GET_PROJECT_BY_NAME, (name) =>
-    ({}, {}, api) =>
-      api.get<ModelProject>(`/projects/${name}`, {
-        params: {
-          filter: {
-            include: [{
-              relation: 'clusters',
-            }, {
-              relation: 'pipelines',
-            }],
-          }
+  ({ }, { }, api) =>
+    api.get<ModelProject>(`/projects/${name}`, {
+      params: {
+        filter: {
+          include: [{
+            relation: 'clusters',
+          }, {
+            relation: 'pipelines',
+          }],
         }
-      })
+      }
+    })
 );
 
 export const CREATE_PROJECT_CLUSTER = defineAction('CREATE_PROJECT_CLUSTER');
@@ -82,9 +82,9 @@ export const createProjectCluster = createAction<[
   ModelCluster,
 ], State, AxiosResponse<ModelCluster>>(
   CREATE_PROJECT_CLUSTER, (projectName, cluster) =>
-    ({}, {}, api) => {
-      return api.post(`/projects/${projectName}/clusters`, cluster);
-    }
+  ({ }, { }, api) => {
+    return api.post(`/projects/${projectName}/clusters`, cluster);
+  }
 );
 
 export const GET_PROJECT_CLUSTER_BY_NAME = defineAction('GET_PROJECT_CLUSTER_BY_NAME');
@@ -94,37 +94,37 @@ export const getProjectClusterByName = createAction<[
   any,
 ], State, AxiosResponse<ModelCluster>>(
   GET_PROJECT_CLUSTER_BY_NAME, (projectName, clusterName, options) =>
-    ({}, {}, api) => {
-      return api.get<ModelCluster>(`/projects/${projectName}/clusters/${clusterName}`, {
-        ...(options || {}),
-        params: {
-          filter: {
-            include: [
-              {relation: 'pipelines'},
-              {
-                relation: 'containers',
-                scope: {
-                  include: [
-                    {
-                      relation: 'pipelineStatus',
-                      scope: {
-                        include: ['pipeline'],
-                      },
-                    }
-                  ]
-                }
+  ({ }, { }, api) => {
+    return api.get<ModelCluster>(`/projects/${projectName}/clusters/${clusterName}`, {
+      ...(options || {}),
+      params: {
+        filter: {
+          include: [
+            {relation: 'pipelines'},
+            {
+              relation: 'containers',
+              scope: {
+                include: [
+                  {
+                    relation: 'pipelineStatus',
+                    scope: {
+                      include: ['pipeline'],
+                    },
+                  }
+                ]
               }
-            ],
-          }
+            }
+          ],
         }
-      });
-    }
+      }
+    });
+  }
 );
 
 export const CLEAR_PROJECT_CLUSTER = defineAction('CLEAR_PROJECT_CLUSTER');
 export const clearProjectCluster = createAction(
   CLEAR_PROJECT_CLUSTER,
-  () => {},
+  () => { },
 );
 
 export const CREATE_PROJECT_PIPELINE = defineAction('CREATE_PROJECT_PIPELINE');
@@ -177,7 +177,7 @@ export const getProjectPipelineByNamespace = createAction<[
 export const CLEAR_PROJECT_PIPELINE = defineAction('CLEAR_PROJECT_PIPELINE');
 export const clearProjectPipeline = createAction(
   CLEAR_PROJECT_PIPELINE,
-  () => {},
+  () => { },
 );
 
 export const DELETE_PIPELINE_CMD = defineAction('DELETE_PIPELINE_CMD');
@@ -185,14 +185,14 @@ export const deletePipelineCmd = createAction<[
   ModelPipelineCmd,
 ], State, ModelPipelineCmd>(
   DELETE_PIPELINE_CMD, (cmd) =>
-    async ({ }, { }, api) => {
-      await api.delete(`/pipelines/${cmd.pipelineNamespace}/cmds`, {
-        params: {
-          where: {id: cmd.id},
-        }
-      });
-      return cmd;
+  async ({ }, { }, api) => {
+    await api.delete(`/pipelines/${cmd.pipelineNamespace}/cmds`, {
+      params: {
+        where: {id: cmd.id},
+      }
     });
+    return cmd;
+  });
 
 type ClusterPipelineLink = {
   clusterId: string;
@@ -240,18 +240,18 @@ export const getProjectContainers = createAction<[
   string
 ], State, AxiosResponse<ModelContainer[]>>(
   GET_PROJECT_CONTAINERS, (name) =>
-    ({}, {}, api) => api.get<ModelContainer[]>(`/projects/${name}/containers`, {
-      params: {
-        filter: {
-          include: [{
-            relation: 'pipelineStatus',
-            scope: {
-              include: ['pipeline'],
-            }
-          }]
-        }
+  ({ }, { }, api) => api.get<ModelContainer[]>(`/projects/${name}/containers`, {
+    params: {
+      filter: {
+        include: [{
+          relation: 'pipelineStatus',
+          scope: {
+            include: ['pipeline'],
+          }
+        }]
       }
-    })
+    }
+  })
 );
 
 export const GET_PROJECT_CONTAINER = defineAction('GET_PROJECT_CONTAINER');
@@ -260,18 +260,18 @@ export const getProjectContainer = createAction<[
   string
 ], State, AxiosResponse<ModelContainer>>(
   GET_PROJECT_CONTAINER, (projectName, containerName) =>
-    ({}, {}, api) => api.get(`/projects/${projectName}/containers/${containerName}`, {
-      params: {
-        filter: {
-          include: ['cluster', {
-            relation: 'pipelineStatus',
-            scope: {
-              include: ['pipeline'],
-            },
-          }, 'outputs']
-        }
+  ({ }, { }, api) => api.get(`/projects/${projectName}/containers/${containerName}`, {
+    params: {
+      filter: {
+        include: ['cluster', {
+          relation: 'pipelineStatus',
+          scope: {
+            include: ['pipeline'],
+          },
+        }, 'outputs']
       }
-    })
+    }
+  })
 );
 
 export const DELETE_CLUSTER_CONTAINER = defineAction('DELETE_CLUSTER_CONTAINER');
@@ -279,8 +279,16 @@ export const deleteClusterContainer = createAction<[
   ModelContainer
 ], State, ModelContainer>(
   DELETE_CLUSTER_CONTAINER, (container) =>
-    async ({}, {}, api) => {
-      await api.delete(`/clusters/${container.clusterNamespace}/containers/${container.name}`);
-      return container;
-    }
+  async ({ }, { }, api) => {
+    await api.delete(`/clusters/${container.clusterNamespace}/containers/${container.name}`);
+    return container;
+  }
+);
+
+export const GET_CONTAINER_METRIX_BY_NAME = defineAction('GET_CONTAINER_METRIX_BY_NAME');
+export const getContainerMetrixByName = createAction<[
+  string
+], State, AxiosResponse<any>>(
+  GET_CONTAINER_METRIX_BY_NAME, (name) =>
+  ({ }, { }, api) => api.get(`/metrix/containers/${name}`)
 );

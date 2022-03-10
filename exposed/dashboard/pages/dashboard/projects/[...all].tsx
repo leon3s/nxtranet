@@ -6,7 +6,7 @@ import DashboardHud from '~/containers/DashboardHud';
 import DashboardProject from '~/containers/DashboardProject';
 import ModalConfirm from '~/containers/ModalConfirm';
 import ModalForm from '~/containers/ModalForm';
-import {getProjectByName, getProjectClusterByName, getProjectPipelineByNamespace} from '~/redux/actions/project';
+import {getContainerMetrixByName, getProjectByName, getProjectClusterByName, getProjectPipelineByNamespace} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {wrapper} from '~/redux/store';
 import type {Dispatch} from '~/utils/redux';
@@ -25,11 +25,11 @@ type ProjectPageProps = {
   subtab?: string | null;
   router: NextRouter;
 } & ReturnType<typeof mapStateToprops>
-& ReturnType<typeof mapDispatchToProps>
+  & ReturnType<typeof mapDispatchToProps>
 
 export const getServerSideProps = wrapper.getServerSideProps((store) =>
   async (ctx): Promise<GetServerSidePropsResult<any>> => {
-    const [projectName, tab, subtab] = ctx.query.all || [];
+    const [projectName, tab, subtab, subsubtab] = ctx.query.all || [];
     try {
       await store.dispatch(getProjectByName(projectName));
     } catch (e) {
@@ -53,6 +53,9 @@ export const getServerSideProps = wrapper.getServerSideProps((store) =>
     }
     if (tab === 'pipelines' && subtab) {
       await store.dispatch(getProjectPipelineByNamespace(`${projectName}.${subtab}`, {}));
+    }
+    if (subtab && subsubtab === 'metrix') {
+      await store.dispatch(getContainerMetrixByName(subtab));
     }
     return {
       props: {

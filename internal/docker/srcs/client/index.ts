@@ -1,6 +1,7 @@
 import {ModelContainer} from '@nxtranet/headers';
 import {Client} from '@nxtranet/service';
 import type {
+  ContainerStats,
   EventClustersDeploy,
   EventContainersAttach,
   EventContainersCreate,
@@ -21,6 +22,10 @@ let client: Client | null = null;
 export function connect() {
   client = new Client(`http://${host}:${port}`);
   return client;
+}
+
+export function getSocket(): typeof client.socket {
+  return client.socket;
 }
 
 export function disconnect() {
@@ -94,8 +99,8 @@ export function containersStats(
   payload: EventContainersStats.payload,
 ): Promise<EventContainersStats.response> {
   return client.send<
-  EventContainersStats.payload,
-  EventContainersStats.response
+    EventContainersStats.payload,
+    EventContainersStats.response
   >(Events.containersStats, payload);
 }
 
@@ -104,4 +109,11 @@ export function watchContainersStatus(
   callback: (event: {type: string, payload: any}) => void,
 ): void {
   client.socket.on(payload.namespace, callback);
+}
+
+export function watchContainerStat(
+  payload: ModelContainer,
+  callback: (stat: ContainerStats) => void,
+): void {
+  client.socket.on(`stat_${payload.dockerID}`, callback);
 }

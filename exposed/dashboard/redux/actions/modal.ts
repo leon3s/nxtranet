@@ -36,7 +36,7 @@ export const openModalForm = createAction<[
   OpenModalFormArgs,
 ], State, OpenModalFormArgs>(
   OPEN_MODAL_FORM, (props) =>
-    props,
+  props,
 );
 
 export const ON_MODAL_FORM_ERROR = defineAction('ON_MODAL_FORM_ERROR');
@@ -50,7 +50,7 @@ export const onModalFormError = createAction<[
 export const CLOSE_MODAL_FORM = defineAction('CLOSE_MODAL_FORM');
 export const closeModalForm = createAction<[
 ], State, void>(
-  CLOSE_MODAL_FORM, () => {},
+  CLOSE_MODAL_FORM, () => { },
 );
 
 export const SET_MODAL_FORM_DATA = defineAction('SET_MODAL_FORM_DATA');
@@ -58,7 +58,7 @@ export const setModalFormData = createAction<[
   any
 ], State, void>(
   SET_MODAL_FORM_DATA, (data) =>
-    data,
+  data,
 );
 
 export const OPEN_MODAL_CONFIRM = defineAction('OPEN_MODAL_CONFIRM');
@@ -66,11 +66,11 @@ export const openModalConfirm = createAction<[
   OpenModalConfirmProps,
 ], State, OpenModalConfirmProps>(
   OPEN_MODAL_CONFIRM, (props) =>
-    props,
+  props,
 );
 
 export const CLOSE_MODAL_CONFIRM = defineAction('CLOSE_MODAL_CONFIRM');
 export const closeModalConfirm = createAction<[
 ], State, void>(
-  CLOSE_MODAL_CONFIRM, () => {},
+  CLOSE_MODAL_CONFIRM, () => { },
 );
