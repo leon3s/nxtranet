@@ -1,6 +1,6 @@
 import type {ModelContainer} from './model.container';
 import type {ModelEnvVar} from './model.envVar';
-import type {ModelGitbranche} from './model.gitBranche';
+import type {ModelGitbranch} from './model.gitBranch';
 import {ModelPipeline} from './model.pipeline';
 import type {ModelProject} from './model.project';
 
@@ -21,7 +21,7 @@ export type ModelCluster = {
   name: string;
   envVars: ModelEnvVar[];
   gitBranchNamespace: string;
-  gitBranch?: ModelGitbranche;
+  gitBranch?: ModelGitbranch;
   host: string;
   hostname: string;
   pipelines: ModelPipeline[];

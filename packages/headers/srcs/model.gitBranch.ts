@@ -1,4 +1,4 @@
-export type ModelGitbranche = {
+export type ModelGitbranch = {
   id: string;
   creationDate?: Date;
   name: string;

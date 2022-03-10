@@ -14,7 +14,7 @@ const ContainerLogs = (props: ContainerLogsProps) => {
     >
       <Style.ContainerLogs
       >
-        {(data.outputs || []).map((output, i) => {
+        {(data.outputs || []).map((output) => {
           if (output.isFirst) {
             return (
               <Style.Command

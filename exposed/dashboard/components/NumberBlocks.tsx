@@ -1,5 +1,4 @@
 import React from 'react';
-import LoadingBackground from './LoadingBackground';
 import * as Style from './NumberBlocks.s';
 
 type NumberBlock = {

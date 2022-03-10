@@ -30,6 +30,10 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     blkio_stats,
     memory_stats,
   } = stat;
+  const diskStat = blkio_stats.io_service_bytes_recursive?.length ?
+    blkio_stats.io_service_bytes_recursive : [{value: 0}, {value: 0}];
+
+
   const numberBlock2 = [
     {
       title: 'Cpu usage',
@@ -41,11 +45,11 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     {
       title: 'Memory usage',
       value:
-        `${((memory_stats.usage - (memory_stats.inactive_file || 0)) / 1000000).toFixed(2)} MB`,
+        `${((memory_stats.usage - (memory_stats.total_inactive_file || 0)) / 1000000).toFixed(2)} MB`,
     },
     {
       title: 'Disk read/write',
-      value: (blkio_stats?.io_service_bytes_recursive || []).reduce((acc: string, item: any, i) => {
+      value: diskStat.reduce((acc: string, item: any) => {
         acc += `${(item.value / 1000).toFixed(2)} kB `;
         return acc;
       }, '')
@@ -57,7 +61,7 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
         ${((networks.eth0.tx_bytes - networks.eth0.tx_packets) / 1000).toFixed(2)} kB
       `
     }
-  ]
+  ];
 
   return (
     <Style.Container>
@@ -69,5 +73,5 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
         data={numberBlock2}
       />
     </Style.Container >
-  )
+  );
 }

@@ -108,6 +108,7 @@ class DashboardProjectContainersContainer extends
 
     }
     let [{ }, { }, ignore, subsubtab] = router.query.all || [] as string[];
+    ignore;
     subsubtab = subsubtab || 'inspect';
     return (
       <React.Fragment>

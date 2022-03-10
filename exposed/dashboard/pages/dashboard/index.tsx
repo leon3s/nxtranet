@@ -12,8 +12,7 @@ import type {Dispatch} from '~/utils/redux';
 
 const actions = {};
 
-const mapStateToprops = (state: State) => ({
-
+const mapStateToprops = ({ }: State) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>

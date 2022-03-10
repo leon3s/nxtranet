@@ -38,17 +38,17 @@ export type ClusterCardProps = {
 const defaultProps = {
   isExtended: false,
   isLoading: true,
-  onClick: () => {},
-  onClickShowContainer: () => {},
-  onClickDeleteEnvVar: () => {},
-  onClickDeleteContainer: () => {},
-  onClickEditEnvVar: () => {},
-  onClickCreateEnvVar: () => {},
-  onClickCreateContainer: () => {},
-  onClickNewContainer: () => {},
-  onClickNewPipelineLink: () => {},
-  onClickPipelineLink: () => {},
-  onClickOpenModalDelete: () => {},
+  onClick: () => { },
+  onClickShowContainer: () => { },
+  onClickDeleteEnvVar: () => { },
+  onClickDeleteContainer: () => { },
+  onClickEditEnvVar: () => { },
+  onClickCreateEnvVar: () => { },
+  onClickCreateContainer: () => { },
+  onClickNewContainer: () => { },
+  onClickNewPipelineLink: () => { },
+  onClickPipelineLink: () => { },
+  onClickOpenModalDelete: () => { },
   data: {
     id: 'testID',
     projectName: 'testProjectName',
@@ -62,6 +62,7 @@ const defaultProps = {
     namespace: 'testNamespace',
     hostname: process.env.NXTRANET_HOSTNAME || "nxtra.net",
     pipelines: [],
+    gitBranch: undefined,
   }
 };
 

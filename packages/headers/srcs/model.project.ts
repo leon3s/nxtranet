@@ -1,5 +1,5 @@
 import type {ModelCluster} from './model.cluster';
-import type {ModelGitbranche} from './model.gitBranche';
+import type {ModelGitbranch} from './model.gitBranch';
 import type {ModelPipeline} from "./model.pipeline";
 
 export type ModelProject = {
@@ -13,5 +13,5 @@ export type ModelProject = {
   github_webhook_secret: string;
   pipelines: ModelPipeline[];
   clusters: ModelCluster[];
-  gitBranches: ModelGitbranche[];
+  gitBranches: ModelGitbranch[];
 }
