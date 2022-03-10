@@ -6,17 +6,15 @@ import {bindActionCreators} from 'redux';
 import Button from '~/components/Button';
 import Text from '~/components/Text';
 import Title from '~/components/Title';
-import {setCounter} from '~/redux/actions/home';
 import type {State} from '~/redux/reducers';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './Home.s';
 
 const actions = {
-  setCounter,
 };
 
-const mapStateToProps = (state: State) => ({
-  counter: state.home.counter,
+const mapStateToProps = ({ }: State) => ({
+  counter: 0,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -32,7 +30,6 @@ class HomeContainer extends
   React.PureComponent<HomeContainerProps> {
 
   onClick = () => {
-    this.props.setCounter(this.props.counter + 1);
   };
 
   render() {

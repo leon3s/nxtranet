@@ -44,7 +44,7 @@ const mapDispatchToProps = (dispatch: Dispatch<State>) =>
 export type DashboardOverviewContainerProps = {
   router: NextRouter;
 } & ReturnType<typeof mapStateToProps>
-& ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapDispatchToProps>;
 
 class DashboardOverviewContainer extends
   React.PureComponent<DashboardOverviewContainerProps> {
@@ -58,17 +58,17 @@ class DashboardOverviewContainer extends
       domainsReqCount,
       networkInterfaces,
     } = this.props;
-  
-    const networkInterface = networkInterfaces.eno1 || networkInterfaces.eth0;
+
+    const networkInterface = networkInterfaces.eno1 || networkInterfaces.eth0 || networkInterfaces.wlp6s0;
     const blocks = [{
       title: 'Public Ip',
       value: networkInterface && networkInterface[0].address || 'unknow',
     }, {
       title: 'Os Uptime',
-      value: uptime,
+      value: uptime.toString(),
     }, {
       title: 'Requests Handled',
-      value: reqCount,
+      value: reqCount.toString(),
     }, {
       title: 'ART',
       value: art.toString(),

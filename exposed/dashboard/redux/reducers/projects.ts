@@ -11,12 +11,13 @@ import {
   clusterDeploy,
   CLUSTER_DEPLOY,
   createClusterPipelineLink,
+  createPipelineCmd,
   createProject,
   createProjectCluster,
   CREATE_CLUSTER_PIPELINE_LINK,
+  CREATE_PIPELINE_CMD,
   CREATE_PROJECT,
-  CREATE_PROJECT_CLUSTER,
-  deleteClusterPipelineLink,
+  CREATE_PROJECT_CLUSTER, CREATE_PROJECT_PIPELINE, deleteClusterPipelineLink,
   DELETE_CLUSTER_PIPELINE_LINK,
   getProjectByName,
   getProjectClusterByName,
@@ -135,7 +136,7 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       current: {
         ...state.current,
         clusters: [
-          ...state.current.clusters,
+          ...(state.current.clusters || []),
           action.payload.data,
         ]
       }
@@ -165,7 +166,7 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       cluster: {
         ...cluster,
         pipelines: [
-          ...cluster.pipelines,
+          ...(cluster.pipelines || []),
           action.payload.pipeline,
         ]
       }
@@ -177,12 +178,13 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
     return ({
       ...state,
       cluster: {
-        ...(cluster),
+        ...cluster,
         pipelines: (cluster.pipelines).filter((pipeline) =>
           pipeline.id !== action.payload.pipelineId
         )
       }
-    });},
+    });
+  },
   [GET_PROJECT_CONTAINERS.FULFILLED]: (state, action: ReducerAction<typeof getProjectContainers>) => ({
     ...state,
     containers: action.payload.data,
@@ -196,6 +198,28 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
     container: action.payload.data,
     isCurrentContainerPending: false,
   }),
+  [CREATE_PROJECT_PIPELINE.FULFILLED]: (state, action: ReducerAction<typeof createProjectCluster>) => {
+    const {current} = state;
+    if (!current) return state;
+    return ({
+      ...state,
+      current: {
+        ...current,
+        pipelines: [...(current.pipelines || []), action.payload.data],
+      }
+    });
+  },
+  [CREATE_PIPELINE_CMD.FULFILLED]: (state, action: ReducerAction<typeof createPipelineCmd>) => {
+    const {pipeline} = state;
+    if (!pipeline) return state;
+    return ({
+      ...state,
+      pipeline: {
+        ...pipeline,
+        commands: [...(pipeline.commands || []), action.payload.data],
+      }
+    })
+  },
   [CLUSTER_DEPLOY.FULFILLED]: (state, action: ReducerAction<typeof clusterDeploy>) => {
     const {cluster} = state;
     if (!cluster) return state;
