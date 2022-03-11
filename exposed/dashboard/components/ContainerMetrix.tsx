@@ -10,7 +10,7 @@ export type ContainerMetrixProps = {
 function calculateCpuUsage(prevCpu: any, currCpu: any) {
   const cpuDelta = currCpu.cpu_usage.total_usage - prevCpu.cpu_usage.total_usage;
   const systemDelta = currCpu.system_cpu_usage - prevCpu.system_cpu_usage;
-  return (cpuDelta / systemDelta * currCpu.cpu_usage.percpu_usage.length * 100).toFixed(2);
+  return (cpuDelta / systemDelta * 100).toFixed(2);
 }
 
 export default function ContainerMetrix(props: ContainerMetrixProps) {
