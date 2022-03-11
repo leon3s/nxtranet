@@ -1,15 +1,8 @@
 import execa from 'execa';
 import path from 'path';
-import {
-  runDir
-} from '../lib/nxtconfig';
-import {
-  ensureRoot, ensureRunDir
-} from '../lib/system';
 
 const dev = async () => {
-  ensureRoot();
-  ensureRunDir(runDir);
+  // ensureRunDir(runDir);
   await execa('sudo', [
     'NODE_ENV=development',
     '-u',
@@ -21,8 +14,7 @@ const dev = async () => {
 }
 
 const prod = async (isAttached?: boolean) => {
-  ensureRoot();
-  ensureRunDir(runDir);
+  // ensureRunDir(runDir);
   if (isAttached) {
     const res = await execa('sudo', [
       'NODE_ENV=production',

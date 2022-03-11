@@ -7,7 +7,15 @@ export type ContainerMetrixProps = {
 }
 
 function calculatePercent(n1: number, n2: number) {
-  return (n2 / n1 * 100).toFixed(2);
+  return (n2 / n1).toFixed(2);
+}
+
+function calculateCpuUsage(prevCpu: any, currCpu: any) {
+  const cpuDelta = currCpu.cpu_usage.total_usage - prevCpu.cpu_usage.total_usage;
+  const systemDelta = currCpu.system_cpu_usage - prevCpu.system_cpu_usage;
+
+  console.log(cpuDelta, systemDelta);
+  return (cpuDelta / systemDelta * currCpu.cpu_usage.percpu_usage.length * 100).toFixed(2);
 }
 
 export default function ContainerMetrix(props: ContainerMetrixProps) {
@@ -27,6 +35,7 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
   const {
     networks,
     cpu_stats,
+    precpu_stats,
     blkio_stats,
     memory_stats,
   } = stat;
@@ -37,9 +46,9 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
   const numberBlock2 = [
     {
       title: 'Cpu usage',
-      value: calculatePercent(
-        cpu_stats.system_cpu_usage,
-        cpu_stats.cpu_usage.total_usage,
+      value: calculateCpuUsage(
+        precpu_stats,
+        cpu_stats,
       ).toString(),
     },
     {
@@ -49,7 +58,8 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     },
     {
       title: 'Disk read/write',
-      value: diskStat.reduce((acc: string, item: any) => {
+      value: diskStat.reduce((acc: string, item: any, i: number) => {
+        if (i > 1) return acc;
         acc += `${(item.value / 1000).toFixed(2)} kB `;
         return acc;
       }, '')
@@ -57,8 +67,8 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     {
       title: 'Network I/O',
       value: `
-        ${((networks.eth0.rx_bytes - networks.eth0.rx_packets) / 1000).toFixed(2)} kB
-        ${((networks.eth0.tx_bytes - networks.eth0.tx_packets) / 1000).toFixed(2)} kB
+        ${((networks.eth0.rx_bytes - networks.eth0.rx_packets) / 1000000).toFixed(2)} MB
+        ${((networks.eth0.tx_bytes - networks.eth0.tx_packets) / 1000000).toFixed(2)} MB
       `
     }
   ];
