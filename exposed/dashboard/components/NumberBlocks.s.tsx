@@ -19,8 +19,8 @@ export const NumberBlock = Styled.div`
   overflow: hidden;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid transparent;
   ${props => `
+    border: 1px solid ${props.theme.border.color.default};
     border-radius: ${props.theme.borderRadius};
     background-color: ${props.theme.view.background.primary};
     box-shadow: ${props.theme.boxShadowAdvenced};

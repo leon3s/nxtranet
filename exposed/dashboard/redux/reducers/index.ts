@@ -1,11 +1,13 @@
 import {combineReducers} from 'redux';
-
 import modal from './modal';
+import nginx from './nginx';
 import overview from './overview';
 import projects from './projects';
 
+
 const reducers = combineReducers({
   modal,
+  nginx,
   overview,
   projects,
 });

@@ -54,7 +54,6 @@ class DashboardHeader extends
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.onScrollPtr);
-    console.log('UN MOUNTING');
   }
 
   onScrollPtr = (): void => {

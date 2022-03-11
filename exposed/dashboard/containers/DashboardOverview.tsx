@@ -1,26 +1,15 @@
-import dynamic from 'next/dynamic';
 import {NextRouter, withRouter} from 'next/router';
 import React from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import DashboardContent from '~/components/DashboardContent';
 import DashboardTitle from '~/components/DashboardTitle';
-import LoadingBackground from '~/components/LoadingBackground';
-import BarChart from '~/components/MetrixBarChart';
+import MetrixBarChartDynamic from '~/components/MetrixBarChartDynamic';
 import NumberBlocks from '~/components/NumberBlocks';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
 import {clearProjectCluster, getProjectClusterByName} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {Dispatch} from '~/utils/redux';
-import * as Style from './DashboardOverview.s';
-
-const MetrixBarChart = dynamic(
-  async (): Promise<typeof BarChart> => import("../components/MetrixBarChart").then((mod) => mod.default),
-  {
-    ssr: false,
-    loading: () => <LoadingBackground />,
-  }
-);
 
 const actions = {
   openModalForm,
@@ -82,25 +71,15 @@ class DashboardOverviewContainer extends
         <NumberBlocks
           data={blocks}
         />
-        <Style.BarChartContainer>
-          <Style.BarCharTitle>
-            Most visited domains
-          </Style.BarCharTitle>
-          <MetrixBarChart
-            data={domainsReqCount}
-            color="#ff4d2a"
-          />
-        </Style.BarChartContainer>
-        <Style.BarChartContainer>
-          <Style.BarCharTitle>
-            Requests status
-          </Style.BarCharTitle>
-          <MetrixBarChart
-            data={statusReqCount}
-            color="#ff4d2a"
-          />
-        </Style.BarChartContainer>
-      </DashboardContent>
+        <MetrixBarChartDynamic
+          title="Most visited domains"
+          data={domainsReqCount}
+        />
+        <MetrixBarChartDynamic
+          title="Requests status"
+          data={statusReqCount}
+        />
+      </DashboardContent >
     );
   }
 }

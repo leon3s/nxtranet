@@ -9,12 +9,14 @@ export const Nav = Styled.div`
   max-width: 100%;
   display: flex;
   flex: 1;
-  overflow-x: scroll;
+  height: 50px;
+  overflow-y: scroll;
 `;
 
 export const NavContent = Styled.div`
   display: inline-flex;
   flex: 1;
+  height: 50px;
 `;
 
 export const NavTabContainer = Styled.div`

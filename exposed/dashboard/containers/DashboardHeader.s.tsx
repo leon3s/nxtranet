@@ -137,15 +137,16 @@ export const MenuNavContainer = Styled.div<StickyProps>`
   display: flex;
   transform: translate3d(-30px, 0, 0);
   transition: transform .25s ease;
+  ${props => `
+  ${props.sticky ? `
   @media (max-width: 901px) {
-    top: 6px;
-    max-width: calc(100% - 12px);
-  }
-${props => `
-${props.sticky ? `
-  @media (max-width: 901px) {
-    max-width: calc(100% - 60px);
+    max-width: calc(100% - 55px);
   }
   transform: translate3d(0, 0, 0);
-`: ``}
-`}`;
+  `: ``}
+  `}`;
+
+  // @media (max-width: 901px) {
+  //   top: 6px;
+  //   max-width: calc(100% - 12px);
+  // }

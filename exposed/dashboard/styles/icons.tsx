@@ -10,6 +10,7 @@ import {IoMdCube} from 'react-icons/io';
 import {MdDangerous, MdOutlineQueryStats, MdOutlineRemove} from 'react-icons/md';
 import {RiSettings2Line} from 'react-icons/ri';
 import {SiDocker, SiNginx} from 'react-icons/si';
+import {VscFile, VscFiles} from 'react-icons/vsc';
 
 export const IconCluster = AiOutlineCluster;
 export const IconPipeline = GiMatterStates;
@@ -30,9 +31,11 @@ export const IconDocker = SiDocker;
 export const IconDnsmasq = FaMask;
 export const IconContainerLog = GrTextAlignLeft;
 export const IconContainerInspect = AiOutlineEye;
+export const IconFile = VscFile;
+export const IconFiles = VscFiles;
 
 export type Icons = "IconCluster" | "IconPipeline" | "IconContainer" |
   "IconSetting" | "IconMetrix" | "IconEnvVar" | "IconPlus" | "IconOverview" |
-    "IconDelete" | "IconProject" | "IconProjectOpen" | "IconNginx" | "IconWarning" |
-    "IconConfirm" | "IconPipelineCmd" | "IconDocker" | "IconDnsmasq"
-    | "IconContainerLog" | "IconContainerInspect";
+  "IconDelete" | "IconProject" | "IconProjectOpen" | "IconNginx" | "IconWarning" |
+  "IconConfirm" | "IconPipelineCmd" | "IconDocker" | "IconDnsmasq"
+  | "IconContainerLog" | "IconContainerInspect" | "IconFile" | "IconFiles";

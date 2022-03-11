@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Style from './ContainerMetrix.s';
+import MetrixBarChartDynamic from './MetrixBarChartDynamic';
 import NumberBlocks from './NumberBlocks';
 
 export type ContainerMetrixProps = {
@@ -25,7 +26,7 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     }
   ];
   const {stat} = data;
-  console.log(stat);
+  console.log(data);
   const {
     networks,
     cpu_stats,
@@ -35,7 +36,6 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
   } = stat;
   const diskStat = blkio_stats.io_service_bytes_recursive?.length ?
     blkio_stats.io_service_bytes_recursive : [{value: 0}, {value: 0}];
-
 
   const numberBlock2 = [
     {
@@ -75,6 +75,10 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
       <Style.Spacer />
       <NumberBlocks
         data={numberBlock2}
+      />
+      <MetrixBarChartDynamic
+        title="Requests status"
+        data={data.rsc}
       />
     </Style.Container >
   );
