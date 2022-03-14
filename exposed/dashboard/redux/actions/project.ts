@@ -292,3 +292,23 @@ export const getContainerMetrixByName = createAction<[
   GET_CONTAINER_METRIX_BY_NAME, (name) =>
   ({ }, { }, api) => api.get(`/metrix/containers/${name}`)
 );
+
+export const DELETE_PROJECT_CLUSTER = defineAction('DELETE_PROJECT_CLUSTER');
+export const deleteProjectCluster = createAction<[
+  string,
+  string
+], State, Promise<string>>(
+  DELETE_PROJECT_CLUSTER, (projectName, clusterId) =>
+  async ({ }, { }, api) => {
+    await api.delete(`/projects/${projectName}/clusters`, {
+      params: {
+        filter: {
+          where: {
+            id: clusterId,
+          }
+        }
+      }
+    })
+    return clusterId;
+  }
+)

@@ -40,7 +40,7 @@ export type DashboardProjectClustersContainerProps = {
   tab: string;
   subtab: string;
 } & ReturnType<typeof mapStateToProps>
-& ReturnType<typeof mapDispatchToProps>;
+  & ReturnType<typeof mapDispatchToProps>;
 
 type DashboardProjectClustersContainerState = {
   isModalPipelineLinkOpen: boolean;
@@ -103,7 +103,7 @@ class DashboardProjectClustersContainer extends
 
   onClickClusterRx = (cluster: ModelCluster) => {
     const {router} = this.props;
-    const [{}, {}, subtab] = router.query.all as string[];
+    const [{ }, { }, subtab] = router.query.all as string[];
     this.props.clearProjectCluster();
     if (this.controller) {
       this.controller.abort();
@@ -175,6 +175,16 @@ class DashboardProjectClustersContainer extends
     });
   };
 
+  onClickDeleteCluster = (cluster: ModelCluster) => {
+    const {projectName} = this.props;
+    this.props.openModalConfirm({
+      title: `Are you sure to delete cluster ${cluster.name} ?`,
+      description: 'This action will delete all containers inside and it\'s not reversible.',
+      onConfirmKey: 'deleteProjectCluster',
+      onConfirmArgs: [projectName, cluster.id],
+    });
+  }
+
   render() {
     const {
       tab,
@@ -216,6 +226,7 @@ class DashboardProjectClustersContainer extends
               key={clusterRow.id}
               onClick={this.onClickClusterRx}
               isLoading={isClusterPending}
+              onClickOpenModalDelete={this.onClickDeleteCluster}
               isExtended={clusterRow.name === subtab}
               isVisible={!subtab ? true : clusterRow.name === subtab}
               data={cluster && subtab && (clusterRow.name === subtab) ? cluster : clusterRow}

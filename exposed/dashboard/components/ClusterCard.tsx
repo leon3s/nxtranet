@@ -6,7 +6,7 @@ import type {
 import {ModelClusterType} from '@nxtranet/headers';
 import Link from 'next/link';
 import React from 'react';
-import {IconCluster, IconDelete, IconPlus, IconSetting} from '~/styles/icons';
+import {IconCluster, IconDelete, IconPlus} from '~/styles/icons';
 import Accordion from './Accordion';
 import * as AccordionCard from './AccordionCard';
 import ActionBar, {ActionWrapper} from './ActionBar';
@@ -168,14 +168,9 @@ function ClusterCard(props: ClusterCardProps) {
                     </AccordionCard.AccordionTitle>
                     <Style.ClusterCardTitleActions>
                       <ActionWrapper
-                        isVisible={false}
+                        isVisible={true}
                       >
                         <ActionBar actions={[
-                          {
-                            title: 'Edit',
-                            icon: () => <IconSetting size={12} />,
-                            fn: onClickOpenModalEdit,
-                          },
                           {
                             title: 'Delete',
                             icon: () => <IconDelete size={12} />,
