@@ -102,11 +102,6 @@ function ClusterCard(props: ClusterCardProps) {
       && props.onClickNewContainer();
   }
 
-  function onClickOpenModalEdit(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-
   function onClickOpenModalDelete(e: React.MouseEvent<HTMLButtonElement>) {
     e.preventDefault();
     e.stopPropagation();

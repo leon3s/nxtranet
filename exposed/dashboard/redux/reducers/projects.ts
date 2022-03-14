@@ -21,6 +21,7 @@ import {
   CREATE_PROJECT_CLUSTER,
   CREATE_PROJECT_PIPELINE,
   deleteClusterPipelineLink,
+  deleteProjectCluster,
   DELETE_CLUSTER_PIPELINE_LINK,
   DELETE_PROJECT_CLUSTER,
   getContainerMetrixByName,
@@ -256,9 +257,9 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
       containerMetrix: action.payload.data,
     }),
   [DELETE_PROJECT_CLUSTER.FULFILLED]:
-    (state, action) => {
+    (state, action: ReducerAction<typeof deleteProjectCluster>) => {
       const {current} = state;
-      if (!current) return;
+      if (!current) return state;
       return ({
         ...state,
         current: {
