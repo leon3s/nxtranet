@@ -20,6 +20,7 @@ export type NxtUserConfig = {
   nxtranet: {
     domain: string;
     host: string;
+    public_host: string;
   };
   docker: {
     host: string;

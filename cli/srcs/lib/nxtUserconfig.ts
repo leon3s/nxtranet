@@ -12,10 +12,17 @@ function extractHost(s: string) {
   return ret[1];
 }
 
-function extractDomain(s: string) {
+function extractDomain(sConfig: string) {
   const domainReg = /domain\ *(.*);/;
-  const ret = s.match(domainReg);
+  const ret = sConfig.match(domainReg);
   if (!ret) throw new Error('Error domain not found in nxtranet block.');
+  return ret[1];
+}
+
+function extractPublicHost(sConfig: string) {
+  const publicHostReg = /public_host\ *(.*);/;
+  const ret = sConfig.match(publicHostReg);
+  if (!ret) throw new Error('Error public host not found in nxtranet block.');
   return ret[1];
 }
 
@@ -30,9 +37,11 @@ function parseNxtranetBlock(sConfig: string) {
   const nxtranetBlock = extractNextranetBlock(sConfig);
   const host = extractHost(nxtranetBlock);
   const domain = extractDomain(nxtranetBlock);
+  const public_host = extractPublicHost(nxtranetBlock);
   return {
     host,
     domain,
+    public_host,
   }
 }
 
@@ -66,6 +75,7 @@ export function userConfigToEnv(userConfig: NxtUserConfig) {
     `NXTRANET_HOST=${userConfig.nxtranet.host}`,
     `NXTRANET_DOMAIN=${userConfig.nxtranet.domain}`,
     `NXTRANET_DOCKER_HOST=${userConfig.docker.host}`,
+    `NXTRANET_PUBLIC_HOST=${userConfig.nxtranet.public_host}`,
   ];
 }
 
