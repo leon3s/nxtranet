@@ -37,7 +37,9 @@ import {
   GET_PROJECT_CLUSTER_BY_NAME,
   GET_PROJECT_CONTAINER,
   GET_PROJECT_CONTAINERS,
-  GET_PROJECT_PIPELINE_BY_NAMESPACE
+  GET_PROJECT_PIPELINE_BY_NAMESPACE,
+  ON_CONTAINER_NEW_OUTPUT,
+  ON_CONTAINER_STAT
 } from '../actions/project';
 
 export type ProjectsState = {
@@ -267,7 +269,32 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
           clusters: current.clusters.filter(({id}) => id !== action.payload)
         }
       })
-    }
+    },
+  [ON_CONTAINER_NEW_OUTPUT.ON_EVENT]: (state, action) => {
+    const {container} = state;
+    if (!container) return state;
+    return ({
+      ...state,
+      container: {
+        ...container,
+        outputs: [
+          ...(container.outputs || []),
+          action.payload,
+        ]
+      }
+    })
+  },
+  [ON_CONTAINER_STAT.ON_EVENT]: (state, action) => {
+    const {containerMetrix} = state;
+    if (!containerMetrix) return state;
+    return ({
+      ...state,
+      containerMetrix: {
+        ...containerMetrix,
+        stat: action.payload,
+      }
+    })
+  }
 };
 
 const reducer = createReducer<ProjectsState>(initialState, reducerHooks);

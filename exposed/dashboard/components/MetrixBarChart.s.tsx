@@ -1,6 +1,5 @@
 import Styled from 'styled-components';
 import Label from './Label';
-import Text from './Text';
 import Title from './Title';
 
 export const Container = Styled.div`
@@ -23,6 +22,10 @@ export const MetrixBarCharTitle = Styled(Title)`
 export const TooltipsContainer = Styled.div`
   background-color: white;
   border-radius: 4px;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   padding: 8px;
   ${props => `
     border: 1px solid ${props.theme.border.color.default};
@@ -31,10 +34,13 @@ export const TooltipsContainer = Styled.div`
 
 export const TooltipsLabel = Styled(Label)`
   margin: 0px;
+  width: 100%;
+  text-align: center;
 `;
 
-export const TooltipsValue = Styled(Text)`
+export const TooltipsValue = Styled(Label)`
   margin: 0px;
+  width: 100%;
   text-align: center;
   ${props => `
     color: ${props.theme.text.color.colored};

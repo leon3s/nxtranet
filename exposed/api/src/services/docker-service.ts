@@ -105,14 +105,12 @@ export
           dockerID: newStat.dockerID,
         }
       });
-      let statDB;
       if (!containerStatDB) {
-        statDB = this.containerStatRepository.create(newStat);
+        await this.containerStatRepository.create(newStat);
       } else {
-        statDB = this.containerStatRepository.updateById(containerStatDB.id, newStat);
+        await this.containerStatRepository.updateById(containerStatDB.id, newStat);
       }
-      this.webSocketService.io.emit(container.namespace, statDB);
-      return statDB;
+      this.webSocketService.io.emit(`${container.namespace}_stat`, newStat);
     });
   }
 
@@ -127,7 +125,7 @@ export
           ...output.payload,
           containerNamespace: container.namespace,
         });
-        this.webSocketService.io.emit(container.namespace, containerOuputDB);
+        this.webSocketService.io.emit(`${container.namespace}_output`, containerOuputDB);
       }
     });
   }

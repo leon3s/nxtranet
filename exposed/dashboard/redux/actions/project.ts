@@ -1,7 +1,6 @@
 import {
   ModelCluster,
-  ModelContainer,
-  ModelPipeline,
+  ModelContainer, ModelPipeline,
   ModelPipelineCmd,
   ModelProject
 } from '@nxtranet/headers';
@@ -310,5 +309,58 @@ export const deleteProjectCluster = createAction<[
       }
     })
     return clusterId;
+  }
+)
+
+export const ON_CONTAINER_NEW_OUTPUT = defineAction('ON_CONTAINER_NEW_OUTPUT');
+export const onContainerNewInput = createAction<[
+  string
+], State, void>(
+  ON_CONTAINER_NEW_OUTPUT, (containerNamespace) =>
+  (dispatch, { }, api) => {
+    api.socket.on(`${containerNamespace}_output`, (output) => {
+      console.log('NEW output !!! ', output);
+      dispatch({
+        type: ON_CONTAINER_NEW_OUTPUT.ON_EVENT,
+        payload: output,
+      });
+    })
+  }
+)
+
+export const ON_CONTAINER_STAT = defineAction('ON_CONTAINER_STAT');
+export const onContainerStat = createAction<[
+  string
+], State, void>(
+  ON_CONTAINER_STAT, (containerNamespace) =>
+  (dispatch, { }, api) => {
+    console.log('listening on new stat ! ', containerNamespace);
+    api.socket.on(`${containerNamespace}_stat`, (stat) => {
+      console.log('NEW STAT !!! ', stat);
+      dispatch({
+        type: ON_CONTAINER_STAT.ON_EVENT,
+        payload: stat,
+      });
+    })
+  }
+)
+
+export const OFF_CONTAINER_STAT = defineAction('OFF_CONTAINER_STAT');
+export const offContainerStat = createAction<[
+  string
+], State, void>(
+  OFF_CONTAINER_STAT, (containerNamespace) =>
+  ({ }, { }, api) => {
+    api.socket.removeAllListeners(`${containerNamespace}_stat`);
+  }
+)
+
+export const OFF_CONTAINER_NEW_OUTPUT = defineAction('OFF_CONTAINER_NEW_OUTPUT');
+export const offContainerNewInput = createAction<[
+  string
+], State, void>(
+  OFF_CONTAINER_NEW_OUTPUT, (containerNamespace) =>
+  ({ }, { }, api) => {
+    api.socket.removeAllListeners(`${containerNamespace}_output`);
   }
 )

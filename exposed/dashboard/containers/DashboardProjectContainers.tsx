@@ -11,11 +11,12 @@ import ContainerMetrix from '~/components/ContainerMetrix';
 import DashboardTitle from '~/components/DashboardTitle';
 import MenuNav, {MenuNavItem} from '~/components/MenuNav';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
-import {getContainerMetrixByName, getProjectContainer, getProjectContainers} from '~/redux/actions/project';
+import {getContainerMetrixByName, getProjectContainer, getProjectContainers, offContainerNewInput, offContainerStat, onContainerNewInput, onContainerStat} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {IconContainerInspect, IconContainerLog, IconMetrix} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardProjectContainers.s';
+
 
 
 const actions = {
@@ -24,6 +25,10 @@ const actions = {
   getProjectContainers,
   openModalForm,
   openModalConfirm,
+  onContainerNewInput,
+  onContainerStat,
+  offContainerStat,
+  offContainerNewInput,
 };
 
 const mapStateToProps = (state: State) => ({
@@ -69,20 +74,39 @@ class DashboardProjectContainersContainer extends
   React.PureComponent<DashboardProjectContainersContainerProps> {
 
   componentDidMount() {
-    const {projectName, subtab} = this.props;
+    const {projectName, subtab, container} = this.props;
     this.props.getProjectContainers(projectName);
     if (subtab) {
       this.props.getProjectContainer(projectName, subtab);
       this.props.getContainerMetrixByName(subtab);
     }
+    if (container) {
+      this.props.onContainerStat(container.namespace);
+      this.props.onContainerNewInput(container.namespace);
+    }
   }
 
   componentDidUpdate(prevProps: DashboardProjectContainersContainerProps) {
-    const {projectName, subtab} = this.props;
+    const {projectName, subtab, container} = this.props;
     if (!prevProps.subtab && subtab) {
       this.props.getProjectContainer(projectName, subtab);
       this.props.getContainerMetrixByName(subtab);
     }
+    if (!prevProps.container && container) {
+      this.props.onContainerStat(container.namespace);
+      this.props.onContainerNewInput(container.namespace);
+    }
+    if (!container && prevProps.container) {
+      this.props.offContainerStat(prevProps.container.namespace);
+      this.props.offContainerNewInput(prevProps.container.namespace);
+    }
+  }
+
+  componentWillUmount() {
+    const {container} = this.props;
+    if (!container) return;
+    this.props.offContainerStat(container.namespace);
+    this.props.offContainerNewInput(container.namespace);
   }
 
   onClickDeleteContainer = (container: ModelContainer) => {
