@@ -33,7 +33,6 @@ export class ProjectContainerController {
     @param.path.string('name') name: string,
     @param.query.object('filter') filter?: Filter<Container>,
   ): Promise<Container[]> {
-    console.log('filter !')
     return this.containerRepo.find({
       ...(filter || {}),
       where: {

@@ -46,7 +46,6 @@ export class ProjectPipelineController {
     @param.path.string('name') name: string,
     @param.filter(Pipeline) filter?: Filter<Pipeline>,
   ): Promise<Pipeline[]> {
-    console.log(getWhereSchemaFor(Pipeline));
     return this.projectRepository.pipelines(name).find(filter);
   }
 

@@ -101,10 +101,6 @@ export class NginxController {
     })
     content: string,
   ): Promise<string> {
-    console.log({
-      filename,
-      content,
-    })
     await this.nginxService.writeSiteAvailable(filename, content);
     return "Ok";
   }

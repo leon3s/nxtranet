@@ -17,9 +17,7 @@ export const webSocket = async (lb4App: NextranetApi, io: IoServer.Server) => {
   // const authMiddleware = await auth(lb4App);
   // io.use(authMiddleware);
   io.on('connection', (socket) => {
-    console.log('socket connected with id ', socket.id);
     socket.on('disconnect', () => {
-      console.log('socket disconnected with id ', socket.id);
     });
   });
 }

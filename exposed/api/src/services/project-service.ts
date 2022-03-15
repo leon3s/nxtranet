@@ -48,7 +48,7 @@ export default
   boot = async () => {
     this.nginxService.monitorAccessLog(async (err, log) => {
       if (err) {
-        console.error(err);
+        console.error('Nginx monitoring error : ', err);
         return;
       }
       await this.nginxAccessLogRepository.create(log);
@@ -64,7 +64,6 @@ export default
       ]
     });
     await Promise.all(containers.map(async (container) => {
-      console.log(container)
       if (container?.state?.Running) {
         await this.dockerService.attachContainer(container);
       } else {
@@ -88,7 +87,6 @@ export default
 
   dockerHookClusterDeploy = async (cluster: Cluster, opts: DeployPayload) => {
     const {branchName, lastCommit, isGeneratedDeploy, isProduction} = opts;
-    console.log('im called !');
     const container = await this.dockerService.clusterDeploy({
       commitSHA: lastCommit,
       isProduction: isProduction || false,
@@ -184,32 +182,35 @@ export default
     await this.nginxService.reloadService();
   }
 
+  deleteContainers = (containers: Container[]) => {
+    return Promise.all(containers.map(async (container) => {
+      return this.deleteContainer(container);
+    }));
+  }
+
   deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
-    if (cluster.type === ModelClusterType.SCALING) { // deploy for production means real ip binding to serve the project.
-      const containersToDelete = await this.containerRepository.find({
-        where: {
-          clusterNamespace: cluster.namespace,
-        }
-      });
+    const containersToDelete = await this.containerRepository.find({
+      where: {
+        clusterNamespace: cluster.namespace,
+      }
+    });
+    if (cluster.type === ModelClusterType.SCALING) {
+      // If cluster is in scalling mode we deploy like if it for production
       const containers = await this.deployProd(cluster, opts);
       this.deployBGProd(cluster, containers)
-        .then(() => {
-          // setTimeout(() => {
-          //   return Promise.all(containersToDelete.map(async (container) => {
-          //     return this.deleteContainer(container);
-          //   }));
-          // })
-        })
-        .catch((err) => {
-          console.error('deployDB Prod error ', err);
-        });
+        .then(() => this.deleteContainers(containersToDelete))
+        .catch((err) => console.error('deployDB Prod error ', err));
       return containers;
-    } else { // Deploy for any others cases //
+    } else {
+      // Else we deploy like any others cases //
       const container = await this.deployDev(cluster, opts);
       this.deployBGDev(cluster, container, opts)
-        .catch((err) => {
-          console.error('deployBG Dev error ', err);
-        });
+        .then(() => {
+          if (cluster.type !== ModelClusterType.TESTING) {
+            return this.deleteContainers(containersToDelete);
+          }
+        })
+        .catch((err) => console.error('deployBG Dev error ', err));
       return [container];
     }
   }

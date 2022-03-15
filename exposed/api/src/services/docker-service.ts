@@ -76,15 +76,15 @@ export
   }
 
   deleteContainer = async (container: Container) => {
-    try {
-      await this._client.containersRemove({
-        Id: container.dockerID,
-      });
-      // Still delete everything if docker container doesn't exist anymore.
-    } catch (e) { }
+    await this._client.containersRemove({
+      Id: container.dockerID,
+    }).catch((err) => {
+      console.error('Error while removing container in docker :', err);
+    });
     await this.containerRepository.state(container.namespace).delete();
     await this.containerRepository.outputs(container.namespace).delete();
     await this.containerRepository.pipelineStatus(container.namespace).delete();
+    await this.containerRepository.stat(container.dockerID).delete();
     return this.containerRepository.deleteById(container.id);
   }
 
