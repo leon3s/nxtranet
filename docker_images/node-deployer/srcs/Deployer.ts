@@ -208,41 +208,43 @@ export default class Deployer {
       isLast: false,
       isFirst: true,
     });
-    this.project = this.hookCmd({
-      exe: cmd.name,
-      args: cmd.args,
-      env: envVars,
-      cwd: projectDir,
-    });
-    this.project.then((child) => {
-      this._emitAction('cmd', {
+    setTimeout(() => {
+      this.project = this.hookCmd({
         exe: cmd.name,
-        cwd: projectDir,
         args: cmd.args,
-        isLast: true,
-        isFirst: false,
-        signal: child.signal,
-        exitCode: child.exitCode,
-        signalDescription: child.signalDescription,
-      });
-    })
-    this.project.catch((err) => {
-      this._emitAction('cmd', {
-        exe: cmd.name,
+        env: envVars,
         cwd: projectDir,
-        args: cmd.args,
-        isLast: true,
-        isFirst: false,
-        signal: err.signal,
-        exitCode: err.exitCode,
-        signalDescription: err.signalDescription,
       });
-      this._emitAction('pipelineStatus', {
-        pipelineNamespace: cmd.pipelineNamespace,
-        value: 'failed',
-        error: JSON.stringify(err),
+      this.project.then((child) => {
+        this._emitAction('cmd', {
+          exe: cmd.name,
+          cwd: projectDir,
+          args: cmd.args,
+          isLast: true,
+          isFirst: false,
+          signal: child.signal,
+          exitCode: child.exitCode,
+          signalDescription: child.signalDescription,
+        });
+      })
+      this.project.catch((err) => {
+        this._emitAction('cmd', {
+          exe: cmd.name,
+          cwd: projectDir,
+          args: cmd.args,
+          isLast: true,
+          isFirst: false,
+          signal: err.signal,
+          exitCode: err.exitCode,
+          signalDescription: err.signalDescription,
+        });
+        this._emitAction('pipelineStatus', {
+          pipelineNamespace: cmd.pipelineNamespace,
+          value: 'failed',
+          error: JSON.stringify(err),
+        });
       });
-    });
+    }, 200);
   }
 
   private _emitAction = (type: string, payload: any) => {

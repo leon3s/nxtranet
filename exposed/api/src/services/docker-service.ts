@@ -48,8 +48,8 @@ export
   }
 
   startContainer = async (container: Container) => {
+    await this.watchContainer(container);
     await this._client.containersStart(container);
-    this.watchContainer(container);
     await this.whenContainerReady(container);
   }
 
@@ -89,8 +89,8 @@ export
   }
 
   attachContainer = async (container: Container) => {
+    await this.watchContainer(container);
     this._client.containersAttach(container);
-    this.watchContainer(container);
   }
 
   watchContainerStat = async (container: Container) => {

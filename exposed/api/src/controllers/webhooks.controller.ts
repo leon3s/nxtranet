@@ -55,9 +55,7 @@ export class WebhooksController {
       include: [{
         relation: 'clusters',
         scope: {
-          include: ['gitBranch', {
-            relation: 'production',
-          }],
+          include: ['gitBranch'],
         },
       }],
     });
