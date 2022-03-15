@@ -105,10 +105,14 @@ export
           dockerID: newStat.dockerID,
         }
       });
+      let statDB;
       if (!containerStatDB) {
-        return this.containerStatRepository.create(newStat);
+        statDB = this.containerStatRepository.create(newStat);
+      } else {
+        statDB = this.containerStatRepository.updateById(containerStatDB.id, newStat);
       }
-      return this.containerStatRepository.updateById(containerStatDB.id, newStat);
+      this.webSocketService.io.emit(container.namespace, statDB);
+      return statDB;
     });
   }
 
