@@ -42,7 +42,7 @@ export class DnsmasqService {
     });
     const data = projects.reduce((acc, project) => {
       const {clusters} = project;
-      acc += clusters.reduce((acc, cluster) => {
+      acc += (clusters || []).reduce((acc, cluster) => {
         acc += this.generateForCluster(cluster);
         acc += this.generateForContainers(cluster, cluster.containers || []);
         return acc;
