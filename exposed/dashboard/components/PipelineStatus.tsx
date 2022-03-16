@@ -9,8 +9,8 @@ export type PipelineStatusProps = {
 const opacityStatus = {
   [PipelineStatusEnum.FAILED]: 'red',
   [PipelineStatusEnum.ONLINE]: 'green',
-  [PipelineStatusEnum.PASSED]: 'purple',
-  [PipelineStatusEnum.STARTING]: 'cyan',
+  [PipelineStatusEnum.PASSED]: 'cyan',
+  [PipelineStatusEnum.STARTING]: 'grey',
 };
 
 const PipelineStatus = Styled.div<PipelineStatusProps>`
