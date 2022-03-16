@@ -156,10 +156,14 @@ export
       const timeout = setTimeout(async () => {
         const pipelineStatus = await this.containerRepository.pipelineStatus(container.namespace).get({
           fields: ['pipelineNamespace', 'containerNamespace', 'creationDate'],
+        }).catch((err) => {
+          reject(err);
         });
         await this.pipelineStatusRepository.createOrUpdate({
           ...pipelineStatus,
           value: PipelineStatusEnum.FAILED,
+        }).catch((err) => {
+          reject(err);
         });
         clearInterval(interval);
         reject(new Error('Container timeout after 1200000ms.'));
