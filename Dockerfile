@@ -18,7 +18,11 @@ RUN apt-get install bash -y
 RUN apt-get install nginx nginx-extras -y
 RUN apt-get install dnsmasq -y
 RUN apt-get install mongodb -y
-RUN apt-get install docker-compose -y
+RUN sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+RUN sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+RUN sudo apt-get update -y
+RUN sudo apt-get install docker-ce -y
 
 RUN useradd -m nxtranet
 RUN usermod -aG sudo nxtranet
@@ -35,6 +39,8 @@ RUN sudo cp -r ./bin ./include ./lib ./share /usr
 RUN rm /tmp/_node.tar
 RUN rm -r /tmp/node-v16.13.0-linux-x64
 
+RUN sudo npm install -g npm@latest
+
 # Install nxtranet
 WORKDIR /home/nxtranet
 RUN git clone https://github.com/leon3s/nxtranet nxtranet
@@ -46,6 +52,13 @@ RUN sudo nxtranet install
 RUN sudo cp ../config/sudoers/docker-sudoers /etc/sudoers
 RUN sudo cp ../config/sudoers/nxtsrv /etc/sudoers.d/nxtsrv
 RUN sudo cp ../config/dnsmasq/dnsmasq.docker.conf /etc/dnsmasq.conf
+RUN sudo service nginx start
+RUN sudo service mongodb start
+RUN sudo service dnsmasq start
+RUN sudo apt-get install docker -y
+RUN sudo cat /etc/os-release
+RUN sudo service docker start
+RUN sudo nxtranet test
 
 EXPOSE 80/tcp
 EXPOSE 53/udp

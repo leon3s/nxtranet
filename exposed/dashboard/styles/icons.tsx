@@ -1,9 +1,14 @@
 import {
   AiFillFolder,
-  AiFillFolderOpen, AiOutlineCluster, AiOutlineEye, AiOutlinePlus, AiOutlineQuestionCircle
+  AiOutlineEye,
+  AiOutlinePlus,
+  AiOutlineCluster,
+  AiFillFolderOpen,
+  AiOutlineQuestionCircle,
 } from 'react-icons/ai';
-import {FaMask, FaTerminal} from 'react-icons/fa';
+import {FaMask, FaTerminal, FaSave} from 'react-icons/fa';
 import {GiMatterStates} from 'react-icons/gi';
+import {MdEdit} from 'react-icons/md';
 import {GrTextAlignLeft} from 'react-icons/gr';
 import {HiOutlineViewGrid, HiVariable} from 'react-icons/hi';
 import {IoMdCube} from 'react-icons/io';
@@ -33,9 +38,12 @@ export const IconContainerLog = GrTextAlignLeft;
 export const IconContainerInspect = AiOutlineEye;
 export const IconFile = VscFile;
 export const IconFiles = VscFiles;
+export const IconEdit = MdEdit;
+export const IconSave = FaSave;
 
 export type Icons = "IconCluster" | "IconPipeline" | "IconContainer" |
   "IconSetting" | "IconMetrix" | "IconEnvVar" | "IconPlus" | "IconOverview" |
   "IconDelete" | "IconProject" | "IconProjectOpen" | "IconNginx" | "IconWarning" |
   "IconConfirm" | "IconPipelineCmd" | "IconDocker" | "IconDnsmasq"
-  | "IconContainerLog" | "IconContainerInspect" | "IconFile" | "IconFiles";
+  | "IconContainerLog" | "IconContainerInspect" | "IconFile" | "IconFiles" |
+  "IconEdit" | "IconSave";

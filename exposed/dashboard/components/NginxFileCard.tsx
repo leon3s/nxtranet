@@ -45,6 +45,7 @@ export default function NginxFileCard(props: NginxFileCardProps) {
     >
       <Style.NginxFileCardContainer
         onClick={onClick}
+        title={data.name}
       >
         <Style.NginxFileCardIcon>
           <IconFile

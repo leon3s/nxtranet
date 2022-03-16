@@ -10,6 +10,7 @@ export const Button = Styled.button<ButtonProps>`
   border: 0px;
   cursor: pointer;
   min-width: 142px;
+  font-family: "Consolas",-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue",sans-serif !important;
   ${props => `
     box-shadow: ${props.theme.boxShadowSmooth};
     font-size: ${props.theme.text.fontSize.description};

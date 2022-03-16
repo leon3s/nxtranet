@@ -6,6 +6,7 @@ import {bindActionCreators} from 'redux';
 import DashboardContent from '~/components/DashboardContent';
 import DashboardTitle from '~/components/DashboardTitle';
 import MenuNav from '~/components/MenuNav';
+import ModalActionFetcher from '~/components/ModalActionFetcher';
 import NginxFile from '~/components/NginxFile';
 import NginxFileCard from '~/components/NginxFileCard';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
@@ -14,6 +15,8 @@ import type {State} from '~/redux/reducers';
 import {IconFiles, IconMetrix} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
 import * as Style from './DashboardNginx.s';
+import api from '~/api';
+import type {NginxSiteAvailable} from '@nxtranet/headers';
 
 const navItems = [
   {
@@ -56,43 +59,98 @@ export type DashboardNginxContainerProps = {
 } & ReturnType<typeof mapStateToProps>
   & ReturnType<typeof mapDispatchToProps>;
 
+export type DashboardNginxContainerState = {
+  currentNginxFile: NginxSiteAvailable | null;
+}
+
 class DashboardNginxContainer extends
-  React.PureComponent<DashboardNginxContainerProps> {
+  React.PureComponent<DashboardNginxContainerProps, DashboardNginxContainerState> {
+
+  state: DashboardNginxContainerState = {
+    currentNginxFile: null,
+  };
+
+  actions = [{
+    title: 'write file',
+    fn: async () => {
+      const {currentNginxFile} = this.state;
+      if (!currentNginxFile) return;
+      await api.post(`/nginx/sites-avaible/${currentNginxFile.name}/write`, currentNginxFile.content, {
+        headers: {
+          'content-type': 'text/plain',
+        },
+      });
+    }
+  },
+  {
+    title: 'test',
+    fn: async () => {
+      await api.get('/nginx/test');
+    },
+  },
+  {
+    title: 'reload',
+    fn: async () => {
+      await api.get('/nginx/reload');
+    }
+  }
+  ];
+
+  onSaveNginxFile = (nginxFile: NginxSiteAvailable) => {
+    this.setState({
+      currentNginxFile: nginxFile,
+    });
+  };
+
+  onCancelSaveNginxFile = () => {
+    this.setState({
+      currentNginxFile: null,
+    });
+  };
 
   render() {
     const {tab, files, current} = this.props;
+    const {currentNginxFile} = this.state;
     return (
-      <DashboardContent>
-        <DashboardTitle
-          title={`Nginx`}
+      <React.Fragment>
+        <ModalActionFetcher
+          isVisible={!!currentNginxFile}
+          onClose={this.onCancelSaveNginxFile}
+          actions={this.actions}
         />
-        <Style.MenuNavContainer>
-          <MenuNav
-            current={tab}
-            data={navItems}
-            baseUrl="/dashboard/nginx"
+        <DashboardContent>
+          <DashboardTitle
+            title={`Nginx`}
           />
-        </Style.MenuNavContainer>
-        {
-          tab === 'files' && !current ?
-            < Style.FilesCardContainer >
-              {
-                files.map((file) => (
-                  <NginxFileCard
-                    key={file.name}
-                    data={file}
-                  />
-                ))}
-            </Style.FilesCardContainer>
-            : null}
-        {
-          tab === 'files' && current ?
-            <NginxFile
-              data={current}
+          <Style.MenuNavContainer>
+            <MenuNav
+              current={tab}
+              data={navItems}
+              baseUrl="/dashboard/nginx"
             />
-            : null
-        }
-      </DashboardContent >
+          </Style.MenuNavContainer>
+          {
+            tab === 'files' && !current ?
+              < Style.FilesCardContainer >
+                {
+                  files.map((file) => (
+                    <NginxFileCard
+                      key={file.name}
+                      data={file}
+                    />
+                  ))}
+              </Style.FilesCardContainer>
+              : null}
+          {
+            tab === 'files' && current ?
+              <NginxFile
+                onSave={this.onSaveNginxFile}
+                data={current}
+              />
+              : null
+          }
+        </DashboardContent >
+      </React.Fragment>
     );
   }
 }

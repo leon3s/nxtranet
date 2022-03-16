@@ -7,3 +7,4 @@
 **/*.npm
 **/*.cache
 **/*.config
+node_modules

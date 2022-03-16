@@ -83,6 +83,11 @@ describe('Test nginx service', () => {
 
   it('It should reload nginx service and expose nginx-test.com', async () => {
     await client.reload();
+    await new Promise<void>((resolve) => {
+      setTimeout(async () => {
+        resolve();
+      }, 1000)
+    })
   });
 
   it('It should have nginx-test.com exposed', async () => {

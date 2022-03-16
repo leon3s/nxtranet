@@ -13,6 +13,7 @@ export const Container = Styled.div<ContainerProps>`
   min-width: 100%;
   height: 100%;
   transition: all .4s;
+  background-color: rgba(0, 0, 0, 0.42);
 ${props => `
   backdrop-filter: ${props.theme.view.backdrop.primary};
   ${props.isVisible ? `

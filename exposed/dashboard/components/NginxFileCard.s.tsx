@@ -17,6 +17,7 @@ export const NginxFileCardContainer = Styled.a`
   overflow: hidden;
   background-color: white;
   transition: all .4s;
+  max-width: calc((100% / 4) - 6px);
   min-width: calc((100% / 4) - 6px);
   box-sizing: border-box;
   @media (max-width: 1024px) {
@@ -37,13 +38,14 @@ export const NginxFileCardContainer = Styled.a`
 
 export const NginxFileCardTitleContainer = Styled.div`
   display: flex;
+  max-width: 100%;
   flex: 1;
-  width: 100%;
   height: 100%;
   flex-direction: column;
 `;
 
 export const NginxFileCardDescription = Styled.div`
+  overflow: hidden;
 `;
 
 export const NginxFileCardSubtitle = Styled(Label)`
@@ -52,4 +54,7 @@ export const NginxFileCardSubtitle = Styled(Label)`
 
 export const NginxFileCardTitle = Styled(Text)`
   margin: 0px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;

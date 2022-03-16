@@ -1,8 +1,12 @@
 import Styled from 'styled-components';
-import Text from './Text';
 
 export const NginxFileContainer = Styled.div`
+  width: 100%;
 `;
 
-export const NginxCardTitle = Styled(Text)`
+export const ActionsHeader = Styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  z-index: 10;
 `;
