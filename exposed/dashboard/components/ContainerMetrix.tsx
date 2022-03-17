@@ -18,7 +18,7 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
   const numberBlocks1 = [
     {
       title: 'Art',
-      value: data.art.toString(),
+      value: (data.art || 0).toString(),
     },
     {
       title: 'Requests Handled',
@@ -26,7 +26,6 @@ export default function ContainerMetrix(props: ContainerMetrixProps) {
     }
   ];
   const {stat} = data;
-  console.log(data);
   const {
     networks,
     cpu_stats,

@@ -27,7 +27,7 @@ export default class MetrixService {
         request_time: '$request_time'
       }).get();
     const {count: total} = await this.nginxAccessLogRepository.count({
-      proxy_host,
+      or: [{proxy_host}, {upstream_addr: proxy_host}],
     });
     if (!item) return 0;
     return Number((item.request_time / total).toFixed(3));
