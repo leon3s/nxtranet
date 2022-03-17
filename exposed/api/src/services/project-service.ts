@@ -191,6 +191,7 @@ export default
   deployCluster = async (cluster: Cluster, opts: DeployPayload): Promise<Container[]> => {
     const containersToDelete = await this.containerRepository.find({
       where: {
+        projectName: cluster.projectName,
         clusterNamespace: cluster.namespace,
       }
     });
