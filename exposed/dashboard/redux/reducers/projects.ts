@@ -10,18 +10,22 @@ import {
   CLEAR_PROJECT_PIPELINE,
   clusterDeploy,
   CLUSTER_DEPLOY,
+  createClusterEnvVar,
   createClusterPipelineLink,
   createPipelineCmd,
   createProject,
   createProjectCluster,
   createProjectPipeline,
+  CREATE_CLUSTER_ENV_VAR,
   CREATE_CLUSTER_PIPELINE_LINK,
   CREATE_PIPELINE_CMD,
   CREATE_PROJECT,
   CREATE_PROJECT_CLUSTER,
   CREATE_PROJECT_PIPELINE,
+  deleteClusterEnvVar,
   deleteClusterPipelineLink,
   deleteProjectCluster,
+  DELETE_CLUSTER_ENV_VAR,
   DELETE_CLUSTER_PIPELINE_LINK,
   DELETE_PROJECT_CLUSTER,
   getContainerMetrixByName,
@@ -294,7 +298,33 @@ const reducerHooks: ReducerHooks<ProjectsState> = {
         stat: action.payload,
       }
     })
-  }
+  },
+  [CREATE_CLUSTER_ENV_VAR.FULFILLED]:
+    (state, action: ReducerAction<typeof createClusterEnvVar>) => {
+      const {cluster} = state;
+      if (!cluster) return state;
+      return {
+        ...state,
+        cluster: {
+          ...cluster,
+          envVars: [...(cluster.envVars || []), action.payload.data],
+        }
+      };
+    },
+  [DELETE_CLUSTER_ENV_VAR.FULFILLED]:
+    (state, action: ReducerAction<typeof deleteClusterEnvVar>) => {
+      const {cluster} = state;
+      if (!cluster) return state;
+      return {
+        ...state,
+        cluster: {
+          ...cluster,
+          envVars: cluster.envVars.filter((envVar) => {
+            return envVar.id !== action.payload;
+          })
+        }
+      }
+    }
 };
 
 const reducer = createReducer<ProjectsState>(initialState, reducerHooks);

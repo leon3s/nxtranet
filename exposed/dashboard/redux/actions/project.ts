@@ -1,6 +1,6 @@
 import {
   ModelCluster,
-  ModelContainer, ModelPipeline,
+  ModelContainer, ModelEnvVar, ModelPipeline,
   ModelPipelineCmd,
   ModelProject
 } from '@nxtranet/headers';
@@ -99,6 +99,7 @@ export const getProjectClusterByName = createAction<[
       params: {
         filter: {
           include: [
+            {relation: 'gitBranch'},
             {relation: 'pipelines'},
             {
               relation: 'containers',
@@ -112,7 +113,8 @@ export const getProjectClusterByName = createAction<[
                   }
                 ]
               }
-            }
+            },
+            {relation: 'envVars'},
           ],
         }
       }
@@ -307,10 +309,10 @@ export const deleteProjectCluster = createAction<[
           }
         }
       }
-    })
+    });
     return clusterId;
   }
-)
+);
 
 export const ON_CONTAINER_NEW_OUTPUT = defineAction('ON_CONTAINER_NEW_OUTPUT');
 export const onContainerNewInput = createAction<[
@@ -324,9 +326,9 @@ export const onContainerNewInput = createAction<[
         type: ON_CONTAINER_NEW_OUTPUT.ON_EVENT,
         payload: output,
       });
-    })
+    });
   }
-)
+);
 
 export const ON_CONTAINER_STAT = defineAction('ON_CONTAINER_STAT');
 export const onContainerStat = createAction<[
@@ -341,9 +343,9 @@ export const onContainerStat = createAction<[
         type: ON_CONTAINER_STAT.ON_EVENT,
         payload: stat,
       });
-    })
+    });
   }
-)
+);
 
 export const OFF_CONTAINER_STAT = defineAction('OFF_CONTAINER_STAT');
 export const offContainerStat = createAction<[
@@ -353,7 +355,7 @@ export const offContainerStat = createAction<[
   ({ }, { }, api) => {
     api.socket.removeAllListeners(`${containerNamespace}_stat`);
   }
-)
+);
 
 export const OFF_CONTAINER_NEW_OUTPUT = defineAction('OFF_CONTAINER_NEW_OUTPUT');
 export const offContainerNewInput = createAction<[
@@ -362,5 +364,30 @@ export const offContainerNewInput = createAction<[
   OFF_CONTAINER_NEW_OUTPUT, (containerNamespace) =>
   ({ }, { }, api) => {
     api.socket.removeAllListeners(`${containerNamespace}_output`);
+  }
+);
+
+export const CREATE_CLUSTER_ENV_VAR = defineAction('CREATE_CLUSTER_ENV_VAR');
+export const createClusterEnvVar = createAction<[
+  string,
+  Omit<ModelEnvVar, 'id'>,
+], State, AxiosResponse<ModelEnvVar>>(
+  CREATE_CLUSTER_ENV_VAR, (clusterNamespace, envVar) =>
+  ({ }, { }, api) => api.post(`/clusters/${clusterNamespace}/env-vars`, envVar)
+)
+
+export const DELETE_CLUSTER_ENV_VAR = defineAction('DELETE_CLUSTER_ENV_VAR');
+export const deleteClusterEnvVar = createAction<[
+  string,
+  string
+], State, Promise<string>>(
+  DELETE_CLUSTER_ENV_VAR, (clusterNamespace, envVarID) =>
+  async ({ }, { }, api) => {
+    await api.delete(`/clusters/${clusterNamespace}/env-vars`, {
+      params: {
+        where: {id: envVarID},
+      }
+    })
+    return envVarID;
   }
 )

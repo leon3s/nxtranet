@@ -59,7 +59,7 @@ export class WebhooksController {
         },
       }],
     });
-    if (!project) throw new HttpErrors.NotAcceptable();
+    if (!project) throw new HttpErrors.NotAcceptable('Project name not matching.');
     await this.githubService.validateProjectHookReq(project, req, payload);
     const githubEvent = headers['x-github-event'];
     // Ping pong //

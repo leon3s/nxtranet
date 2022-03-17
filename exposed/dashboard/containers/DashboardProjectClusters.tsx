@@ -1,4 +1,9 @@
-import type {ModelCluster, ModelContainer, ModelPipeline} from '@nxtranet/headers';
+import type {
+  ModelCluster,
+  ModelContainer,
+  ModelEnvVar,
+  ModelPipeline,
+} from '@nxtranet/headers';
 import type {NextRouter} from 'next/router';
 import {withRouter} from 'next/router';
 import React from 'react';
@@ -9,7 +14,12 @@ import ClusterCard from '~/components/ClusterCard';
 import DashboardTitle from '~/components/DashboardTitle';
 import {ModalRelationLink} from '~/components/ModalRelationLink';
 import {openModalConfirm, openModalForm} from '~/redux/actions/modal';
-import {clearProjectCluster, createClusterPipelineLink, getProjectClusterByName, getProjects} from '~/redux/actions/project';
+import {
+  getProjects,
+  clearProjectCluster,
+  getProjectClusterByName,
+  createClusterPipelineLink,
+} from '~/redux/actions/project';
 import type {State} from '~/redux/reducers';
 import {IconPipeline, IconPlus} from '~/styles/icons';
 import {Dispatch} from '~/utils/redux';
@@ -25,10 +35,9 @@ const actions = {
 };
 
 const mapStateToProps = (state: State) => ({
-  clusters: state.projects.current.clusters,
   cluster: state.projects.cluster,
+  clusters: state.projects.current.clusters,
   isClusterPending: state.projects.isCurrentClusterPending,
-  // i: state.projects.isDataPending,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<State>) =>
@@ -56,6 +65,22 @@ class DashboardProjectClustersContainer extends
   sub = new Subject<string | null>();
 
   controller: AbortController | null = null;
+
+  componentDidMount() {
+    this.sub.pipe(
+      debounceTime(750),
+    ).subscribe((clusterName) => {
+      this.getProjectClusterByName(clusterName);
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.controller) {
+      this.controller.abort();
+      this.controller = null;
+    }
+    this.sub.unsubscribe();
+  }
 
   onClickCreateCluster = () => {
     this.props.openModalForm({
@@ -114,22 +139,6 @@ class DashboardProjectClustersContainer extends
     }
   };
 
-  componentDidMount() {
-    this.sub.pipe(
-      debounceTime(750),
-    ).subscribe((clusterName) => {
-      this.getProjectClusterByName(clusterName);
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.controller) {
-      this.controller.abort();
-      this.controller = null;
-    }
-    this.sub.unsubscribe();
-  }
-
   onCreatePipelineLink = async (pipeline: ModelPipeline) => {
     const {cluster} = this.props;
     if (!cluster) return;
@@ -183,6 +192,30 @@ class DashboardProjectClustersContainer extends
       onConfirmKey: 'deleteProjectCluster',
       onConfirmArgs: [projectName, cluster.id],
     });
+  };
+
+  onClickCreateEnvVar = () => {
+    const {cluster} = this.props;
+    if (!cluster) return;
+    this.props.openModalForm({
+      title: 'New environement variable',
+      iconKey: 'IconEnvVar',
+      formKey: 'formEnvVar',
+      formSubmitTitle: 'New',
+      formSubmitKey: 'createClusterEnvVar',
+      formSubmitArgs: [cluster.namespace],
+    });
+  }
+
+  onClickDeleteEnvVar = (envVar: ModelEnvVar) => {
+    const {cluster} = this.props;
+    if (!cluster) return;
+    this.props.openModalConfirm({
+      title: `Are you sure to delete environement variable ${envVar.key} ?`,
+      description: 'This action will delete all containers inside and it\'s not reversible.',
+      onConfirmKey: 'deleteClusterEnvVar',
+      onConfirmArgs: [cluster.namespace, envVar.id],
+    });
   }
 
   render() {
@@ -224,7 +257,9 @@ class DashboardProjectClustersContainer extends
           {(clusters || []).map((clusterRow) => (
             <ClusterCard
               key={clusterRow.id}
+              onClickCreateEnvVar={this.onClickCreateEnvVar}
               onClick={this.onClickClusterRx}
+              onClickDeleteEnvVar={this.onClickDeleteEnvVar}
               isLoading={isClusterPending}
               onClickOpenModalDelete={this.onClickDeleteCluster}
               isExtended={clusterRow.name === subtab}

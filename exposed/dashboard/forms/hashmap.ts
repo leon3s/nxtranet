@@ -4,5 +4,6 @@ export * from './envVar';
 export * from './pipeline';
 export * from './project';
 
-export type FormHashmapKey = "formCluster" | "formContainerDeploy" |
-  "formProject" | "formPipeline" | "formPipelineCmd" | "formContainerDeploy";
+export type FormHashmapKey = "formCluster" | "formContainerDeploy"
+  | "formProject" | "formPipeline" | "formPipelineCmd" | "formContainerDeploy"
+  | "formEnvVar";

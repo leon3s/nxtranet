@@ -13,6 +13,7 @@ import ActionBar, {ActionWrapper} from './ActionBar';
 import * as CardTitle from './CardTitle';
 import * as Style from './ClusterCard.s';
 import ContainerCard from './ContainerCard';
+import EnvVar from './EnvVar';
 import InfoRow from './InfoRow';
 import ItemRounded from './ItemRounded';
 import LoadingBackground from './LoadingBackground';
@@ -27,7 +28,7 @@ export type ClusterCardProps = {
   onClickDeleteEnvVar?: (data: ModelEnvVar) => void;
   onClickDeleteContainer?: (data: ModelContainer) => void;
   onClickEditEnvVar?: (data: ModelEnvVar) => void;
-  onClickCreateEnvVar?: (namespace: string) => void;
+  onClickCreateEnvVar?: () => void;
   onClickCreateContainer?: () => void;
   onClickNewContainer?: () => void;
   onClickNewPipelineLink?: (data: ModelCluster) => void;
@@ -68,6 +69,8 @@ const defaultProps = {
 
 function ClusterCard(props: ClusterCardProps) {
   const {
+    onClickDeleteEnvVar,
+    onClickEditEnvVar,
     isExtended,
     isVisible,
     isLoading,
@@ -82,7 +85,7 @@ function ClusterCard(props: ClusterCardProps) {
   }
 
   function onClickCreateEnvVar() {
-    // props.onClickCreateEnvVar(data.namespace);
+    props.onClickCreateEnvVar && props.onClickCreateEnvVar();
   }
 
   function onClickNewPipelineLink() {
@@ -239,14 +242,14 @@ function ClusterCard(props: ClusterCardProps) {
                   </ActionWrapper>
                 </CardTitle.CardTitleContainer>
                 <Style.ClusterLine>
-                  {/* {data?.envVars?.map((envVar) => (
+                  {data?.envVars?.map((envVar) => (
                     <EnvVar
                       data={envVar}
                       key={envVar.id}
                       onClickEdit={onClickEditEnvVar}
                       onClickDelete={onClickDeleteEnvVar}
                     />
-                  ))} */}
+                  ))}
                 </Style.ClusterLine>
                 <CardTitle.CardTitleContainer>
                   <CardTitle.CardTitleText>
