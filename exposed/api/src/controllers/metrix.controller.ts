@@ -297,7 +297,11 @@ export class MetrixController {
 
     const art = await this.metrixService.getArtForProxyHost(proxy_host);
     const {count} = await this.nginxAccessLogRepository.count({
-      proxy_host,
+      or: [{
+        proxy_host,
+      }, {
+        upstream_addr: proxy_host,
+      }]
     });
     const rsc = await this.metrixService.getRscForProxyHost(proxy_host);
     return {

@@ -16,7 +16,7 @@ export default class MetrixService {
     const [item] = await this.nginxAccessLogCollection
       .aggregate()
       .match({
-        proxy_host,
+        $or: [{proxy_host}, {upstream_addr: proxy_host}],
       })
       .group({
         _id: '',
@@ -85,7 +85,7 @@ export default class MetrixService {
       .aggregate()
       .match({
         status: {$exists: true},
-        proxy_host,
+        $or: [{proxy_host}, {upstream_addr: proxy_host}],
       })
       .group({
         _id: "$status",
