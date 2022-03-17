@@ -88,7 +88,8 @@ const createNxtranetDpContainer = (opts: NxtranetDpContainerOpts): Promise<Conta
             "HostPort": `${deployerPort}/tcp`,
           }
         ],
-      }
+      },
+      Dns: ['192.168.42.1'],
     }
   });
 };
