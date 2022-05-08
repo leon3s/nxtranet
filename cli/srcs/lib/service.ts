@@ -11,7 +11,7 @@ export async function build(service: ServiceDef, envs?: string[]) {
     'run',
     'build'
   ], {
-    stdio: ['ignore', 'ignore', process.stderr],
+    stdio: ['ignore', process.stdout, process.stderr],
     cwd: service.path,
   });
 }

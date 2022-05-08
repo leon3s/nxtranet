@@ -1,9 +1,10 @@
 import {ApplicationConfig} from './application';
-import {ExpressServer} from './server';
+import {ServerApi} from './server';
 export * from './application';
+export * from './server';
 
 export async function main(options: ApplicationConfig = {}) {
-  const app = new ExpressServer(options);
+  const app = new ServerApi(options);
   await app.boot();
   await app.start();
 

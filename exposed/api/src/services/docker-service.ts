@@ -43,6 +43,10 @@ export
     this._client.connect();
   }
 
+  waitConnection = async () => {
+    await this._client.waitConnection();
+  }
+
   disconnect = () => {
     this._client.disconnect();
   }

@@ -1,32 +1,39 @@
 import {
   Client,
-  createRestAppClient,
-  givenHttpServerConfig
+  givenHttpServerConfig,
+  supertest
 } from '@loopback/testlab';
-import {NextranetApi} from '../..';
+import {NextranetApi, ServerApi} from '../..';
+import {service as dockerService} from '../../../../../internal/docker';
+import {service as nginxService} from '../../../../../internal/nginx';
+import {service as dnsmasqService} from '../../../../../internal/dnsmasq';
+import {service as systemService} from '../../../../../internal/system';
+
+export async function setupServices() {
+  await dockerService.prepare();
+  await nginxService.prepare();
+  await dnsmasqService.prepare();
+  await systemService.prepare();
+}
+
+export async function stopServices() {
+  await dockerService.close();
+  await nginxService.close();
+  await dnsmasqService.close();
+  await systemService.close();
+}
 
 export async function setupApplication(): Promise<AppWithClient> {
-  const restConfig = givenHttpServerConfig({
-    // Customize the server configuration here.
-    // Empty values (undefined, '') will be ignored by the helper.
-
-    // host: process.env.HOST,
-    // port: 1444,
-  });
-
-  const app = new NextranetApi({
-    rest: restConfig,
-  });
-
-  await app.boot();
-  await app.start();
-
-  const client = createRestAppClient(app);
-
-  return {app, client};
+  const server = new ServerApi({rest: givenHttpServerConfig()});
+  await server.boot();
+  await server.start();
+  const app = server.lbApp;
+  const client = supertest(server.app);
+  return {server, client, app};
 }
 
 export interface AppWithClient {
-  app: NextranetApi;
+  server: ServerApi;
   client: Client;
+  app: NextranetApi;
 }

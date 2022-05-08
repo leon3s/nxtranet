@@ -16,7 +16,7 @@ const generateIoClass = (_io: io.Server) => {
   return IoService;
 }
 
-export class ExpressServer {
+export class ServerApi {
   public readonly app: express.Application;
   public readonly lbApp: NextranetApi;
   private server: http.Server;

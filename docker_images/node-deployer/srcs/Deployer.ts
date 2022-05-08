@@ -191,7 +191,18 @@ export default class Deployer {
   }
 
   private _startDeploy = async (cluster: ModelCluster, branch: string) => {
-    this.projectDir = await this._dwExProject(cluster, branch);
+    try {
+      this.projectDir = await this._dwExProject(cluster, branch);
+    } catch (e) {
+      this._emitAction('cmd', {
+        exe: 'dw',
+        isFirst: false,
+        isLast: true,
+        cwd: process.cwd(),
+        args: ['branch', branch],
+        stderr: e.message,
+      });
+    }
     const clusterData = this._extractClusterData(cluster);
     const {pipelines, envVars, lastCommand} = clusterData;
     await this.launchPipelines(this.projectDir, pipelines, envVars);

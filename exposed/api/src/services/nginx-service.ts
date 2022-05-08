@@ -43,6 +43,10 @@ export
     this._client.connect();
   }
 
+  waitConnection = async () => {
+    await this._client.waitConnection();
+  }
+
   formatCacheName(name: string) {
     return `cache_${name}`;
   }

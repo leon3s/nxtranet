@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
 
 type GithubCredential = {
-  username:     string;
-  password:     string;
+  username: string;
+  password: string;
 }
 
 const githubApi = axios.create({
@@ -21,16 +21,14 @@ export default class ProjectDownloader {
   github = async (credentials: GithubCredential, projectName: string, branch: string) => {
     const response = await githubApi.get(
       `/repos/${credentials.username}/${projectName}/tarball/${branch}`, {
-        responseType: 'stream',
-        auth: credentials,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      },
-    );
-    /* is empty sometime for some reason ? */
-    // const fileSize = parseInt(response.headers['content-length']);
-    const fileName = response.headers['content-disposition'].replace(/\&*.*filename=/g, '');
+      responseType: 'stream',
+      auth: credentials,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    });
+    const fileName = response.headers['content-disposition']
+      .replace(/\&*.*filename=/g, '');
     const filePath = path.join(this.tmpDirPath, fileName);
     const writer = fs.createWriteStream(filePath);
     response.data.pipe(writer);

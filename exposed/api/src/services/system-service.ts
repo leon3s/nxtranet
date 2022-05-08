@@ -20,6 +20,10 @@ export
     this._client.disconnect();
   }
 
+  waitConnection = async () => {
+    await this._client.waitConnection();
+  }
+
   getDiskInfo = () => this._client.diskInfo();
 
   getNetworkInterfaces = () => this._client.osNetworkInterfaces();

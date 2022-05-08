@@ -1,11 +1,10 @@
-FROM ubuntu:latest
+FROM ubuntu:21.10
 
 USER root
 WORKDIR /root
 
-# Uncomment to set specific timezone
-# ENV TZ=America/New_York
-# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ENV TZ=Europe/Paris
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install dependencies
 RUN apt-get update
@@ -56,9 +55,8 @@ RUN sudo service nginx start
 RUN sudo service mongodb start
 RUN sudo service dnsmasq start
 RUN sudo apt-get install docker -y
-RUN sudo cat /etc/os-release
-RUN sudo service docker start
-RUN sudo nxtranet test
 
 EXPOSE 80/tcp
 EXPOSE 53/udp
+
+CMD nohup dockerd >/dev/null 2>&1 & sleep 10 && sudo nxtranet install && sudo nxtranet test

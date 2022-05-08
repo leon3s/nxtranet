@@ -50,7 +50,8 @@ async function main() {
   const [{ }, { }, type, name] = process.argv;
   const fn = types[type];
   if (!fn) {
-    console.error(`Build script argument ${type} invalid.`);
+    console.error(`build script argument ${type} invalid.`);
+    console.error(`try \`nxtranet build service\` or \`nxtranet build package\``);
     process.exit(1);
   }
   await fn(name);

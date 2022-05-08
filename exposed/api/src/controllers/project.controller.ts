@@ -57,13 +57,18 @@ export class ProjectController {
         'application/json': {
           schema: getModelSchemaRef(Project, {
             title: 'NewProject',
-            exclude: ['id', 'github_webhook', 'github_webhook_secret'],
+            exclude: ['id', 'creationDate', 'github_webhook', 'github_webhook_secret'],
+            optional: ['github_password'],
+            partial: true,
           }),
         },
       },
     })
     project: Omit<Project, 'id'>,
   ): Promise<Project> {
+    if (!project.github_password) {
+      project.github_password = '';
+    }
     project.github_webhook = `/webhooks/github/${project.name}`;
     project.github_webhook_secret = `nxtwh_${crypto.randomBytes(6).toString('hex')}`;
     let projectDB = null;

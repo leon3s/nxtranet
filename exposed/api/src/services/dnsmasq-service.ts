@@ -15,6 +15,10 @@ export class DnsmasqService {
     client.connect()
   }
 
+  waitConnection = async () => {
+    await this._client.waitConnection();
+  }
+
   disconnect = () => {
     client.disconnect();
   }

@@ -55,7 +55,6 @@ export class Project extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
   github_password: string;
 

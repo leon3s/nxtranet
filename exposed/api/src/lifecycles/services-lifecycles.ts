@@ -28,9 +28,13 @@ export default class ServiceLifecycle implements LifeCycleObserver {
     @inject(DnsmasqServiceBindings.DNSMASQ_SERVICE) dnsmasqServcice: DnsmasqService,
   ) {
     nginxService.connect();
+    await nginxService.waitConnection();
     systemService.connect();
+    await systemService.waitConnection();
     dockerService.connect();
+    await dockerService.waitConnection();
     dnsmasqServcice.connect();
+    await dnsmasqServcice.waitConnection();
   }
 
   async start(

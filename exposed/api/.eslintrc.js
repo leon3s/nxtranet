@@ -11,5 +11,8 @@ module.exports = {
       2
     ]
   },
+  parserOptions: {
+    project: "./tsconfig.json"
+  },
   ignorePatterns: ["/src/__tests__"]
 };

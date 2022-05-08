@@ -17,6 +17,14 @@ export function connect() {
   return client;
 }
 
+export function waitConnection() {
+  return new Promise<void>((resolve) => {
+    client.socket.on('connect', () => {
+      resolve();
+    });
+  });
+}
+
 export function disconnect() {
   client.socket.disconnect();
 }

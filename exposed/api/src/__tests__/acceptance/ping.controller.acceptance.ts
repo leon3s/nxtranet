@@ -1,24 +1,25 @@
 import {Client, expect} from '@loopback/testlab';
-import {NextranetApi} from '../..';
-import {setupApplication} from './test-helper';
+import {setupApplication, setupServices, stopServices} from './test-helper';
+import type {ServerApi} from '../..';
 
 describe('PingController', () => {
-  let app: NextranetApi;
+  let server: ServerApi;
   let client: Client;
 
   before('setupApplication', async function () {
     this.timeout(50000);
-    ({app, client} = await setupApplication());
+    await setupServices();
+    ({server, client} = await setupApplication());
   });
 
   after(async function () {
     this.timeout(50000);
-    await app.stop();
+    await stopServices();
+    await server.stop();
   });
 
   it('invokes GET /ping', async function () {
     this.timeout(50000);
-    const res = await client.get('/ping?msg=world').expect(200);
-    expect(res.body).to.containEql({greeting: 'Hello from LoopBack'});
+    const res = await client.get('/ping').expect(200);
   });
 });

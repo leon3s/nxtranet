@@ -122,7 +122,6 @@ export const deleteSite = (filename: string): Promise<void> => {
 
 export const watchAccessLog = (callback = (err: Error | null, s?: NginxAccessLog) => { }) => {
   fs.watch(accessLogDir, async (eventType, filename) => {
-    console.log(eventType, filename);
     if (eventType === 'change' && filename === 'access.log') {
       try {
         const lastLine = await execa('tail', ['-n', '1', accessLogPath]);
