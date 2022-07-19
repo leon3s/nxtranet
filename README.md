@@ -1,12 +1,12 @@
 # NXTRANET
 
-Unlock all control of your network using nxtranet
+Unlock control of your network using nxtranet
 
 Setup and configure personal vpn dns and automaticaly test, deploy and scale your nodejs projects.
 
 ## State
 
-Currently in alpha release, production release will appear as soon as authentication and loggin is fully setup and tested.
+Project moved to [nanocl](https://github.com/leon3s/nanocl)
 
 ## Compatibility
 
